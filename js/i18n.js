@@ -56,6 +56,7 @@ const translations = {
     // Chapter 3
     ch3_instruction: "Hier siehst du radioaktive Atome. Klicke auf 'Start', um die Zeit vergehen zu lassen. Die Kurve zeigt, wie viele Atome noch übrig sind.",
     start_decay: "Zerfall starten",
+    reset: "Zurücksetzen",
     time: "Zeit:",
     remaining: "Übrige Atome:",
     halflife: "Halbwertszeit:",
@@ -75,6 +76,7 @@ const translations = {
     hospital: "Krankenhaus (Röntgen)",
     npp: "Kernkraftwerk",
     waste: "Atommüll-Endlager",
+    close: "Schließen",
     hospital_desc: "Strahlung hilft in der Medizin, z.B. beim Röntgen, um Knochenbrüche zu sehen, oder um Krebs zu behandeln.",
     npp_desc: "Kernkraftwerke erzeugen viel Strom ohne CO2, aber ein Unfall kann weite Gebiete radioaktiv verseuchen.",
     waste_desc: "Radioaktiver Müll strahlt noch tausende Jahre und muss extrem sicher gelagert werden."
@@ -136,6 +138,7 @@ const translations = {
     // Chapter 3
     ch3_instruction: "Here you see radioactive atoms. Click 'Start' to let time pass. The curve shows how many atoms are left.",
     start_decay: "Start Decay",
+    reset: "Reset",
     time: "Time:",
     remaining: "Remaining Atoms:",
     halflife: "Half-life:",
@@ -155,6 +158,7 @@ const translations = {
     hospital: "Hospital (X-Ray)",
     npp: "Nuclear Power Plant",
     waste: "Nuclear Waste Storage",
+    close: "Close",
     hospital_desc: "Radiation helps in medicine, e.g., X-rays to see broken bones or to treat cancer.",
     npp_desc: "Nuclear power plants generate electricity without CO2, but an accident can contaminate large areas.",
     waste_desc: "Radioactive waste emits radiation for thousands of years and must be stored extremely safely."
@@ -216,6 +220,7 @@ const translations = {
     // Chapter 3
     ch3_instruction: "Тут ти бачиш радіоактивні атоми. Натисни 'Почати', щоб час пішов. Крива показує, скільки атомів залишилося.",
     start_decay: "Почати розпад",
+    reset: "Скинути",
     time: "Час:",
     remaining: "Атомів залишилось:",
     halflife: "Період напіврозпаду:",
@@ -235,6 +240,7 @@ const translations = {
     hospital: "Лікарня (Рентген)",
     npp: "Атомна електростанція",
     waste: "Сховище ядерних відходів",
+    close: "Закрити",
     hospital_desc: "Випромінювання допомагає в медицині, наприклад, рентген, щоб побачити переломи або лікувати рак.",
     npp_desc: "АЕС виробляють електроенергію без CO2, але аварія може забруднити великі території.",
     waste_desc: "Радіоактивні відходи випромінюють тисячі років і повинні зберігатися дуже надійно."
