@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radioaktivität & Kernenergie</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <div class="language-selector">
+            <select onchange="setLanguage(this.value)">
+                <option value="de">Deutsch</option>
+                <option value="en">English</option>
+                <option value="uk">Українська</option>
+            </select>
+        </div>
+        <div class="points-display">
+            <span data-i18n="points">Punkte:</span> <span id="points-display">0</span>
+        </div>
+    </header>
+
+    <div class="container">
+        <h1 data-i18n="title">Radioaktivität & Kernenergie</h1>
+        <h2 data-i18n="subtitle">Ein interaktives Lernspiel</h2>
+
+        <div class="menu-grid" id="menu-grid">
+            <a href="chapter1.html" class="menu-card" id="card-ch1">
+                <div class="card-content">
+                    <h3 data-i18n="ch1_title">1. Atombau & Isotope</h3>
+                    <p data-i18n="ch1_desc">Baue ein Atom und lerne, was Isotope sind.</p>
+                </div>
+                <div class="card-icon">⚛️</div>
+            </a>
+
+            <a href="chapter2.html" class="menu-card" id="card-ch2">
+                <div class="card-content">
+                    <h3 data-i18n="ch2_title">2. Strahlung</h3>
+                    <p data-i18n="ch2_desc">Entdecke Alpha-, Beta- und Gammastrahlung.</p>
+                </div>
+                <div class="card-icon">☢️</div>
+            </a>
+
+            <a href="chapter3.html" class="menu-card" id="card-ch3">
+                <div class="card-content">
+                    <h3 data-i18n="ch3_title">3. Halbwertszeit</h3>
+                    <p data-i18n="ch3_desc">Beobachte, wie Atome zerfallen.</p>
+                </div>
+                <div class="card-icon">⏱️</div>
+            </a>
+
+            <a href="chapter4.html" class="menu-card" id="card-ch4">
+                <div class="card-content">
+                    <h3 data-i18n="ch4_title">4. Kernspaltung</h3>
+                    <p data-i18n="ch4_desc">Steuere einen Mini-Reaktor.</p>
+                </div>
+                <div class="card-icon">🏭</div>
+            </a>
+
+            <a href="chapter5.html" class="menu-card" id="card-ch5">
+                <div class="card-content">
+                    <h3 data-i18n="ch5_title">5. Anwendungen & Risiken</h3>
+                    <p data-i18n="ch5_desc">Medizin, Energie und Gefahren.</p>
+                </div>
+                <div class="card-icon">🏥</div>
+            </a>
+        </div>
+    </div>
+
+    <script src="js/i18n.js"></script>
+    <script src="js/state.js"></script>
+    <script>
+        // Update language selector based on saved lang
+        document.addEventListener('DOMContentLoaded', () => {
+            const select = document.querySelector('select');
+            select.value = currentLang;
+
+            // Highlight completed chapters
+            if (gameState.completedChapters.includes('ch1')) document.getElementById('card-ch1').classList.add('completed');
+            if (gameState.completedChapters.includes('ch2')) document.getElementById('card-ch2').classList.add('completed');
+            if (gameState.completedChapters.includes('ch3')) document.getElementById('card-ch3').classList.add('completed');
+            if (gameState.completedChapters.includes('ch4')) document.getElementById('card-ch4').classList.add('completed');
+            if (gameState.completedChapters.includes('ch5')) document.getElementById('card-ch5').classList.add('completed');
+        });
+    </script>
+</body>
+</html>

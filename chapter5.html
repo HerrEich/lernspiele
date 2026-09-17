@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="ch5_title">5. Anwendungen & Risiken</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .info-panel {
+            display: none;
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            max-width: 400px;
+            text-align: center;
+        }
+        .info-panel h3 { margin-top: 0; color: #2c3e50; }
+        .info-panel p { color: #333; font-size: 0.9em; }
+        .close-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="chapter-container">
+        <header>
+            <div>
+                <a href="index.html" class="btn back-btn" data-i18n="back_to_menu">Zurück zum Menü</a>
+                <span data-i18n="ch5_title">5. Anwendungen & Risiken</span>
+            </div>
+            <div class="language-selector">
+                <select onchange="setLanguage(this.value)">
+                    <option value="de">Deutsch</option>
+                    <option value="en">English</option>
+                    <option value="uk">Українська</option>
+                </select>
+            </div>
+            <div class="points-display">
+                <span data-i18n="points">Punkte:</span> <span id="points-display">0</span>
+            </div>
+        </header>
+
+        <div class="scene-container" id="canvas-container">
+            <!-- UI Overlay Left -->
+            <div class="ui-overlay">
+                <p data-i18n="ch5_instruction">Klicke auf die verschiedenen Bereiche, um mehr über Anwendungen und Risiken zu lernen.</p>
+
+                <!-- Quick jump buttons for students who struggle with 3D clicking -->
+                <div style="display:flex; flex-direction:column; gap:10px; margin-top:20px;">
+                    <button class="btn" onclick="focusOn('hospital')" style="background-color: #3498db;" data-i18n="hospital">Krankenhaus (Röntgen)</button>
+                    <button class="btn" onclick="focusOn('npp')" style="background-color: #2ecc71;" data-i18n="npp">Kernkraftwerk</button>
+                    <button class="btn" onclick="focusOn('waste')" style="background-color: #e67e22;" data-i18n="waste">Atommüll-Endlager</button>
+                </div>
+            </div>
+
+            <!-- Info Panel -->
+            <div id="info-panel" class="info-panel">
+                <h3 id="info-title">Title</h3>
+                <p id="info-desc">Description</p>
+                <button class="close-btn" onclick="closeInfo()">Schließen</button>
+            </div>
+
+            <button class="btn start-quiz-btn" onclick="startQuiz('ch5')" data-i18n="start_quiz">Quiz Starten</button>
+        </div>
+    </div>
+
+    <!-- Quiz Modal -->
+    <div id="quiz-container">
+        <div id="quiz-content"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="lib/three.min.js"></script>
+    <script src="lib/OrbitControls.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/state.js"></script>
+    <script src="js/quiz.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const select = document.querySelector('select');
+            select.value = currentLang;
+            updateTexts();
+            updateUI();
+        });
+
+        // --- Three.js Setup ---
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x87CEEB); // Sky blue
+
+        // Simple ground
+        const groundGeo = new THREE.PlaneGeometry(100, 100);
+        const groundMat = new THREE.MeshPhongMaterial({ color: 0x27ae60 }); // Green grass
+        const ground = new THREE.Mesh(groundGeo, groundMat);
+        ground.rotation.x = -Math.PI / 2;
+        scene.add(ground);
+
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / (window.innerHeight - 60), 0.1, 1000);
+        camera.position.set(0, 15, 30);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight - 60);
+        // Enable shadows
+        renderer.shadowMap.enabled = true;
+        ground.receiveShadow = true;
+        container.appendChild(renderer.domElement);
+
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.maxPolarAngle = Math.PI / 2 - 0.05; // Don't go below ground
+
+        // Lights
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+        scene.add(ambientLight);
+
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        dirLight.position.set(10, 20, 10);
+        dirLight.castShadow = true;
+        scene.add(dirLight);
+
+        // --- Scene Objects (Clickable) ---
+        const interactables = [];
+
+        function createBuilding(type, color, x, z, scale = 1) {
+            const group = new THREE.Group();
+            group.position.set(x, 0, z);
+
+            let mesh;
+            if (type === 'hospital') {
+                // Main building
+                const geo = new THREE.BoxGeometry(4*scale, 4*scale, 4*scale);
+                const mat = new THREE.MeshPhongMaterial({ color: color });
+                mesh = new THREE.Mesh(geo, mat);
+                mesh.position.y = 2*scale;
+                group.add(mesh);
+
+                // Red Cross on top
+                const crossGeo1 = new THREE.BoxGeometry(2*scale, 0.5*scale, 0.5*scale);
+                const crossMat = new THREE.MeshPhongMaterial({ color: 0xe74c3c });
+                const cross1 = new THREE.Mesh(crossGeo1, crossMat);
+                cross1.position.y = 4.25*scale;
+                group.add(cross1);
+                const cross2 = new THREE.Mesh(crossGeo1, crossMat);
+                cross2.rotation.y = Math.PI/2;
+                cross2.position.y = 4.25*scale;
+                group.add(cross2);
+
+            } else if (type === 'npp') {
+                // Reactor dome
+                const domeGeo = new THREE.SphereGeometry(3*scale, 16, 16, 0, Math.PI*2, 0, Math.PI/2);
+                const domeMat = new THREE.MeshPhongMaterial({ color: color });
+                const dome = new THREE.Mesh(domeGeo, domeMat);
+                dome.position.y = 3*scale;
+                group.add(dome);
+
+                const baseGeo = new THREE.CylinderGeometry(3*scale, 3*scale, 3*scale, 16);
+                const base = new THREE.Mesh(baseGeo, domeMat);
+                base.position.y = 1.5*scale;
+                group.add(base);
+
+                // Cooling tower
+                const towerGeo = new THREE.CylinderGeometry(1.5*scale, 2.5*scale, 5*scale, 16);
+                const tower = new THREE.Mesh(towerGeo, new THREE.MeshPhongMaterial({color: 0x7f8c8d}));
+                tower.position.set(4*scale, 2.5*scale, -2*scale);
+                group.add(tower);
+
+                // Quick visual hack for tower shape (hyperboloid-ish)
+                tower.scale.set(1, 1, 1);
+
+            } else if (type === 'waste') {
+                // Concrete storage block
+                const geo = new THREE.BoxGeometry(6*scale, 2*scale, 6*scale);
+                const mat = new THREE.MeshPhongMaterial({ color: color });
+                mesh = new THREE.Mesh(geo, mat);
+                mesh.position.y = 1*scale;
+                group.add(mesh);
+
+                // Yellow barrels (Warning)
+                const barrelGeo = new THREE.CylinderGeometry(0.3*scale, 0.3*scale, 0.8*scale, 16);
+                const barrelMat = new THREE.MeshPhongMaterial({ color: 0xf1c40f });
+
+                for(let i=0; i<3; i++) {
+                    const b = new THREE.Mesh(barrelGeo, barrelMat);
+                    b.position.set(-1.5*scale + i*scale, 2.4*scale, 0);
+                    group.add(b);
+                }
+            }
+
+            // Hitbox for raycasting
+            const boxGeo = new THREE.BoxGeometry(8*scale, 8*scale, 8*scale);
+            const hitBox = new THREE.Mesh(boxGeo, new THREE.MeshBasicMaterial({visible:false}));
+            hitBox.position.y = 4*scale;
+            hitBox.userData = { type: type };
+            group.add(hitBox);
+            interactables.push(hitBox);
+
+            // Shadows
+            group.traverse(child => {
+                if(child.isMesh) {
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                }
+            });
+
+            scene.add(group);
+            return group;
+        }
+
+        const hospitalObj = createBuilding('hospital', 0xecf0f1, -10, -5, 1);
+        const nppObj = createBuilding('npp', 0xbdc3c7, 10, -10, 1.2);
+        const wasteObj = createBuilding('waste', 0x95a5a6, 0, 10, 0.8);
+
+        // --- Interaction Logic ---
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        function onMouseClick(event) {
+            // Calculate mouse position
+            const rect = renderer.domElement.getBoundingClientRect();
+            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(interactables);
+
+            if (intersects.length > 0) {
+                const type = intersects[0].object.userData.type;
+                focusOn(type);
+            }
+        }
+        renderer.domElement.addEventListener('click', onMouseClick);
+
+        function focusOn(type) {
+            let targetPos;
+            if(type === 'hospital') targetPos = new THREE.Vector3(-10, 0, -5);
+            if(type === 'npp') targetPos = new THREE.Vector3(10, 0, -10);
+            if(type === 'waste') targetPos = new THREE.Vector3(0, 0, 10);
+
+            // Simple camera move (hard jump for simplicity, lerp could be added)
+            camera.position.set(targetPos.x, targetPos.y + 10, targetPos.z + 15);
+            controls.target.copy(targetPos);
+
+            showInfo(type);
+        }
+
+        function showInfo(type) {
+            const panel = document.getElementById('info-panel');
+            const title = document.getElementById('info-title');
+            const desc = document.getElementById('info-desc');
+
+            title.innerText = t(type);
+            desc.innerText = t(type + '_desc');
+
+            panel.style.display = 'block';
+
+            // Reward for exploration
+            addPoints(5);
+        }
+
+        function closeInfo() {
+            document.getElementById('info-panel').style.display = 'none';
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / (window.innerHeight - 60);
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight - 60);
+        });
+
+        // Animation
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
+    </script>
+</body>
+</html>
