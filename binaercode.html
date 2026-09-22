@@ -1,0 +1,5351 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Binärcode, Bits & Bytes – Interaktiver Informatik-Simulator</title>
+  <style>
+    /* ==========================================================================
+       CYBER-TECH & BINARY THEME (CSS3)
+       Entwickelt für Informatikunterricht Klasse 8, Smartboards & Tablets
+       ========================================================================== */
+    :root {
+      --bg-dark: #090d16;
+      --bg-card: rgba(17, 24, 39, 0.85);
+      --bg-card-border: rgba(56, 189, 248, 0.25);
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --cyber-cyan: #00f0ff;
+      --cyber-blue: #38bdf8;
+      --matrix-green: #10b981;
+      --matrix-green-glow: rgba(16, 185, 129, 0.4);
+      --bit-on-color: #22c55e;
+      --bit-on-glow: rgba(34, 197, 94, 0.5);
+      --bit-on-card: #fef08a;
+      --bit-on-card-border: #eab308;
+      --bit-off-color: #64748b;
+      --bit-off-bg: #1e293b;
+      --accent-gold: #f59e0b;
+      --accent-purple: #a855f7;
+      --radius-lg: 16px;
+      --radius-md: 10px;
+      --radius-sm: 6px;
+      --font-mono: "Fira Code", "Courier New", Consolas, monospace;
+      --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 50% 10%, rgba(0, 240, 255, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.06) 0%, transparent 40%),
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 36px 36px, 36px 36px;
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 14px 14px 40px;
+    }
+
+    /* Container */
+    .app-container {
+      width: 100%;
+      max-width: 1240px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Header & Navigation Bar */
+    header {
+      background: var(--bg-card);
+      border: 1px solid var(--bg-card-border);
+      border-radius: var(--radius-lg);
+      padding: 16px 22px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      font-size: 2.2rem;
+      background: linear-gradient(135deg, var(--cyber-cyan), var(--matrix-green));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.4));
+    }
+
+    .brand-titles h1 {
+      font-size: 1.45rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      background: linear-gradient(90deg, #ffffff, var(--cyber-cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-titles .subtitle {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .grade-badge {
+      background: rgba(0, 240, 255, 0.15);
+      color: var(--cyber-cyan);
+      border: 1px solid rgba(0, 240, 255, 0.4);
+      padding: 1px 7px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    /* Header Controls */
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn-header {
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      color: var(--text-main);
+      padding: 8px 14px;
+      border-radius: var(--radius-md);
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-header:hover {
+      background: rgba(51, 65, 85, 0.9);
+      border-color: var(--cyber-cyan);
+      transform: translateY(-1px);
+    }
+
+    .btn-header.active {
+      background: rgba(0, 240, 255, 0.15);
+      border-color: var(--cyber-cyan);
+      color: var(--cyber-cyan);
+    }
+
+    /* ==========================================================================
+       CHAPTER PROGRESSION SYSTEM (Schrittweise Freischaltung)
+       ========================================================================== */
+    .chapter-nav-card {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: var(--radius-lg);
+      padding: 12px 18px;
+      backdrop-filter: blur(10px);
+    }
+
+    .chapter-nav-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--cyber-cyan);
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .chapter-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    @media (max-width: 768px) {
+      .chapter-tabs {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .chapter-tab-btn {
+      background: rgba(30, 41, 59, 0.7);
+      border: 2px solid rgba(100, 116, 139, 0.3);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      text-align: left;
+    }
+
+    .chapter-tab-btn .tab-info {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .chapter-tab-btn .tab-num {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+    }
+
+    .chapter-tab-btn .tab-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .chapter-tab-btn .tab-status {
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 32px;
+    }
+
+    .chapter-tab-btn:hover:not(.locked) {
+      border-color: var(--cyber-cyan);
+      background: rgba(30, 41, 59, 0.95);
+      transform: translateY(-2px);
+    }
+
+    .chapter-tab-btn.active {
+      border-color: var(--cyber-cyan);
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.12), rgba(16, 185, 129, 0.08));
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
+    }
+
+    .chapter-tab-btn.active .tab-num {
+      color: var(--cyber-cyan);
+    }
+
+    .chapter-tab-btn.locked {
+      cursor: not-allowed;
+      opacity: 0.55;
+      background: rgba(15, 23, 42, 0.6);
+      border-style: dashed;
+    }
+
+    .chapter-tab-btn.completed {
+      border-color: var(--matrix-green);
+    }
+
+    .chapter-tab-btn.completed .tab-num {
+      color: var(--matrix-green);
+    }
+
+    /* ==========================================================================
+       CS UNPLUGGED SIMULATOR (8 BIT-MÄNNCHEN)
+       ========================================================================== */
+    .simulator-stage {
+      background: var(--bg-card);
+      border: 1px solid var(--bg-card-border);
+      border-radius: var(--radius-lg);
+      padding: 24px 20px 20px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      position: relative;
+    }
+
+    .stage-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 12px;
+    }
+
+    .stage-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--cyber-cyan);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .byte-info-chip {
+      background: rgba(0, 240, 255, 0.08);
+      border: 1px solid rgba(0, 240, 255, 0.2);
+      border-radius: 999px;
+      padding: 4px 12px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    .byte-info-chip strong {
+      color: var(--cyber-cyan);
+    }
+
+    /* 8 Bits Grid */
+    .bits-grid {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 10px;
+      width: 100%;
+      user-select: none;
+    }
+
+    @media (max-width: 880px) {
+      .bits-grid {
+        gap: 6px;
+      }
+    }
+
+    /* Bit Column Card */
+    .bit-column {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: rgba(15, 23, 42, 0.7);
+      border: 2px solid rgba(100, 116, 139, 0.25);
+      border-radius: var(--radius-md);
+      padding: 10px 4px 12px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+      touch-action: manipulation;
+    }
+
+    .bit-column:hover {
+      transform: translateY(-4px);
+      border-color: rgba(56, 189, 248, 0.6);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .bit-column:active {
+      transform: scale(0.96);
+    }
+
+    /* Highlight Pulse for Hints */
+    .bit-column.highlight-hint {
+      animation: hint-pulse 1.2s infinite alternate;
+      border-color: var(--accent-gold) !important;
+      box-shadow: 0 0 25px rgba(245, 158, 11, 0.6) !important;
+    }
+
+    @keyframes hint-pulse {
+      0% {
+        transform: translateY(-3px) scale(1);
+        box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+      }
+      100% {
+        transform: translateY(-8px) scale(1.05);
+        box-shadow: 0 0 30px rgba(245, 158, 11, 0.9);
+      }
+    }
+
+    /* State 1: Active */
+    .bit-column.is-on {
+      border-color: var(--bit-on-color);
+      background: linear-gradient(180deg, rgba(34, 197, 94, 0.12) 0%, rgba(15, 23, 42, 0.8) 100%);
+      box-shadow: 0 0 20px rgba(34, 197, 94, 0.25);
+    }
+
+    /* Stellenwert Header */
+    .column-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 6px;
+      width: 100%;
+    }
+
+    .bit-value {
+      font-size: 1.35rem;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      transition: color 0.3s;
+      line-height: 1.1;
+    }
+
+    .bit-column.is-on .bit-value {
+      color: #fef08a;
+      text-shadow: 0 0 12px rgba(254, 240, 138, 0.6);
+    }
+
+    .bit-power {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      opacity: 0.7;
+      font-family: var(--font-mono);
+    }
+
+    /* Character Avatar Canvas/SVG Container */
+    .character-wrap {
+      width: 100%;
+      height: 160px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 4px 0;
+    }
+
+    @media (max-width: 600px) {
+      .character-wrap {
+        height: 120px;
+      }
+      .bit-value {
+        font-size: 1.05rem;
+      }
+    }
+
+    /* SVG Character Styling */
+    .character-svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      transition: transform 0.3s ease;
+    }
+
+    /* Bounce Celebration Animation */
+    .bit-column.bounce .character-svg {
+      animation: joyful-hop 0.6s ease;
+    }
+
+    @keyframes joyful-hop {
+      0%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-24px) rotate(-3deg); }
+      60% { transform: translateY(-12px) rotate(3deg); }
+      80% { transform: translateY(-4px); }
+    }
+
+    /* Switch Indicator Below Character */
+    .bit-switch-indicator {
+      margin-top: 6px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      background: rgba(30, 41, 59, 0.9);
+      border: 1px solid rgba(100, 116, 139, 0.3);
+      color: var(--bit-off-color);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.25s ease;
+    }
+
+    .bit-column.is-on .bit-switch-indicator {
+      background: var(--bit-on-color);
+      border-color: #4ade80;
+      color: #052e16;
+      box-shadow: 0 0 14px rgba(34, 197, 94, 0.6);
+      transform: scale(1.05);
+    }
+
+    /* Key shortcut badge (1-8) */
+    .key-badge {
+      font-size: 0.65rem;
+      color: rgba(148, 163, 184, 0.6);
+      margin-top: 4px;
+      font-family: var(--font-mono);
+    }
+
+    /* ==========================================================================
+       DASHBOARD: LIVE-BERECHNUNG & DISPLAYS (KOMPAKT)
+       ========================================================================== */
+    .dashboard-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      background: rgba(10, 15, 29, 0.85);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: var(--radius-md);
+      padding: 8px 16px;
+    }
+
+    @media (max-width: 768px) {
+      .dashboard-row {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+    }
+
+    .calc-box {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .calc-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--cyber-cyan);
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .calc-formula-display {
+      font-family: var(--font-mono);
+      font-size: 1.05rem;
+      color: #e2e8f0;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 5px;
+      min-height: 28px;
+    }
+
+    .calc-num-badge {
+      background: rgba(34, 197, 94, 0.2);
+      border: 1px solid rgba(34, 197, 94, 0.5);
+      color: #4ade80;
+      padding: 1px 7px;
+      border-radius: var(--radius-sm);
+      font-size: 0.92rem;
+      font-weight: 700;
+      box-shadow: 0 0 8px rgba(34, 197, 94, 0.2);
+      animation: pop-in 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes pop-in {
+      0% { transform: scale(0.6); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .calc-operator {
+      color: var(--text-muted);
+      font-weight: 400;
+      font-size: 0.95rem;
+    }
+
+    .calc-equals {
+      color: var(--cyber-cyan);
+      font-weight: 700;
+      font-size: 1.15rem;
+    }
+
+    /* Result Displays (Vergrößert für maximale Lesbarkeit) */
+    .displays-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .display-card {
+      background: linear-gradient(180deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);
+      border: 1.5px solid rgba(56, 189, 248, 0.45);
+      border-radius: var(--radius-lg);
+      padding: 10px 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-width: 140px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.1);
+      transition: all 0.25s ease;
+    }
+
+    .display-card:hover {
+      border-color: var(--cyber-cyan);
+      box-shadow: 0 0 18px rgba(0, 240, 255, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.15);
+    }
+
+    .display-card.binary {
+      min-width: 175px;
+    }
+
+    .display-card .card-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--cyber-cyan);
+      margin-bottom: 4px;
+    }
+
+    .display-card .card-value {
+      font-family: var(--font-mono);
+      font-size: 1.85rem;
+      font-weight: 800;
+      line-height: 1.15;
+    }
+
+    .display-card.decimal .card-value {
+      color: #ffffff;
+      text-shadow: 0 0 16px rgba(255, 255, 255, 0.6);
+      font-size: 2.1rem;
+      font-weight: 900;
+    }
+
+    .display-card.binary .card-value {
+      color: var(--cyber-cyan);
+      letter-spacing: 2.5px;
+      font-size: 1.55rem;
+      text-shadow: 0 0 14px rgba(0, 240, 255, 0.5);
+    }
+
+    /* Simulator Quick Action Buttons */
+    .simulator-actions {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-action {
+      background: rgba(30, 41, 59, 0.75);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: var(--radius-md);
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-action:hover {
+      background: rgba(51, 65, 85, 0.9);
+      border-color: var(--cyber-cyan);
+      transform: translateY(-1px);
+    }
+
+    .btn-action.reset {
+      border-color: rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+    }
+
+    .btn-action.reset:hover {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: #ef4444;
+    }
+
+    /* Collapsible Stage Styles for Chapter 3 */
+    .simulator-stage.is-collapsed .bits-grid,
+    .simulator-stage.is-collapsed .simulator-actions {
+      display: none !important;
+    }
+
+    .collapsed-notice-bar {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px dashed rgba(56, 189, 248, 0.4);
+      border-radius: var(--radius-md);
+      padding: 8px 14px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    .simulator-stage.is-collapsed .collapsed-notice-bar {
+      display: flex;
+    }
+
+    .btn-toggle-collapse {
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      color: var(--cyber-cyan);
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s;
+    }
+
+    .btn-toggle-collapse:hover {
+      background: rgba(0, 240, 255, 0.15);
+      border-color: var(--cyber-cyan);
+    }
+
+    /* ==========================================================================
+       CHAPTER CONTENT SECTIONS (PROGRESSIV FREIGESCHALTET)
+       ========================================================================== */
+    .chapter-section {
+      display: none;
+      animation: fadeIn 0.35s ease;
+    }
+
+    .chapter-section.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Kapitel 1 Explore Guide Card */
+    .explore-card {
+      background: var(--bg-card);
+      border: 1px solid var(--bg-card-border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .explore-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .explore-tasks {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 12px;
+    }
+
+    .task-chip {
+      background: rgba(30, 41, 59, 0.7);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      transition: all 0.2s;
+    }
+
+    .task-chip.done {
+      border-color: var(--matrix-green);
+      background: rgba(16, 185, 129, 0.1);
+    }
+
+    .task-chip.profi {
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(245, 158, 11, 0.08) 100%);
+    }
+
+    .task-chip.profi.done {
+      border-color: var(--matrix-green);
+      background: rgba(16, 185, 129, 0.15);
+    }
+
+    .task-checkbox {
+      font-size: 1.2rem;
+      line-height: 1;
+      margin-top: 2px;
+    }
+
+    .task-text h4 {
+      font-size: 0.95rem;
+      color: var(--text-main);
+      margin-bottom: 2px;
+    }
+
+    .task-text p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .chapter-unlock-banner {
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.15), rgba(16, 185, 129, 0.15));
+      border: 1px solid var(--cyber-cyan);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 6px;
+    }
+
+    .btn-glow {
+      background: linear-gradient(135deg, var(--cyber-cyan), var(--matrix-green));
+      color: #022c22;
+      border: none;
+      padding: 10px 20px;
+      border-radius: var(--radius-md);
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+      transition: all 0.25s ease;
+    }
+
+    .btn-glow:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 0 30px rgba(0, 240, 255, 0.7);
+    }
+
+    /* ==========================================================================
+       BEREICH A: ZAHLEN-RÄTSEL (INTERAKTIVES LEVELSYSTEM)
+       ========================================================================== */
+    .puzzle-card {
+      background: var(--bg-card);
+      border: 1px solid var(--bg-card-border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .puzzle-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 16px;
+    }
+
+    .puzzle-submodes {
+      display: inline-flex;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 999px;
+      padding: 4px;
+      gap: 4px;
+    }
+
+    .submode-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 8px 18px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .submode-btn.active {
+      background: var(--cyber-cyan);
+      color: #0b132b;
+      font-weight: 700;
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.4);
+    }
+
+    .score-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      padding: 6px 14px;
+      border-radius: 999px;
+      color: #fef08a;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .stars-display {
+      letter-spacing: 2px;
+      color: #fbbf24;
+    }
+
+    /* Puzzle Arena */
+    .puzzle-arena {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      border-radius: var(--radius-md);
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      text-align: center;
+    }
+
+    .puzzle-target-badge {
+      font-size: 1.25rem;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .puzzle-target-number {
+      font-size: 2.4rem;
+      font-weight: 800;
+      color: var(--cyber-cyan);
+      font-family: var(--font-mono);
+      text-shadow: 0 0 16px rgba(0, 240, 255, 0.5);
+    }
+
+    /* Guided Formula (Rechenbrücke) */
+    .rechenbruecke {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 1.3rem;
+      font-family: var(--font-mono);
+    }
+
+    .bracket-slot {
+      background: rgba(30, 41, 59, 0.9);
+      border: 2px solid rgba(56, 189, 248, 0.4);
+      color: #fef08a;
+      padding: 6px 14px;
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      min-width: 48px;
+    }
+
+    .puzzle-input {
+      background: #0f172a;
+      border: 2px solid var(--cyber-cyan);
+      color: #ffffff;
+      padding: 8px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 1.4rem;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      width: 110px;
+      text-align: center;
+      outline: none;
+      box-shadow: 0 0 15px rgba(0, 240, 255, 0.25);
+    }
+
+    .puzzle-input:focus {
+      border-color: #38bdf8;
+      box-shadow: 0 0 25px rgba(56, 189, 248, 0.6);
+    }
+
+    /* 2-Stufen Denk-Tipp Box */
+    .tipp-box {
+      width: 100%;
+      max-width: 680px;
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      border-radius: var(--radius-md);
+      padding: 12px 18px;
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      text-align: left;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .tipp-step {
+      font-size: 0.92rem;
+      line-height: 1.5;
+      color: #fef3c7;
+    }
+
+    .tipp-step strong {
+      color: #fbbf24;
+    }
+
+    /* Feedback Box */
+    .feedback-banner {
+      width: 100%;
+      max-width: 680px;
+      padding: 12px 18px;
+      border-radius: var(--radius-md);
+      font-size: 0.95rem;
+      font-weight: 600;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .feedback-banner.success {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid var(--matrix-green);
+      color: #6ee7b7;
+      display: flex;
+    }
+
+    .feedback-banner.error {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid #ef4444;
+      color: #fca5a5;
+      display: flex;
+    }
+
+    .puzzle-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn-tipp {
+      background: rgba(245, 158, 11, 0.2);
+      border: 1px solid #f59e0b;
+      color: #fef08a;
+      padding: 10px 18px;
+      border-radius: var(--radius-md);
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn-tipp:hover {
+      background: rgba(245, 158, 11, 0.35);
+      transform: translateY(-1px);
+    }
+
+    /* ==========================================================================
+       BEREICH B: SPRINTER-STATION (ASCII-CODE & GEHEIMBOTSCHAFTEN)
+       ========================================================================== */
+    .ascii-card {
+      background: var(--bg-card);
+      border: 1px solid var(--bg-card-border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .ascii-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 16px;
+    }
+
+    .ascii-title-group h3 {
+      font-size: 1.2rem;
+      color: var(--cyber-cyan);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ascii-title-group p {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    /* ASCII Step Navigation */
+    .ascii-step-nav {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+
+    @media (max-width: 768px) {
+      .ascii-step-nav {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .ascii-step-tab {
+      background: rgba(30, 41, 59, 0.7);
+      border: 2px solid rgba(100, 116, 139, 0.3);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+      transition: all 0.2s ease;
+      text-align: left;
+    }
+
+    .ascii-step-tab .step-badge {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--cyber-cyan);
+    }
+
+    .ascii-step-tab strong {
+      font-size: 0.9rem;
+      color: var(--text-main);
+    }
+
+    .ascii-step-tab:hover {
+      border-color: var(--cyber-cyan);
+      background: rgba(30, 41, 59, 0.95);
+    }
+
+    .ascii-step-tab.active {
+      border-color: var(--cyber-cyan);
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.15), rgba(16, 185, 129, 0.1));
+      box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+    }
+
+    .ascii-step-content {
+      display: none;
+      animation: fadeIn 0.3s ease;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .ascii-step-content.active {
+      display: flex;
+    }
+
+    /* Didactic Introduction Box */
+    .didactic-intro-box {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.8));
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      border-left: 5px solid var(--cyber-cyan);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+    }
+
+    .didactic-icon {
+      font-size: 2.2rem;
+      line-height: 1;
+    }
+
+    .didactic-text h4 {
+      font-size: 1.05rem;
+      color: var(--cyber-cyan);
+      margin-bottom: 6px;
+    }
+
+    .didactic-text p {
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: #cbd5e1;
+    }
+
+    /* Step Action & Hero Showcase */
+    .step-action-card {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      text-align: center;
+    }
+
+    .ascii-letter-hero {
+      background: rgba(16, 185, 129, 0.12);
+      border: 2px solid var(--matrix-green);
+      border-radius: var(--radius-md);
+      padding: 16px 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 0 25px rgba(16, 185, 129, 0.3);
+      animation: pop-in 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .hero-char {
+      font-size: 3.5rem;
+      font-weight: 900;
+      color: #6ee7b7;
+      font-family: var(--font-mono);
+      line-height: 1;
+      text-shadow: 0 0 20px rgba(16, 185, 129, 0.8);
+    }
+
+    .hero-desc {
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      color: #a7f3d0;
+    }
+
+    /* Alphabet Ladder Explorer */
+    .alphabet-ladder-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      padding: 6px 0;
+    }
+
+    .ladder-btn {
+      background: rgba(30, 41, 59, 0.85);
+      border: 2px solid rgba(56, 189, 248, 0.3);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      min-width: 54px;
+    }
+
+    .ladder-btn:hover {
+      border-color: var(--cyber-cyan);
+      transform: translateY(-3px);
+      box-shadow: 0 4px 15px rgba(0, 240, 255, 0.3);
+    }
+
+    .ladder-btn.active {
+      border-color: var(--accent-gold);
+      background: rgba(245, 158, 11, 0.2);
+      box-shadow: 0 0 16px rgba(245, 158, 11, 0.5);
+      transform: scale(1.06);
+    }
+
+    .ladder-char {
+      font-size: 1.5rem;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      color: #fff;
+    }
+
+    .ladder-val {
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+      color: var(--cyber-cyan);
+    }
+
+    .ladder-explainer {
+      background: rgba(10, 15, 29, 0.75);
+      border: 1px dashed rgba(245, 158, 11, 0.4);
+      border-radius: var(--radius-sm);
+      padding: 12px 18px;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      color: #fef3c7;
+      text-align: center;
+    }
+
+    /* Mission Buttons */
+    .mission-selector-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .mission-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .mission-btn {
+      background: rgba(30, 41, 59, 0.8);
+      border: 2px solid rgba(100, 116, 139, 0.3);
+      border-radius: var(--radius-md);
+      padding: 8px 14px;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 2px;
+      transition: all 0.2s;
+    }
+
+    .mission-btn span {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .mission-btn strong {
+      font-size: 0.95rem;
+      color: var(--text-main);
+    }
+
+    .mission-btn:hover {
+      border-color: var(--cyber-cyan);
+      background: rgba(30, 41, 59, 0.95);
+    }
+
+    .mission-btn.active {
+      border-color: var(--cyber-cyan);
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.18), rgba(16, 185, 129, 0.1));
+      box-shadow: 0 0 15px rgba(0, 240, 255, 0.25);
+    }
+
+    .mission-btn.active strong {
+      color: var(--cyber-cyan);
+    }
+
+    /* Mission Helper Card */
+    .mission-helper-card {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: var(--radius-md);
+      padding: 12px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      width: 100%;
+    }
+
+    .helper-badge {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--accent-gold);
+      font-weight: 700;
+    }
+
+    .helper-content {
+      font-size: 0.95rem;
+      line-height: 1.5;
+      color: #e2e8f0;
+    }
+
+    /* Compact Bit Strip directly inside Decoder */
+    .compact-bit-strip {
+      background: rgba(10, 15, 29, 0.9);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: var(--radius-md);
+      padding: 10px 16px;
+      width: 100%;
+      max-width: 680px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .bit-strip-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--cyber-cyan);
+      font-weight: 700;
+    }
+
+    .bit-strip-buttons {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 6px;
+    }
+
+    .strip-bit-btn {
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(100, 116, 139, 0.4);
+      border-radius: var(--radius-sm);
+      padding: 8px 2px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .strip-bit-btn .s-val {
+      font-size: 0.85rem;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+    }
+
+    .strip-bit-btn .s-state {
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+      color: #64748b;
+      font-weight: 700;
+    }
+
+    .strip-bit-btn:hover {
+      border-color: var(--cyber-cyan);
+      transform: translateY(-2px);
+    }
+
+    .strip-bit-btn.is-on {
+      border-color: #22c55e;
+      background: rgba(34, 197, 94, 0.25);
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+    }
+
+    .strip-bit-btn.is-on .s-val {
+      color: #fef08a;
+    }
+
+    .strip-bit-btn.is-on .s-state {
+      color: #4ade80;
+    }
+
+    /* Secret Word Decoder Stage */
+    .decoder-stage {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: var(--radius-md);
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .word-selector-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .word-btn {
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      color: var(--text-main);
+      padding: 5px 12px;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .word-btn.active {
+      border-color: var(--cyber-cyan);
+      background: rgba(0, 240, 255, 0.15);
+      color: var(--cyber-cyan);
+      font-weight: 700;
+    }
+
+    /* Word Letters Slots */
+    .letter-slots-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin: 10px 0;
+    }
+
+    .letter-slot {
+      width: 74px;
+      height: 94px;
+      background: rgba(30, 41, 59, 0.7);
+      border: 2px dashed rgba(148, 163, 184, 0.4);
+      border-radius: var(--radius-md);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .letter-slot .target-char {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: rgba(148, 163, 184, 0.3);
+      font-family: var(--font-mono);
+    }
+
+    .letter-slot .target-code {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    /* Current Target Letter */
+    .letter-slot.current {
+      border: 2px solid var(--cyber-cyan);
+      background: rgba(0, 240, 255, 0.08);
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+      transform: scale(1.08);
+    }
+
+    .letter-slot.current .target-char {
+      color: var(--cyber-cyan);
+      animation: char-pulse 1.2s infinite alternate;
+    }
+
+    @keyframes char-pulse {
+      0% { opacity: 0.7; }
+      100% { opacity: 1; }
+    }
+
+    /* Snapped Letter (Solved!) */
+    .letter-slot.snapped {
+      border: 2px solid var(--matrix-green);
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(5, 46, 22, 0.7));
+      box-shadow: 0 0 25px rgba(16, 185, 129, 0.5);
+      animation: snap-celebration 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .letter-slot.snapped .target-char {
+      color: #6ee7b7;
+      text-shadow: 0 0 12px rgba(16, 185, 129, 0.8);
+    }
+
+    .letter-slot.snapped .target-code {
+      color: #a7f3d0;
+    }
+
+    @keyframes snap-celebration {
+      0% { transform: scale(0.7); }
+      50% { transform: scale(1.18); }
+      100% { transform: scale(1); }
+    }
+
+    /* Solved Word Banner */
+    .word-completed-banner {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(0, 240, 255, 0.2));
+      border: 1px solid var(--matrix-green);
+      border-radius: var(--radius-md);
+      padding: 12px 20px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #a7f3d0;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .word-completed-banner .secret-icon {
+      font-size: 2.2rem;
+    }
+
+
+
+    /* ==========================================================================
+       ASCII-SPICKZETTEL MODAL (OVERLAY)
+       ========================================================================== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(3, 7, 18, 0.8);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 16px;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal-window {
+      background: #0f172a;
+      border: 1px solid var(--cyber-cyan);
+      box-shadow: 0 0 50px rgba(0, 240, 255, 0.35);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 820px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .modal-header {
+      padding: 18px 24px;
+      background: rgba(15, 23, 42, 0.95);
+      border-bottom: 1px solid rgba(56, 189, 248, 0.25);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--cyber-cyan);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-close-modal {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.5rem;
+      cursor: pointer;
+      line-height: 1;
+      padding: 4px;
+      border-radius: 4px;
+      transition: color 0.2s;
+    }
+
+    .btn-close-modal:hover {
+      color: #ef4444;
+    }
+
+    .modal-search-bar {
+      padding: 12px 24px;
+      background: rgba(30, 41, 59, 0.6);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .search-input {
+      width: 100%;
+      background: #0b132b;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: var(--cyber-cyan);
+    }
+
+    .modal-body {
+      padding: 16px 24px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .ascii-grid-table {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(115px, 1fr));
+      gap: 8px;
+    }
+
+    .ascii-table-cell {
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 2px;
+      transition: all 0.2s;
+    }
+
+    .ascii-table-cell:hover {
+      border-color: var(--cyber-cyan);
+      background: rgba(30, 41, 59, 0.9);
+      transform: translateY(-2px);
+    }
+
+    .ascii-table-cell.active-target {
+      border-color: var(--accent-gold);
+      background: rgba(245, 158, 11, 0.2);
+      box-shadow: 0 0 15px rgba(245, 158, 11, 0.5);
+    }
+
+    .ascii-cell-char {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--cyber-cyan);
+      font-family: var(--font-mono);
+    }
+
+    .ascii-cell-dec {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #e2e8f0;
+      font-family: var(--font-mono);
+    }
+
+    .ascii-cell-bin {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    /* ==========================================================================
+       MEISTER-URKUNDE MODAL (ABSCHLUSS-ERFOLG)
+       ========================================================================== */
+    .certificate-window {
+      background: radial-gradient(circle at center, #1e293b 0%, #0b132b 100%);
+      border: 2px solid var(--accent-gold);
+      box-shadow: 0 0 60px rgba(245, 158, 11, 0.4);
+      border-radius: var(--radius-lg);
+      padding: 36px 28px;
+      max-width: 600px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      position: relative;
+    }
+
+    .certificate-icon {
+      font-size: 4rem;
+      filter: drop-shadow(0 0 20px rgba(245, 158, 11, 0.6));
+    }
+
+    .certificate-title {
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: #fef08a;
+      letter-spacing: 0.5px;
+    }
+
+    .certificate-name-input {
+      background: #0f172a;
+      border: 2px solid var(--accent-gold);
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: var(--radius-md);
+      font-size: 1.2rem;
+      font-weight: 700;
+      text-align: center;
+      width: 80%;
+      outline: none;
+    }
+
+    /* ==========================================================================
+       BEREICH C: DAS RECHENWERK (ALU) – KAPITEL 4
+       ========================================================================== */
+    .alu-card {
+      background: var(--bg-card);
+      border: 1px solid var(--bg-card-border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .alu-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 16px;
+    }
+
+    .alu-title-group h3 {
+      color: var(--cyber-cyan);
+      font-size: 1.25rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .alu-title-group p {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+    }
+
+    .alu-top-controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .alu-submodes {
+      display: inline-flex;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 999px;
+      padding: 4px;
+      gap: 4px;
+    }
+
+    .alu-interact-modes {
+      display: inline-flex;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(234, 179, 8, 0.35);
+      border-radius: 999px;
+      padding: 4px;
+      gap: 4px;
+    }
+
+    .mode-toggle-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .mode-toggle-btn.active {
+      background: var(--accent-gold);
+      color: #0f172a;
+      box-shadow: 0 0 12px rgba(234, 179, 8, 0.4);
+    }
+
+    .alu-task-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      background: rgba(15, 23, 42, 0.6);
+      border-radius: var(--radius-md);
+      padding: 10px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .alu-task-presets {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .alu-task-chip {
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      color: var(--text-main);
+      padding: 6px 14px;
+      border-radius: var(--radius-md);
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .alu-task-chip:hover {
+      border-color: var(--cyber-cyan);
+      background: rgba(56, 189, 248, 0.15);
+      transform: translateY(-1px);
+    }
+
+    .alu-task-chip.active {
+      border-color: var(--cyber-cyan);
+      background: rgba(56, 189, 248, 0.3);
+      color: #fff;
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+    }
+
+    /* Scaffolding: Rechen-Spickzettel-Box */
+    .alu-cheat-card {
+      background: rgba(10, 15, 29, 0.85);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: var(--radius-md);
+      padding: 12px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .cheat-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--cyber-cyan);
+      font-size: 0.92rem;
+      font-weight: 700;
+    }
+
+    .cheat-badge {
+      font-size: 0.7rem;
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: var(--cyber-cyan);
+      padding: 2px 8px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .cheat-rules-grid {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .cheat-rule-pill {
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: var(--radius-md);
+      padding: 6px 12px;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: #f1f5f9;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .cheat-rule-pill strong {
+      color: #fef08a;
+    }
+
+    .cheat-rule-pill.highlight {
+      border-color: #ef4444;
+      background: rgba(239, 68, 68, 0.15);
+      color: #fca5a5;
+    }
+
+    /* ALU Männchen Stage */
+    .alu-stage-container {
+      background: rgba(10, 15, 29, 0.95);
+      border: 1.5px solid rgba(56, 189, 248, 0.3);
+      border-radius: var(--radius-lg);
+      padding: 18px 20px;
+      box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.7);
+      overflow-x: auto;
+    }
+
+    .alu-grid-wrapper {
+      min-width: 680px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      user-select: none;
+    }
+
+    .alu-row-columns-header {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+
+    .alu-row-label-spacer {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      padding-left: 6px;
+    }
+
+    .alu-cols-header-grid {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 6px;
+    }
+
+    .alu-col-val {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-weight: 800;
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      transition: all 0.25s;
+      border-radius: var(--radius-sm);
+      padding: 3px 0;
+      border: 1px solid transparent;
+    }
+
+    .alu-col-val small {
+      font-size: 0.65rem;
+      opacity: 0.7;
+      font-weight: 400;
+    }
+
+    .alu-col-val.active-step {
+      color: #fef08a;
+      text-shadow: 0 0 10px rgba(254, 240, 138, 0.8);
+      background: rgba(234, 179, 8, 0.2);
+      border-color: rgba(234, 179, 8, 0.5);
+      transform: scale(1.08);
+    }
+
+    .alu-row {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      align-items: center;
+      gap: 10px;
+      padding: 4px 6px;
+      border-radius: var(--radius-md);
+      transition: background 0.25s;
+    }
+
+    .alu-row-label {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      justify-content: center;
+      padding-left: 6px;
+    }
+
+    .row-tag {
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      display: inline-block;
+      width: fit-content;
+    }
+
+    .row-tag.tag-a {
+      background: rgba(56, 189, 248, 0.2);
+      color: var(--cyber-cyan);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+    }
+
+    .row-tag.tag-b {
+      background: rgba(168, 85, 247, 0.2);
+      color: #c084fc;
+      border: 1px solid rgba(168, 85, 247, 0.4);
+    }
+
+    .row-tag.tag-carry {
+      background: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+    }
+
+    .row-tag.tag-res {
+      background: rgba(34, 197, 94, 0.2);
+      color: #4ade80;
+      border: 1px solid rgba(34, 197, 94, 0.4);
+    }
+
+    .row-dec {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .alu-row-grid {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 6px;
+    }
+
+    .alu-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 2px;
+      border-radius: var(--radius-sm);
+      border: 1px solid transparent;
+      transition: all 0.25s;
+      position: relative;
+    }
+
+    .alu-cell.active-step {
+      background: rgba(234, 179, 8, 0.15);
+      border-color: var(--accent-gold);
+      box-shadow: 0 0 14px rgba(234, 179, 8, 0.35);
+      transform: translateY(-2px);
+    }
+
+    .alu-cell.error-hint {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: #ef4444;
+      box-shadow: 0 0 16px rgba(239, 68, 68, 0.5);
+      animation: pulseError 1.2s infinite ease-in-out;
+    }
+
+    @keyframes pulseError {
+      0% { box-shadow: 0 0 8px rgba(239, 68, 68, 0.4); }
+      50% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.8); }
+      100% { box-shadow: 0 0 8px rgba(239, 68, 68, 0.4); }
+    }
+
+    .alu-cell.clickable {
+      cursor: pointer;
+    }
+
+    .alu-cell.clickable:hover {
+      border-color: rgba(56, 189, 248, 0.5);
+      background: rgba(56, 189, 248, 0.1);
+    }
+
+    .alu-char-svg {
+      width: 100%;
+      max-width: 65px;
+      height: 75px;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+      transition: transform 0.2s ease;
+    }
+
+    .alu-char-svg.carry-svg {
+      max-width: 50px;
+      height: 55px;
+    }
+
+    .alu-cell.clickable:hover .alu-char-svg {
+      transform: scale(1.06);
+    }
+
+    .alu-cell-bit-btn {
+      margin-top: 3px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .alu-cell-bit-btn.is-on {
+      background: var(--cyber-cyan);
+      border-color: #38bdf8;
+      color: #032b43;
+      box-shadow: 0 0 8px rgba(56, 189, 248, 0.5);
+    }
+
+    .alu-row-operator-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 2px 140px;
+      margin: 2px 0;
+      color: var(--accent-gold);
+    }
+
+    .alu-operator-badge {
+      font-size: 1.3rem;
+      font-weight: 900;
+      background: rgba(234, 179, 8, 0.15);
+      border: 1.5px solid var(--accent-gold);
+      border-radius: 50%;
+      width: 34px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-shadow: 0 0 10px rgba(234, 179, 8, 0.6);
+    }
+
+    .alu-operator-text {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      opacity: 0.85;
+    }
+
+    .alu-row-carry {
+      background: rgba(239, 68, 68, 0.06);
+      border: 1px dashed rgba(239, 68, 68, 0.3);
+      border-radius: var(--radius-md);
+      padding: 4px 6px;
+    }
+
+    .alu-calc-divider-line {
+      height: 3px;
+      background: linear-gradient(90deg, transparent 0%, var(--cyber-cyan) 15%, var(--accent-gold) 50%, var(--matrix-green) 85%, transparent 100%);
+      margin: 6px 0;
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+      border-radius: 999px;
+    }
+
+    .alu-controls-card {
+      background: var(--bg-card);
+      border: 1px solid var(--bg-card-border);
+      border-radius: var(--radius-md);
+      padding: 16px;
+    }
+
+    .alu-step-actions, .alu-practice-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .alu-step-explanation-box {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: var(--radius-md);
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      color: #f1f5f9;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+    }
+
+    .step-bulb {
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+
+    .alu-step-explanation-box strong {
+      color: #fef08a;
+    }
+
+    /* 4. Automatische Sprachausgabe (Heft-Generator für Kapitel 4) */
+    .alu-heft-card {
+      background: linear-gradient(180deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.95) 100%);
+      border: 1.5px solid rgba(56, 189, 248, 0.35);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .heft-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 10px;
+    }
+
+    .heft-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1.05rem;
+      color: var(--cyber-cyan);
+    }
+
+    .heft-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .heft-sentence-box {
+      font-family: var(--font-sans);
+      font-size: 1.05rem;
+      line-height: 1.6;
+      color: #ffffff;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px dashed rgba(56, 189, 248, 0.4);
+      border-radius: var(--radius-md);
+      padding: 14px 20px;
+      font-weight: 500;
+    }
+
+    /* Toast Notification */
+    .toast-popup {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid var(--cyber-cyan);
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 2000;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      pointer-events: none;
+    }
+
+    .toast-popup.visible {
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast-popup">
+    <span id="toast-icon">✨</span>
+    <span id="toast-msg">Hinweis</span>
+  </div>
+
+  <div class="app-container">
+
+    <!-- HEADER -->
+    <header>
+      <div class="brand-group">
+        <div class="brand-icon">0101</div>
+        <div class="brand-titles">
+          <h1>BINÄR-LABOR 8.0</h1>
+          <div class="subtitle">
+            Bits, Bytes & Dualsystem
+            <span class="grade-badge">Klasse 8</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <!-- Audio Mute Toggle -->
+        <button id="btn-audio-toggle" class="btn-header" title="Ton an- oder ausschalten">
+          <span id="audio-icon">🔊</span> Ton: <strong id="audio-state-text">AN</strong>
+        </button>
+
+        <!-- Teacher / Fast Unlock Toggle -->
+        <button id="btn-teacher-mode" class="btn-header" title="Lehrkraft-Modus: Alle Kapitel sofort entsperren">
+          <span>🔓</span> Lehrkraft-Modus
+        </button>
+
+        <!-- Reset All Progress -->
+        <button id="btn-reset-progress" class="btn-header" title="Gesamten Lernfortschritt auf Anfang setzen">
+          <span>🔄</span> Neu starten
+        </button>
+      </div>
+    </header>
+
+    <!-- CHAPTER NAVIGATION (Schrittweise Freischaltung) -->
+    <nav class="chapter-nav-card">
+      <div class="chapter-nav-title">
+        <span>Lernpfad & Kapitel</span>
+        <span id="overall-progress-text">Kapitel 1 von 4</span>
+      </div>
+      <div class="chapter-tabs">
+        <!-- Tab 1 -->
+        <button id="tab-chap1" class="chapter-tab-btn active" onclick="switchChapter(1)">
+          <div class="tab-info">
+            <span class="tab-num">Kapitel 1</span>
+            <span class="tab-name">🔬 Das Bit-Labor</span>
+          </div>
+          <div class="tab-status" id="tab-chap1-status">🟢</div>
+        </button>
+
+        <!-- Tab 2 -->
+        <button id="tab-chap2" class="chapter-tab-btn locked" onclick="switchChapter(2)">
+          <div class="tab-info">
+            <span class="tab-num">Kapitel 2</span>
+            <span class="tab-name">🎯 Zahlen-Rätsel</span>
+          </div>
+          <div class="tab-status" id="tab-chap2-status">🔒</div>
+        </button>
+
+        <!-- Tab 3 -->
+        <button id="tab-chap3" class="chapter-tab-btn locked" onclick="switchChapter(3)">
+          <div class="tab-info">
+            <span class="tab-num">Kapitel 3</span>
+            <span class="tab-name">🕵️ Sprinter: ASCII</span>
+          </div>
+          <div class="tab-status" id="tab-chap3-status">🔒</div>
+        </button>
+
+        <!-- Tab 4 -->
+        <button id="tab-chap4" class="chapter-tab-btn locked" onclick="switchChapter(4)">
+          <div class="tab-info">
+            <span class="tab-num">Kapitel 4</span>
+            <span class="tab-name">⚡ Das Rechenwerk (ALU)</span>
+          </div>
+          <div class="tab-status" id="tab-chap4-status">🔒</div>
+        </button>
+      </div>
+    </nav>
+
+    <!-- ======================================================================
+         CORE INTERACTIVE SIMULATOR (8 BIT-MÄNNCHEN & LIVE-BERECHNUNG)
+         Immer präsent als zentrales Anschauungs- und Werkzeug!
+         ====================================================================== -->
+    <main class="simulator-stage" id="simulator-stage">
+      <div class="stage-header">
+        <div class="stage-title">
+          <span>👾</span> Die 8 Bit-Männchen (1 Byte = 8 Bits)
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div class="byte-info-chip">
+            1 Byte = <strong>8 Bits</strong> | Wertebereich: <strong>0 bis 255</strong>
+          </div>
+          <!-- Toggle Button for Collapsing Männchen -->
+          <button id="btn-toggle-männchen" class="btn-toggle-collapse" onclick="toggleMännchenManual()" title="Männchen ein- oder ausklappen">
+            <span id="toggle-männchen-icon">▲</span> <span id="toggle-männchen-text">Männchen einklappen</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Collapsed notice banner (shown when stage is collapsed in Chapter 3) -->
+      <div class="collapsed-notice-bar" id="collapsed-notice-bar">
+        <span>👾 <strong>8-Bit-Männchen sind eingeklappt</strong> für den vollen Fokus auf ASCII-Geheimwörter & Codes.</span>
+        <button class="btn-toggle-collapse" onclick="toggleMännchenManual()">
+          <span>▼</span> Männchen aufklappen
+        </button>
+      </div>
+
+      <!-- 8 Bits Columns Grid (128 bis 1) -->
+      <div class="bits-grid" id="bits-grid">
+        <!-- Javascript renders the 8 bit columns here -->
+      </div>
+
+      <!-- Dashboard: Live-Berechnung & Displays (DIREKT UNTER DEN MÄNNCHEN) -->
+      <div class="dashboard-row">
+        <!-- Dynamic Addition Formula -->
+        <div class="calc-box">
+          <div class="calc-label">
+            <span>⚡ Aktive Rechenzeile (Addition sichtbarer Karten)</span>
+          </div>
+          <div class="calc-formula-display" id="calc-formula">
+            <!-- Dynamically generated addition elements -->
+          </div>
+        </div>
+
+        <!-- Result Displays -->
+        <div class="displays-group">
+          <!-- Binary Display -->
+          <div class="display-card binary">
+            <span class="card-label">Binärcode (Dual)</span>
+            <span class="card-value" id="display-binary">00000000</span>
+          </div>
+
+          <!-- Decimal Display -->
+          <div class="display-card decimal">
+            <span class="card-label">Dezimalzahl</span>
+            <span class="card-value" id="display-decimal">0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Simulator Quick Action Buttons -->
+      <div class="simulator-actions">
+        <button class="btn-action reset" onclick="resetAllBits()">
+          <span>🔄</span> Alle verstecken (0)
+        </button>
+        <button class="btn-action" onclick="setAllBits(1)">
+          <span>🌟</span> Alle zeigen (255)
+        </button>
+        <button class="btn-action" onclick="setRandomBits()">
+          <span>🎲</span> Zufällige Zahl
+        </button>
+      </div>
+
+      <!-- ENTDECKER-AUFTRAG (FÜR KAPITEL 1) -->
+      <div class="explore-card" id="explore-tasks-container">
+        <div class="explore-header">
+          <div>
+            <h3 style="color: var(--cyber-cyan); font-size: 1.1rem; margin-bottom: 3px;">
+              🔬 Entdecker-Aufträge: Probiere die Männchen aus!
+            </h3>
+            <p style="color: var(--text-muted); font-size: 0.82rem;">
+              Klicke oben auf die Männchen. Wenn du eine Zahl erreichst, wird die Aufgabe automatisch grün abgehakt:
+            </p>
+          </div>
+        </div>
+
+        <div class="explore-tasks">
+          <!-- Task 1: Zahl 1 -->
+          <div class="task-chip" id="task-chip-1">
+            <div class="task-checkbox" id="task-check-1">⚪</div>
+            <div class="task-text">
+              <h4>1. Baue die Zahl 1</h4>
+              <p>Aktiviere nur das Männchen ganz rechts (Stellenwert 1).</p>
+            </div>
+          </div>
+
+          <!-- Task 2: Genaue Zahl 5 -->
+          <div class="task-chip" id="task-chip-2">
+            <div class="task-checkbox" id="task-check-2">⚪</div>
+            <div class="task-text">
+              <h4>2. Baue genau die Zahl 5</h4>
+              <p>Kombiniere die passenden Männchen (4 + 1 = 5).</p>
+            </div>
+          </div>
+
+          <!-- Task 3: Genaue Zahl 42 -->
+          <div class="task-chip" id="task-chip-3">
+            <div class="task-checkbox" id="task-check-3">⚪</div>
+            <div class="task-text">
+              <h4>3. Baue genau die Zahl 42</h4>
+              <p>Informatik-Klassiker! Kombiniere 32 + 8 + 2.</p>
+            </div>
+          </div>
+
+          <!-- Task 4: Zahl über 100 -->
+          <div class="task-chip" id="task-chip-4">
+            <div class="task-checkbox" id="task-check-4">⚪</div>
+            <div class="task-text">
+              <h4>4. Baue eine Zahl über 100</h4>
+              <p>Zeige das 128er-Männchen oder mehrere Männchen zusammen.</p>
+            </div>
+          </div>
+
+          <!-- Task 5: Reset testen -->
+          <div class="task-chip" id="task-chip-5">
+            <div class="task-checkbox" id="task-check-5">⚪</div>
+            <div class="task-text">
+              <h4>5. Teste den Reset-Knopf</h4>
+              <p>Klicke unten auf "Alle verstecken (0)".</p>
+            </div>
+          </div>
+
+          <!-- Task 6: Profi-Aufgabe 1 (ohne Tipps) -->
+          <div class="task-chip profi" id="task-chip-6">
+            <div class="task-checkbox" id="task-check-6">⚪</div>
+            <div class="task-text">
+              <h4>6. 🏆 Profi: Baue die Zahl 77</h4>
+              <p>Finde selbst die richtige Kombination – ganz ohne Tipps!</p>
+            </div>
+          </div>
+
+          <!-- Task 7: Profi-Aufgabe 2 (ohne Tipps) -->
+          <div class="task-chip profi" id="task-chip-7">
+            <div class="task-checkbox" id="task-check-7">⚪</div>
+            <div class="task-text">
+              <h4>7. 🏆 Profi: Baue die Zahl 170</h4>
+              <p>Große Meisterzahl: Knacke die 170 komplett eigenständig!</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Unlock Chapter 2 Banner -->
+        <div class="chapter-unlock-banner" id="banner-advance-chap2">
+          <div>
+            <strong style="color: var(--text-main);">Bereit für die nächste Herausforderung?</strong>
+            <p style="color: var(--text-muted); font-size: 0.8rem;">
+              Sobald du die Aufträge ausprobiert hast, wird Kapitel 2 (Zahlen-Rätsel) entsperrt!
+            </p>
+          </div>
+          <button id="btn-advance-chap2" class="btn-glow" onclick="forceUnlockChapter(2)">
+            <span>Weiter zu Kapitel 2 (Zahlen-Rätsel) ➔</span>
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <!-- KAPITEL 1 CONTAINER (Platzhalter für Kapitel-Umschaltung) -->
+    <section id="chapter-1" class="chapter-section active">
+      <!-- Entdecker-Auftrag ist direkt in simulator-stage integriert -->
+    </section>
+
+    <!-- ======================================================================
+         KAPITEL 2: ZAHLEN-RÄTSEL (INTERAKTIVES LEVELSYSTEM)
+         ====================================================================== -->
+    <section id="chapter-2" class="chapter-section">
+      <div class="puzzle-card">
+        <div class="puzzle-top-bar">
+          <div class="puzzle-submodes">
+            <button id="submode-btn-b2d" class="submode-btn active" onclick="setPuzzleSubmode('b2d')">
+              Modus 1: Binär ➔ Dezimal
+            </button>
+            <button id="submode-btn-d2b" class="submode-btn" onclick="setPuzzleSubmode('d2b')">
+              Modus 2: Dezimal ➔ Binär
+            </button>
+          </div>
+
+          <div class="score-badge">
+            <span>Sterne:</span>
+            <span class="stars-display" id="puzzle-stars">☆☆☆</span>
+            <span id="puzzle-level-label" style="font-size: 0.8rem; color: var(--cyber-cyan);">(0/3 gelöst)</span>
+          </div>
+        </div>
+
+        <!-- Puzzle Arena -->
+        <div class="puzzle-arena">
+          <!-- Instruction Text -->
+          <div class="puzzle-target-badge" id="puzzle-instruction">
+            <span>Aufgabe:</span>
+            <strong id="puzzle-task-text" style="color: #fff;">Berechne die Dezimalzahl der eingestellten Männchen!</strong>
+          </div>
+
+          <!-- Target Number for Mode 2 -->
+          <div id="target-number-container" style="display: none;">
+            <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase;">Zielzahl:</div>
+            <div class="puzzle-target-number" id="puzzle-target-num">13</div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">
+              Schalte die Männchen oben so ein, dass ihre Summe genau diese Zahl ergibt!
+            </p>
+          </div>
+
+          <!-- Rechenbrücke for Mode 1 -->
+          <div id="rechenbruecke-container" class="rechenbruecke">
+            <!-- Dynamically populated e.g. [ 8 ] + [ 2 ] = [ input ] -->
+          </div>
+
+          <!-- 2-Stufen Denk-Tipp Box -->
+          <div class="tipp-box" id="tipp-box">
+            <div style="font-weight: 700; color: var(--accent-gold); display: flex; align-items: center; gap: 6px;">
+              <span>💡</span> <span id="tipp-headline">Denk-Tipp Stufe 1</span>
+            </div>
+            <div class="tipp-step" id="tipp-content">
+              Welches ist das größte Männchen, das noch in die Zahl hineinpasst?
+            </div>
+          </div>
+
+          <!-- Feedback Banner -->
+          <div class="feedback-banner" id="puzzle-feedback">
+            <span id="feedback-icon">🎉</span>
+            <span id="feedback-text">Perfekt gelöst!</span>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="puzzle-controls">
+            <button id="btn-tipp" class="btn-tipp" onclick="triggerPuzzleTipp()" style="display: none;">
+              <span>💡</span> Denk-Tipp erhalten
+            </button>
+            <button class="btn-glow" id="btn-check-puzzle" onclick="checkPuzzleAnswer()">
+              <span>Prüfen ✔</span>
+            </button>
+            <button class="btn-action" onclick="generateNewPuzzleTask()">
+              <span>Neues Rätsel ➔</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Unlock Chapter 3 Banner -->
+        <div class="chapter-unlock-banner" id="banner-chap3-unlock" style="display: none;">
+          <div>
+            <strong style="color: #a7f3d0; font-size: 1.05rem;">🎉 Großartig! 3 Sterne gesammelt!</strong>
+            <p style="color: var(--text-muted); font-size: 0.82rem;">
+              Du beherrschst Binärzahlen meisterhaft. Jetzt wartet die Sprinter-Station (ASCII-Geheimbotschaften) auf dich!
+            </p>
+          </div>
+          <button class="btn-glow" onclick="forceUnlockChapter(3)">
+            <span>Weiter zu Kapitel 3 (ASCII-Decoder) ➔</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         KAPITEL 3: SPRINTER-STATION (ASCII-CODE & GEHEIMBOTSCHAFTEN)
+         Schrittweise didaktische Heranführung an das ASCII-System!
+         ====================================================================== -->
+    <section id="chapter-3" class="chapter-section">
+      <div class="ascii-card">
+        <div class="ascii-top-bar">
+          <div class="ascii-title-group">
+            <h3><span>🕵️</span> Geheimwort-Decoder: Schritt für Schritt zum ASCII-Code</h3>
+            <p>Wie verstehen Computer Buchstaben und Text? Entdecke das Geheimnis der ASCII-Codierung!</p>
+          </div>
+
+          <div style="display: flex; gap: 10px;">
+            <button class="btn-action" onclick="openAsciiModal()">
+              <span>📋</span> ASCII-Spickzettel (A–Z)
+            </button>
+          </div>
+        </div>
+
+        <!-- SCHRITT-FÜR-SCHRITT NAVIGATIONS-TABS -->
+        <div class="ascii-step-nav">
+          <button class="ascii-step-tab active" id="ascii-tab-step1" onclick="switchAsciiStep(1)">
+            <span class="step-badge">Schritt 1</span>
+            <strong>Das Geheimnis des 'A' (65)</strong>
+          </button>
+          <button class="ascii-step-tab" id="ascii-tab-step2" onclick="switchAsciiStep(2)">
+            <span class="step-badge">Schritt 2</span>
+            <strong>Die Alphabet-Leiter (+1)</strong>
+          </button>
+          <button class="ascii-step-tab" id="ascii-tab-step3" onclick="switchAsciiStep(3)">
+            <span class="step-badge">Schritt 3</span>
+            <strong>Geheimwort-Missionen</strong>
+          </button>
+        </div>
+
+        <!-- SCHRITT 1 CONTENT: Warum 65? Und das 'A' -->
+        <div class="ascii-step-content active" id="ascii-content-step1">
+          <div class="didactic-intro-box">
+            <div class="didactic-icon">💡</div>
+            <div class="didactic-text">
+              <h4>Wie speichert ein Computer Buchstaben?</h4>
+              <p>
+                Ein Computer kennt im Inneren nur Nullen und Einsen (Strom an oder aus). Um Buchstaben wie <strong>A, B, C</strong> zu speichern, haben Informatiker weltweit eine feste Vereinbarung getroffen: den <strong>ASCII-Code</strong> (American Standard Code for Information Interchange).
+              </p>
+              <p style="margin-top: 6px;">
+                Der Großbuchstabe <strong>A</strong> hat als Startpunkt immer die Kennzahl <strong>65</strong>. Im Binärsystem ist das genau:
+                <span class="hl-val">64</span> + <span class="hl-val">1</span> = <span class="hl-dec">65</span> (Binärcode: <span class="hl-bin">01000001</span>).
+              </p>
+            </div>
+          </div>
+
+          <div class="step-action-card">
+            <span style="font-size: 0.95rem; color: var(--text-muted);">Probiere den Startpunkt sofort aus:</span>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;">
+              <button class="btn-glow" onclick="applyAsciiValue(65)">
+                <span>🅰️ Buchstabe 'A' einstellen (64 + 1 = 65)</span>
+              </button>
+            </div>
+            <!-- Interactive feedback display -->
+            <div class="ascii-letter-hero" id="hero-letter-a">
+              <div class="hero-char" id="hero-char-display">A</div>
+              <div class="hero-desc" id="hero-desc-display">Dezimal: 65 | Binär: 01000001</div>
+            </div>
+
+            <!-- Interaktive 8-Bit Schnell-Eingabeleiste für Schritt 1 -->
+            <div class="compact-bit-strip" style="width: 100%; max-width: 580px; margin: 6px 0;">
+              <div class="bit-strip-label">
+                <span>👾 8 Bits für diesen Buchstaben:</span>
+                <span class="compact-strip-decimal" id="compact-strip-decimal-step1" style="color: #fff; font-family: var(--font-mono); font-weight: 700;">Dezimal: 65</span>
+              </div>
+              <div class="bit-strip-buttons" id="bit-strip-buttons-step1">
+                <!-- Dynamisch generierte 8 Bit-Schalter -->
+              </div>
+            </div>
+
+            <button class="btn-action" style="margin-top: 8px;" onclick="switchAsciiStep(2)">
+              <span>Verstanden! Weiter zu Schritt 2 (Die Alphabet-Leiter) ➔</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- SCHRITT 2 CONTENT: Die Alphabet-Leiter (A=65, B=66, C=67...) -->
+        <div class="ascii-step-content" id="ascii-content-step2">
+          <div class="didactic-intro-box">
+            <div class="didactic-icon">🪜</div>
+            <div class="didactic-text">
+              <h4>Die Alphabet-Leiter: Es zählt einfach aufwärts!</h4>
+              <p>
+                Das Geniale an ASCII ist: Die Großbuchstaben folgen exakt der Reihenfolge des Alphabets!
+              </p>
+              <p style="margin-top: 6px;">
+                Wenn <strong>A = 65</strong> ist, dann ist <strong>B = 66</strong> ($65 + 1$), <strong>C = 67</strong> ($65 + 2$), <strong>D = 68</strong> ($65 + 3$) und so weiter!
+              </p>
+            </div>
+          </div>
+
+          <!-- Interactive Alphabet Ladder Explorer -->
+          <div class="alphabet-ladder-bar" id="alphabet-ladder">
+            <!-- Buttons A to H dynamically populated -->
+          </div>
+          <div class="ladder-explainer" id="ladder-explainer">
+            Klicke oben auf einen Buchstaben, um seine ASCII-Berechnung und seinen Binärcode zu erforschen!
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 8px;">
+            <button class="btn-action" onclick="switchAsciiStep(1)">
+              <span>⬅ Zurück zu Schritt 1</span>
+            </button>
+            <button class="btn-glow" onclick="switchAsciiStep(3)">
+              <span>🎯 Jetzt bin ich bereit für die Geheimwort-Missionen! ➔</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- SCHRITT 3 CONTENT: Die 3 Geheimwort-Missionen (Gestaffeltes Spiel) -->
+        <div class="ascii-step-content" id="ascii-content-step3">
+          <!-- Mission Selector Row -->
+          <div class="mission-selector-row">
+            <span style="font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.8px; color: var(--cyber-cyan); font-weight: 700;">
+              Wähle deine Decoder-Mission:
+            </span>
+            <div class="mission-buttons">
+              <button class="mission-btn active" id="mission-btn-1" onclick="selectMissionLevel(1)">
+                <span>Level 1 (Einstieg)</span>
+                <strong>H - I ⚡</strong>
+              </button>
+              <button class="mission-btn" id="mission-btn-2" onclick="selectMissionLevel(2)">
+                <span>Level 2 (Knacker)</span>
+                <strong>C - A - B 🚕</strong>
+              </button>
+              <button class="mission-btn" id="mission-btn-3" onclick="selectMissionLevel(3)">
+                <span>Level 3 (Meister)</span>
+                <strong>N - E - R - D 🤖</strong>
+              </button>
+            </div>
+          </div>
+
+          <!-- Mission Task & Scaffolding Helper Box -->
+          <div class="mission-helper-card" id="mission-helper-card">
+            <div class="helper-badge" id="mission-helper-badge">Level 1: Einstiegs-Mission mit Rechenbrücke</div>
+            <div class="helper-content" id="mission-helper-content">
+              Stelle den ersten Buchstaben ein!
+            </div>
+          </div>
+
+          <!-- Target Instruction -->
+          <div style="color: var(--text-main); font-size: 1.05rem; display: flex; align-items: center; justify-content: center; gap: 12px; margin: 4px 0;">
+            <span>Aktueller Buchstabe:</span>
+            <strong id="current-target-char-label" style="color: var(--cyber-cyan); font-size: 1.5rem; font-family: var(--font-mono);">H</strong>
+            <span id="current-target-hint" style="color: var(--accent-gold); font-size: 0.9rem; font-family: var(--font-mono);">(ASCII-Wert: 72)</span>
+          </div>
+
+          <!-- Letters Slots Container -->
+          <div class="letter-slots-container" id="letter-slots">
+            <!-- Dynamically populated slots -->
+          </div>
+
+          <!-- COMPACT INLINE 8-BIT SWITCHES DIRECTLY IN DECODER -->
+          <div class="compact-bit-strip" id="compact-bit-strip">
+            <div class="bit-strip-label">
+              <span>👾 Schnell-Eingabe (8 Bits):</span>
+              <span id="compact-strip-decimal" style="color: #fff; font-family: var(--font-mono); font-weight: 700;">Dezimal: 0</span>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="compact-strip-decimal" id="compact-strip-decimal" style="color: #fff; font-family: var(--font-mono); font-weight: 700;">Dezimal: 0</span>
+                <button class="btn-mini" onclick="resetAllBits()" title="Alle Bits auf 0 zurücksetzen">🔄 0</button>
+              </div>
+            </div>
+            <div class="bit-strip-buttons" id="bit-strip-buttons">
+              <!-- 8 compact clickable toggles [128][64][32][16][8][4][2][1] -->
+            </div>
+          </div>
+
+          <!-- Completed Word Banner -->
+          <div class="word-completed-banner" id="word-completed-banner">
+            <span class="secret-icon" id="word-symbol">⚡</span>
+            <div>
+              <div style="font-size: 1.15rem;">GEHEIMWORT VOLLSTÄNDIG ENTSCHLÜSSELT!</div>
+              <div style="font-size: 0.85rem; font-weight: normal; opacity: 0.9;" id="word-success-desc">
+                Du hast alle Buchstaben erfolgreich mit Binärcode übertragen.
+              </div>
+            </div>
+            <button class="btn-glow" style="margin-left: 12px; padding: 8px 16px; font-size: 0.85rem;" onclick="openCertificateModal()">
+              🏆 Urkunde anzeigen
+            </button>
+            <button class="btn-glow" id="btn-advance-chap4" style="margin-left: 8px; padding: 8px 16px; font-size: 0.85rem;" onclick="forceUnlockChapter(4)">
+              ⚡ Weiter zu Kapitel 4 (Rechenwerk ALU) ➔
+            </button>
+          </div>
+        </div>
+
+
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         KAPITEL 4: BEREICH C: "Das Rechenwerk (ALU) – Binäre Addition & Subtraktion"
+         ====================================================================== -->
+    <section id="chapter-4" class="chapter-section">
+      <div class="alu-card">
+        <!-- ALU Header & Submodes -->
+        <div class="alu-top-bar">
+          <div class="alu-title-group">
+            <h3><span>⚡</span> BEREICH C: "Das Rechenwerk (ALU) – Binäre Addition & Subtraktion"</h3>
+            <p>Wie rechnet ein Computer im Prozessor (CPU)? Erlebe das binäre Rechenwerk Schritt für Schritt oder rechne selbst!</p>
+          </div>
+
+          <div class="alu-top-controls">
+            <!-- Sub-Modi: Addition (+) vs Subtraktion (-) -->
+            <div class="alu-submodes">
+              <button id="alu-submode-add" class="submode-btn active" onclick="setAluOperation('add')">
+                ➕ 1. Addition (+)
+              </button>
+              <button id="alu-submode-sub" class="submode-btn" onclick="setAluOperation('sub')">
+                ➖ 2. Subtraktion (−)
+              </button>
+            </div>
+
+            <!-- Interaktionsmodi: Schritt-für-Schritt vs Selbst rechnen -->
+            <div class="alu-interact-modes">
+              <button id="alu-mode-step" class="mode-toggle-btn active" onclick="setAluMode('step')">
+                🚶 Geführter Modus (Schritt für Schritt)
+              </button>
+              <button id="alu-mode-practice" class="mode-toggle-btn" onclick="setAluMode('practice')">
+                ✍️ Übungs-Modus (Selbst rechnen)
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Task Preset Bar & Random Generator -->
+        <div class="alu-task-bar">
+          <div class="alu-task-presets" id="alu-task-presets">
+            <!-- Rendered by JS based on add/sub -->
+          </div>
+          <button class="btn-action" onclick="generateRandomAluTask()">
+            <span>🎲</span> Zufalls-Aufgabe
+          </button>
+        </div>
+
+        <!-- Scaffolding: Rechen-Spickzettel-Box (Stets sichtbar!) -->
+        <div class="alu-cheat-card" id="alu-cheat-card">
+          <div class="cheat-header">
+            <span class="cheat-icon">📖</span>
+            <strong>Rechen-Spickzettel: <span id="cheat-op-title">Binäre Addition (+)</span></strong>
+            <span class="cheat-badge" id="cheat-op-badge">Grundregeln</span>
+          </div>
+          <div class="cheat-rules-grid" id="cheat-rules-grid">
+            <!-- Rendered by JS based on current operation -->
+          </div>
+        </div>
+
+        <!-- ALU STAGE: DIE VIER MÄNNCHEN-REIHEN -->
+        <div class="alu-stage-container">
+          <div class="alu-grid-wrapper">
+            <!-- Column Place Values (128 .. 1) -->
+            <div class="alu-row-columns-header">
+              <div class="alu-row-label-spacer">Stellenwert:</div>
+              <div class="alu-cols-header-grid" id="alu-cols-header-grid">
+                <div class="alu-col-val" data-col="0"><span>128</span><small>2⁷</small></div>
+                <div class="alu-col-val" data-col="1"><span>64</span><small>2⁶</small></div>
+                <div class="alu-col-val" data-col="2"><span>32</span><small>2⁵</small></div>
+                <div class="alu-col-val" data-col="3"><span>16</span><small>2⁴</small></div>
+                <div class="alu-col-val" data-col="4"><span>8</span><small>2³</small></div>
+                <div class="alu-col-val" data-col="5"><span>4</span><small>2²</small></div>
+                <div class="alu-col-val" data-col="6"><span>2</span><small>2¹</small></div>
+                <div class="alu-col-val" data-col="7"><span>1</span><small>2⁰</small></div>
+              </div>
+            </div>
+
+            <!-- REIHE A: Erster Operand (8 Männchen) -->
+            <div class="alu-row alu-row-operand" id="alu-row-operandA">
+              <div class="alu-row-label">
+                <span class="row-tag tag-a">Operand A</span>
+                <span class="row-dec" id="alu-dec-a">Dezimal: 2</span>
+              </div>
+              <div class="alu-row-grid" id="alu-grid-a">
+                <!-- 8 Männchen A -->
+              </div>
+            </div>
+
+            <!-- Operator indicator & Divider row -->
+            <div class="alu-row-operator-bar">
+              <div class="alu-operator-badge" id="alu-operator-badge">➕</div>
+              <div class="alu-operator-text" id="alu-operator-text">Addition: Operand A + Operand B</div>
+            </div>
+
+            <!-- REIHE B: Zweiter Operand (8 Männchen) -->
+            <div class="alu-row alu-row-operand" id="alu-row-operandB">
+              <div class="alu-row-label">
+                <span class="row-tag tag-b">Operand B</span>
+                <span class="row-dec" id="alu-dec-b">Dezimal: 5</span>
+              </div>
+              <div class="alu-row-grid" id="alu-grid-b">
+                <!-- 8 Männchen B -->
+              </div>
+            </div>
+
+            <!-- ÜBERTRAG-ZEILE: Carry-Männchen (Rot) -->
+            <div class="alu-row alu-row-carry" id="alu-row-carry">
+              <div class="alu-row-label">
+                <span class="row-tag tag-carry" id="carry-row-tag">Übertrag (Ü)</span>
+                <small id="carry-row-subtext" style="color: #fca5a5; font-size: 0.7rem;">Gemerkte 1en</small>
+              </div>
+              <div class="alu-row-grid" id="alu-grid-carry">
+                <!-- 8 rote Übertrag-Männchen -->
+              </div>
+            </div>
+
+            <!-- ALU Divider Line (Rechenstrich) -->
+            <div class="alu-calc-divider-line"></div>
+
+            <!-- ERGEBNIS-ZEILE: 8 Männchen (Gold/Grün) -->
+            <div class="alu-row alu-row-result" id="alu-row-result">
+              <div class="alu-row-label">
+                <span class="row-tag tag-res">Ergebnis (=)</span>
+                <span class="row-dec" id="alu-dec-res">Dezimal: 7</span>
+              </div>
+              <div class="alu-row-grid" id="alu-grid-result">
+                <!-- 8 Ergebnis-Männchen -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEUERUNGSLEISTE: Schritt-für-Schritt vs Selbst rechnen -->
+        <div class="alu-controls-card">
+          <!-- Guided Step-by-Step Controls -->
+          <div id="alu-step-controls" class="alu-control-panel">
+            <div class="alu-step-actions">
+              <button class="btn-glow" id="btn-alu-next-step" onclick="aluNextStep()">
+                <span>Nächster Schritt (Bit für Bit) ➔</span>
+              </button>
+              <button class="btn-action" onclick="aluResetSteps()">
+                <span>🔄</span> Von vorne beginnen
+              </button>
+              <button class="btn-action" id="btn-alu-autoplay" onclick="aluToggleAutoPlay()">
+                <span id="alu-autoplay-icon">▶️</span> <span id="alu-autoplay-text">Auto-Play</span>
+              </button>
+            </div>
+            <!-- Live Schritt-Erklärung -->
+            <div class="alu-step-explanation-box" id="alu-step-explanation">
+              <span class="step-bulb">💡</span>
+              <div id="alu-step-text">
+                Klicke auf <strong>„Nächster Schritt (Bit für Bit)“</strong>, um die Berechnung Spalte für Spalte von rechts (1er-Bit) nach links (128er-Bit) zu starten!
+              </div>
+            </div>
+          </div>
+
+          <!-- Practice Mode Controls (Selbst rechnen) -->
+          <div id="alu-practice-controls" class="alu-control-panel" style="display: none;">
+            <div class="alu-practice-actions">
+              <button class="btn-glow" onclick="aluCheckPractice()">
+                <span>Prüfen ✔</span>
+              </button>
+              <button class="btn-tipp" id="btn-alu-tipp" onclick="aluShowTipp()">
+                <span>💡</span> Tipp anzeigen
+              </button>
+              <button class="btn-action reset" onclick="aluResetPracticeInputs()">
+                <span>🔄</span> Eingaben löschen
+              </button>
+            </div>
+            <!-- Practice Feedback Banner -->
+            <div class="feedback-banner" id="alu-practice-feedback" style="display: none;">
+              <span id="alu-feedback-icon">🎉</span>
+              <span id="alu-feedback-text">Perfekt gerechnet! Alle Bits und Überträge stimmen!</span>
+            </div>
+            <!-- Practice Tipp Box -->
+            <div class="tipp-box" id="alu-tipp-box" style="display: none;">
+              <div style="font-weight: 700; color: var(--accent-gold); display: flex; align-items: center; gap: 6px;">
+                <span>💡</span> <span id="alu-tipp-headline">Didaktischer Rechen-Tipp</span>
+              </div>
+              <div class="tipp-step" id="alu-tipp-content">
+                <!-- Pedagogical hint pointing to specific column -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. AUTOMATISCHE SPRACHAUSGABE (HEFT-GENERATOR FÜR KAPITEL 4) -->
+        <div class="alu-heft-card">
+          <div class="heft-header">
+            <div class="heft-title">
+              <span>📝</span>
+              <strong>Erklärungssatz für dein Informatik-Heft</strong>
+            </div>
+            <div class="heft-actions">
+              <button class="btn-action" onclick="aluSpeakSentence()" title="Satz laut vorlesen">
+                <span>🗣️</span> Vorlesen
+              </button>
+              <button class="btn-action" onclick="aluCopySentence()" title="Satz in Zwischenablage kopieren">
+                <span id="alu-copy-icon">📋</span> <span id="alu-copy-text">Satz kopieren</span>
+              </button>
+            </div>
+          </div>
+          <div class="heft-sentence-box" id="alu-sentence-box">
+            <!-- Dynamically generated explanation sentence -->
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ======================================================================
+       ASCII-SPICKZETTEL MODAL (OVERLAY)
+       ====================================================================== -->
+  <div class="modal-overlay" id="ascii-modal" onclick="handleModalOverlayClick(event)">
+    <div class="modal-window">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span>📋</span> ASCII-Code Spickzettel (A–Z)
+        </div>
+        <button class="btn-close-modal" onclick="closeAsciiModal()" title="Schließen">&times;</button>
+      </div>
+      <div class="modal-search-bar">
+        <input type="text" id="ascii-search" class="search-input" placeholder="Nach Buchstabe (z.B. A) oder Zahl suchen..." oninput="filterAsciiTable(this.value)">
+      </div>
+      <div class="modal-body">
+        <div class="ascii-grid-table" id="ascii-grid-table">
+          <!-- Dynamically filled with A-Z cards -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       MEISTER-URKUNDE MODAL
+       ====================================================================== -->
+  <div class="modal-overlay" id="certificate-modal" onclick="handleModalOverlayClick(event)">
+    <div class="certificate-window">
+      <div class="certificate-icon">🏆</div>
+      <div class="certificate-title">URKUNDE: BYTE-MEISTER</div>
+      <p style="color: #cbd5e1; font-size: 1rem; line-height: 1.5;">
+        Herzlichen Glückwunsch! Du hast die Binärcode- und ASCII-Geheimnisse erfolgreich gelüftet.
+      </p>
+
+      <div style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+        <label for="cert-student-name" style="font-size: 0.85rem; color: var(--accent-gold);">Dein Name für die Urkunde:</label>
+        <input type="text" id="cert-student-name" class="certificate-name-input" placeholder="Vor- und Nachname">
+      </div>
+
+      <div style="background: rgba(0,0,0,0.3); border: 1px dashed var(--accent-gold); border-radius: var(--radius-sm); padding: 12px 20px; font-size: 0.9rem; color: #fef08a;">
+        8 Bits = 1 Byte | Werte: 0 bis 255 | Dualsystem & ASCII verstanden!
+      </div>
+
+      <div style="display: flex; gap: 12px; margin-top: 8px;">
+        <button class="btn-glow" onclick="window.print()">
+          <span>🖨️ Urkunde drucken</span>
+        </button>
+        <button class="btn-glow" onclick="closeCertificateModal(); forceUnlockChapter(4);">
+          <span>⚡ Weiter zu Kapitel 4 (ALU) ➔</span>
+        </button>
+        <button class="btn-action" onclick="closeCertificateModal()">
+          <span>Schließen</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       JAVASCRIPT: ENGINE, AUDIO, LOGIK & DIDAKTIK
+       ========================================================================== -->
+  <script>
+    /* ==========================================================================
+       1. GLOBAL STATE & KONFIGURATION
+       ========================================================================== */
+    const BIT_VALUES = [128, 64, 32, 16, 8, 4, 2, 1];
+    const BIT_POWERS = ['2⁷', '2⁶', '2⁵', '2⁴', '2³', '2²', '2¹', '2⁰'];
+    
+    // Musical Pentatonic Frequencies (Hz) for bits 128 (low) to 1 (high)
+    const BIT_PITCHES = [130.81, 146.83, 164.81, 196.00, 220.00, 261.63, 293.66, 329.63];
+
+    let state = {
+      bits: [0, 0, 0, 0, 0, 0, 0, 0], // Current state of 8 bits (index 0 = 128, index 7 = 1)
+      currentChapter: 1,
+      unlockedChapters: [1],
+      teacherMode: false,
+      audioEnabled: true,
+      männchenCollapsed: false,
+      
+      // Kapitel 1 Explorer Tasks (7 Aufgaben inkl. 2 Profi-Aufgaben ohne Tipps: 77 und 170)
+      chap1Tasks: {
+        task1: false, // build 1
+        task2: false, // build 5
+        task3: false, // build 42
+        task4: false, // build > 100
+        task5: false, // clicked reset
+        task6: false, // Profi: build 77
+        task7: false  // Profi: build 170
+      },
+
+      // Kapitel 2 Puzzle State (4 Aufgaben pro Modus!)
+      puzzle: {
+        submode: 'b2d', // 'b2d' = Binary to Decimal, 'd2b' = Decimal to Binary
+        taskIndexB2D: 0,
+        taskIndexD2B: 0,
+        starsB2D: 0,
+        starsD2B: 0,
+        stars: 0,
+        tippStep: 0,
+        targetNumber: 0,
+        tasksB2D: [
+          { bits: [0, 0, 0, 0, 0, 1, 0, 1], expected: 5, label: "Aufgabe 1 von 4 (Einstieg)" },
+          { bits: [0, 0, 0, 1, 0, 1, 1, 0], expected: 22, label: "Aufgabe 2 von 4 (3 Summanden)" },
+          { bits: [0, 1, 0, 0, 1, 0, 0, 1], expected: 73, label: "Aufgabe 3 von 4 (Höhere Bits)" },
+          { bits: [1, 0, 0, 1, 0, 1, 0, 1], expected: 149, label: "Aufgabe 4 von 4 (Meister-Level)" }
+        ],
+        tasksD2B: [
+          { target: 9, label: "Aufgabe 1 von 4 (Ziel: 9)" },
+          { target: 26, label: "Aufgabe 2 von 4 (Ziel: 26)" },
+          { target: 53, label: "Aufgabe 3 von 4 (Ziel: 53)" },
+          { target: 99, label: "Aufgabe 4 von 4 (Ziel: 99)" }
+        ]
+      },
+
+      // Kapitel 3 ASCII State (Schrittweise Heranführung & Missionen)
+      ascii: {
+        currentStep: 1, // 1: Das Geheimnis des 'A', 2: Die Alphabet-Leiter, 3: Geheimwort-Missionen
+        ladderSelectedChar: 'A',
+        missionLevel: 1, // 1: HI (Einstieg), 2: CAB (Knacker), 3: NERD (Meister)
+        missions: {
+          1: {
+            word: 'HI',
+            icon: '⚡',
+            badge: 'Level 1: Einstiegs-Mission (2 Buchstaben mit Rechenbrücke)',
+            desc: 'Hi! Du hast deine erste geheime Botschaft mit Binärcode übertragen!',
+            letters: [
+              { char: 'H', code: 72, tip: 'Tipp für <strong>H (72)</strong>: Starte mit der 64! Wie viel fehlt noch? (64 + 8 = 72 &rarr; Schalte Bit 64 und Bit 8 an)' },
+              { char: 'I', code: 73, tip: 'Tipp für <strong>I (73)</strong>: Alphabet-Leiter! Nach H (+1) kommt I: 64 + 8 + 1 = 73 (Schalte Bit 1 dazu)' }
+            ]
+          },
+          2: {
+            word: 'CAB',
+            icon: '🚕',
+            badge: 'Level 2: Knacker-Mission (3 Buchstaben)',
+            desc: 'Cab = Taxi auf Englisch! Du hast das Geheimwort geknackt!',
+            letters: [
+              { char: 'C', code: 67, tip: 'Tipp für <strong>C (67)</strong>: C ist der 3. Buchstabe (65 + 2 = 67). Zerlegung: 64 + 2 + 1 = 67' },
+              { char: 'A', code: 65, tip: 'Tipp für <strong>A (65)</strong>: A ist der Startpunkt! Zerlegung: 64 + 1 = 65' },
+              { char: 'B', code: 66, tip: 'Tipp für <strong>B (66)</strong>: B liegt zwischen A und C (65 + 1 = 66). Zerlegung: 64 + 2 = 66' }
+            ]
+          },
+          3: {
+            word: 'NERD',
+            icon: '🤖',
+            badge: 'Level 3: Meister-Mission (4 Buchstaben)',
+            desc: 'Nerd = Ein echter Computer-Experte! Alle 4 Zeichen meisterhaft decodiert!',
+            letters: [
+              { char: 'N', code: 78, tip: 'Tipp für <strong>N (78)</strong>: 64 + 8 + 4 + 2 = 78' },
+              { char: 'E', code: 69, tip: 'Tipp für <strong>E (69)</strong>: 64 + 4 + 1 = 69' },
+              { char: 'R', code: 82, tip: 'Tipp für <strong>R (82)</strong>: 64 + 16 + 2 = 82' },
+              { char: 'D', code: 68, tip: 'Tipp für <strong>D (68)</strong>: 64 + 4 = 68' }
+            ]
+          }
+        },
+        currentLetterIndex: 0,
+        snappedLetters: []
+      },
+
+      // Kapitel 4: ALU Rechenwerk State
+      alu: {
+        op: 'add', // 'add' or 'sub'
+        mode: 'step', // 'step' (Geführt) or 'practice' (Selbst rechnen)
+        operandA: [0, 0, 0, 0, 0, 0, 1, 0], // default 2 (Aufgabe 1: 2 + 5 = 7 ohne Übertrag)
+        operandB: [0, 0, 0, 0, 0, 1, 0, 1], // default 5
+        userCarries: [0, 0, 0, 0, 0, 0, 0, 0],
+        userResult: [0, 0, 0, 0, 0, 0, 0, 0],
+        stepIndex: 7, // starts at column 7 (value 1) down to 0 (value 128)
+        stepCarries: [0, 0, 0, 0, 0, 0, 0, 0],
+        stepResult: [0, 0, 0, 0, 0, 0, 0, 0],
+        stepFinished: false,
+        autoPlayTimer: null,
+        activeTaskIndex: 0,
+        tasksAdd: [
+          { a: 2, b: 5, label: "Aufgabe 1 (2 + 5: 0 Überträge)" },
+          { a: 12, b: 3, label: "Aufgabe 2 (12 + 3: 0 Überträge)" },
+          { a: 9, b: 1, label: "Aufgabe 3 (9 + 1: 1 Übertrag)" },
+          { a: 5, b: 5, label: "Aufgabe 4 (5 + 5: 2 Überträge)" },
+          { a: 3, b: 1, label: "Aufgabe 5 (3 + 1: 2 Überträge)" }
+        ],
+        tasksSub: [
+          { a: 7, b: 2, label: "Aufgabe 1 (7 − 2: kein Borgen)" },
+          { a: 15, b: 5, label: "Aufgabe 2 (15 − 5: kein Borgen)" },
+          { a: 6, b: 1, label: "Aufgabe 3 (6 − 1: 1 Borgen)" },
+          { a: 10, b: 5, label: "Aufgabe 4 (10 − 5: 2 Borgen)" },
+          { a: 4, b: 1, label: "Aufgabe 5 (4 − 1: 2 Borgen)" }
+        ]
+      }
+    };
+
+    /* ==========================================================================
+       2. WEB AUDIO API SYNTHESIZER (OHNE EXTERNE AUDIODATEIEN)
+       ========================================================================== */
+    let audioCtx = null;
+
+    function getAudioContext() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) {
+          audioCtx = new AudioContextClass();
+        }
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    // Play tone when clicking bit (pitch dependent on bit position)
+    function playBitTone(bitIndex, isTurnedOn) {
+      if (!state.audioEnabled) return;
+      try {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        const baseFreq = BIT_PITCHES[bitIndex] || 220;
+        osc.frequency.setValueAtTime(isTurnedOn ? baseFreq : baseFreq * 0.85, now);
+        
+        if (isTurnedOn) {
+          osc.type = 'triangle';
+          osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.05, now + 0.12);
+          gain.gain.setValueAtTime(0.28, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+        } else {
+          osc.type = 'sine';
+          osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.7, now + 0.08);
+          gain.gain.setValueAtTime(0.18, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+        }
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.25);
+      } catch (e) {
+        // Audio fallback
+      }
+    }
+
+    // Play success fanfare
+    function playSuccessSound() {
+      if (!state.audioEnabled) return;
+      try {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        const notes = [261.63, 329.63, 392.00, 523.25]; // C4, E4, G4, C5
+        notes.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.09);
+          gain.gain.setValueAtTime(0.25, now + idx * 0.09);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.09 + 0.35);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + idx * 0.09);
+          osc.stop(now + idx * 0.09 + 0.4);
+        });
+      } catch (e) {}
+    }
+
+    // Play tactile snap-in sound for ASCII
+    function playSnapSound() {
+      if (!state.audioEnabled) return;
+      try {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(880, now);
+        osc.frequency.exponentialRampToValueAtTime(220, now + 0.06);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.09);
+      } catch (e) {}
+    }
+
+    // Play hint chime
+    function playHintSound() {
+      if (!state.audioEnabled) return;
+      try {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(587.33, now); // D5
+        osc.frequency.setValueAtTime(880, now + 0.08); // A5
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.3);
+      } catch (e) {}
+    }
+
+    /* ==========================================================================
+       3. VECTOR COMIC CHARACTER RENDERING (SVG METAPHER)
+       ========================================================================== */
+    function getCharacterSvg(bitVal, isOn) {
+      if (isOn) {
+        // ZUSTAND 1: Zeigt stolz seine Karte mit Zahl nach vorne
+        return `
+          <svg class="character-svg" viewBox="0 0 100 135" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="cardGrad-${bitVal}" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#fffbeb"/>
+                <stop offset="100%" stop-color="#fef08a"/>
+              </linearGradient>
+              <linearGradient id="bodyGradOn" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#38bdf8"/>
+                <stop offset="100%" stop-color="#0284c7"/>
+              </linearGradient>
+              <filter id="glow-${bitVal}" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#eab308" flood-opacity="0.6"/>
+              </filter>
+            </defs>
+            <!-- Beine -->
+            <path d="M 42 105 L 36 128" stroke="#94a3b8" stroke-width="4.5" stroke-linecap="round"/>
+            <path d="M 58 105 L 64 128" stroke="#94a3b8" stroke-width="4.5" stroke-linecap="round"/>
+            <!-- Schuhe -->
+            <ellipse cx="33" cy="128" rx="6" ry="3.5" fill="#38bdf8"/>
+            <ellipse cx="67" cy="128" rx="6" ry="3.5" fill="#38bdf8"/>
+            <!-- Körper / Torso -->
+            <rect x="36" y="55" width="28" height="52" rx="12" fill="url(#bodyGradOn)"/>
+            <!-- Kopf -->
+            <circle cx="50" cy="32" r="18" fill="#fef08a" stroke="#ca8a04" stroke-width="2.5"/>
+            <!-- Freudige Augen -->
+            <ellipse cx="44" cy="28" rx="3.5" ry="4.5" fill="#0f172a"/>
+            <ellipse cx="56" cy="28" rx="3.5" ry="4.5" fill="#0f172a"/>
+            <circle cx="45" cy="26.5" r="1.2" fill="#ffffff"/>
+            <circle cx="57" cy="26.5" r="1.2" fill="#ffffff"/>
+            <!-- Breites Lächeln -->
+            <path d="M 42 36 Q 50 44 58 36" stroke="#0f172a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <!-- Rosa Wangen -->
+            <circle cx="39" cy="35" r="2.5" fill="#f43f5e" opacity="0.6"/>
+            <circle cx="61" cy="35" r="2.5" fill="#f43f5e" opacity="0.6"/>
+            <!-- Antenne / Haar mit grünem Status-Lämpchen -->
+            <path d="M 50 14 L 50 7" stroke="#38bdf8" stroke-width="2.5"/>
+            <circle cx="50" cy="5" r="4" fill="#22c55e"/>
+
+            <!-- ARME NACH VORNE (HÄLT KARTE) -->
+            <rect x="14" y="62" width="72" height="42" rx="7" fill="url(#cardGrad-${bitVal})" stroke="#ca8a04" stroke-width="3" filter="url(#glow-${bitVal})"/>
+            <!-- Zahl auf Karte -->
+            <text x="50" y="88" font-family="'Fira Code', monospace" font-size="${bitVal > 99 ? '20' : '23'}" font-weight="900" fill="#713f12" text-anchor="middle" dominant-baseline="central">
+              ${bitVal}
+            </text>
+            <!-- Hände an den Kartenecken -->
+            <circle cx="18" cy="80" r="4.5" fill="#fef08a" stroke="#ca8a04" stroke-width="1.8"/>
+            <circle cx="82" cy="80" r="4.5" fill="#fef08a" stroke="#ca8a04" stroke-width="1.8"/>
+          </svg>
+        `;
+      } else {
+        // ZUSTAND 0: Versteckt die Karte hinter dem Rücken (Zahl unsichtbar!)
+        return `
+          <svg class="character-svg" viewBox="0 0 100 135" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="bodyGradOff" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#475569"/>
+                <stop offset="100%" stop-color="#334155"/>
+              </linearGradient>
+            </defs>
+            <!-- Schatten der Karte hinter dem Rücken (teilweise verdeckt) -->
+            <rect x="22" y="60" width="56" height="36" rx="6" fill="#1e293b" stroke="#334155" stroke-width="2" opacity="0.6"/>
+            <!-- Beine -->
+            <path d="M 43 105 L 38 128" stroke="#64748b" stroke-width="4.5" stroke-linecap="round"/>
+            <path d="M 57 105 L 62 128" stroke="#64748b" stroke-width="4.5" stroke-linecap="round"/>
+            <!-- Schuhe -->
+            <ellipse cx="36" cy="128" rx="5.5" ry="3" fill="#475569"/>
+            <ellipse cx="64" cy="128" rx="5.5" ry="3" fill="#475569"/>
+            <!-- Arme HINTER dem Rücken (Ellenbogen sichtbar nach außen) -->
+            <path d="M 36 65 Q 22 75 32 88" stroke="#475569" stroke-width="5" stroke-linecap="round" fill="none"/>
+            <path d="M 64 65 Q 78 75 68 88" stroke="#475569" stroke-width="5" stroke-linecap="round" fill="none"/>
+            <!-- Körper / Torso -->
+            <rect x="36" y="55" width="28" height="52" rx="12" fill="url(#bodyGradOff)"/>
+            <!-- Kopf -->
+            <circle cx="50" cy="32" r="18" fill="#94a3b8" stroke="#475569" stroke-width="2.5"/>
+            <!-- Ruhige / neutrale Augen -->
+            <circle cx="44" cy="30" r="3" fill="#1e293b"/>
+            <circle cx="56" cy="30" r="3" fill="#1e293b"/>
+            <circle cx="45" cy="29" r="0.9" fill="#e2e8f0"/>
+            <circle cx="57" cy="29" r="0.9" fill="#e2e8f0"/>
+            <!-- Entspannter Mund -->
+            <path d="M 45 38 Q 50 40 55 38" stroke="#1e293b" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <!-- Graue Antenne mit inaktivem Lämpchen -->
+            <path d="M 50 14 L 50 8" stroke="#64748b" stroke-width="2"/>
+            <circle cx="50" cy="6" r="3.5" fill="#475569"/>
+          </svg>
+        `;
+      }
+    }
+
+    /* ==========================================================================
+       4. INITIALISIERUNG & RENDERING DER 8 MÄNNCHEN
+       ========================================================================== */
+    function initSimulator() {
+      const grid = document.getElementById('bits-grid');
+      grid.innerHTML = '';
+
+      BIT_VALUES.forEach((val, index) => {
+        const col = document.createElement('div');
+        col.className = 'bit-column' + (state.bits[index] === 1 ? ' is-on' : '');
+        col.id = `bit-col-${index}`;
+        col.setAttribute('role', 'button');
+        col.setAttribute('tabindex', '0');
+        col.setAttribute('aria-label', `Bit mit Stellenwert ${val}, Zustand ${state.bits[index]}`);
+        col.onclick = () => toggleBit(index);
+
+        // Keyboard navigation
+        col.onkeydown = (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggleBit(index);
+          }
+        };
+
+        col.innerHTML = `
+          <div class="column-header">
+            <span class="bit-value">${val}</span>
+            <span class="bit-power">${BIT_POWERS[index]}</span>
+          </div>
+          <div class="character-wrap" id="char-wrap-${index}">
+            ${getCharacterSvg(val, state.bits[index] === 1)}
+          </div>
+          <div class="bit-switch-indicator">
+            <span id="bit-indicator-text-${index}">
+              ${state.bits[index] === 1 ? '1 (AN)' : '0 (AUS)'}
+            </span>
+          </div>
+          <span class="key-badge">Taste ${index + 1}</span>
+        `;
+
+        grid.appendChild(col);
+      });
+
+      updateSimulatorOutputs();
+    }
+
+    // Toggle bit on/off
+    function toggleBit(index) {
+      const newState = state.bits[index] === 1 ? 0 : 1;
+      state.bits[index] = newState;
+
+      // Audio feedback
+      playBitTone(index, newState === 1);
+
+      // DOM update for this column
+      const col = document.getElementById(`bit-col-${index}`);
+      if (col) {
+        if (newState === 1) {
+          col.classList.add('is-on');
+        } else {
+          col.classList.remove('is-on');
+        }
+        col.setAttribute('aria-label', `Bit mit Stellenwert ${BIT_VALUES[index]}, Zustand ${newState}`);
+
+        const wrap = document.getElementById(`char-wrap-${index}`);
+        if (wrap) {
+          wrap.innerHTML = getCharacterSvg(BIT_VALUES[index], newState === 1);
+        }
+
+        const ind = document.getElementById(`bit-indicator-text-${index}`);
+        if (ind) {
+          ind.textContent = newState === 1 ? '1 (AN)' : '0 (AUS)';
+        }
+      }
+
+      updateSimulatorOutputs();
+      updateCompactBitStrip();
+
+      // Check tasks in chapter 1
+      checkChapter1Tasks();
+
+      // In Chapter 3: reactive updates for Step 1 hero & Step 3 snap
+      if (state.currentChapter === 3) {
+        handleAsciiBitChange();
+      }
+    }
+
+    function setBitsForDecimal(val) {
+      val = Math.max(0, Math.min(255, val));
+      state.bits = BIT_VALUES.map(bVal => ((val & bVal) ? 1 : 0));
+      refreshAllBitColumns();
+      updateSimulatorOutputs();
+      updateCompactBitStrip();
+    }
+
+    function setAllBits(val) {
+      state.bits = [val, val, val, val, val, val, val, val];
+      playBitTone(0, val === 1);
+      refreshAllBitColumns();
+      updateSimulatorOutputs();
+      updateCompactBitStrip();
+      checkChapter1Tasks();
+      if (state.currentChapter === 3) handleAsciiBitChange();
+    }
+
+    function resetAllBits() {
+      state.bits = [0, 0, 0, 0, 0, 0, 0, 0];
+      state.chap1Tasks.task5 = true; // reset tested!
+      playBitTone(7, false);
+      refreshAllBitColumns();
+      updateSimulatorOutputs();
+      updateCompactBitStrip();
+      checkChapter1Tasks();
+      if (state.currentChapter === 3) handleAsciiBitChange();
+      showToast('🔄 Alle Männchen haben ihre Karten versteckt (Reset auf 0)');
+    }
+
+    function setRandomBits() {
+      state.bits = state.bits.map(() => (Math.random() > 0.5 ? 1 : 0));
+      playBitTone(4, true);
+      refreshAllBitColumns();
+      updateSimulatorOutputs();
+      updateCompactBitStrip();
+      checkChapter1Tasks();
+      if (state.currentChapter === 3) handleAsciiBitChange();
+    }
+
+    function refreshAllBitColumns() {
+      BIT_VALUES.forEach((val, index) => {
+        const col = document.getElementById(`bit-col-${index}`);
+        if (col) {
+          if (state.bits[index] === 1) {
+            col.classList.add('is-on');
+          } else {
+            col.classList.remove('is-on');
+          }
+          const wrap = document.getElementById(`char-wrap-${index}`);
+          if (wrap) {
+            wrap.innerHTML = getCharacterSvg(val, state.bits[index] === 1);
+          }
+          const ind = document.getElementById(`bit-indicator-text-${index}`);
+          if (ind) {
+            ind.textContent = state.bits[index] === 1 ? '1 (AN)' : '0 (AUS)';
+          }
+        }
+      });
+      updateCompactBitStrip();
+    }
+
+    /* ==========================================================================
+       5. LIVE-BERECHNUNG & MÄNNCHEN-KLAPPFUNKTION
+       ========================================================================== */
+    function calculateDecimal() {
+      return state.bits.reduce((sum, bit, idx) => sum + (bit ? BIT_VALUES[idx] : 0), 0);
+    }
+
+    function getBinaryString() {
+      return state.bits.join('');
+    }
+
+    function updateSimulatorOutputs() {
+      const decValue = calculateDecimal();
+      const binStr = getBinaryString();
+
+      // Update Displays
+      const decDisplay = document.getElementById('display-decimal');
+      const binDisplay = document.getElementById('display-binary');
+      if (decDisplay) decDisplay.textContent = decValue;
+      if (binDisplay) binDisplay.textContent = binStr;
+
+      // Update Active Addition Formula Bar (Kompakt)
+      const calcFormula = document.getElementById('calc-formula');
+      if (calcFormula) {
+        const activeVals = [];
+        state.bits.forEach((b, idx) => {
+          if (b === 1) activeVals.push(BIT_VALUES[idx]);
+        });
+
+        if (activeVals.length === 0) {
+          calcFormula.innerHTML = `<span style="color: var(--text-muted); font-size: 0.85rem;">Keine Karten sichtbar &rarr;</span> <span class="calc-equals">0</span>`;
+        } else if (activeVals.length === 1) {
+          calcFormula.innerHTML = `<span class="calc-num-badge">${activeVals[0]}</span> <span class="calc-equals">=</span> <span class="calc-total" style="color: #ffffff; font-weight: 800; font-size: 1.2rem;">${decValue}</span>`;
+        } else {
+          let html = '';
+          activeVals.forEach((val, i) => {
+            html += `<span class="calc-num-badge">${val}</span>`;
+            if (i < activeVals.length - 1) {
+              html += `<span class="calc-operator">+</span>`;
+            }
+          });
+          html += `<span class="calc-equals">=</span> <span class="calc-total" style="color: #ffffff; font-weight: 800; font-size: 1.2rem;">${decValue}</span>`;
+          calcFormula.innerHTML = html;
+        }
+      }
+    }
+
+    function setMännchenCollapsed(collapsed) {
+      state.männchenCollapsed = collapsed;
+      const stage = document.getElementById('simulator-stage');
+      const text = document.getElementById('toggle-männchen-text');
+      const icon = document.getElementById('toggle-männchen-icon');
+      if (!stage) return;
+
+      if (collapsed) {
+        stage.classList.add('is-collapsed');
+        if (text) text.textContent = 'Männchen aufklappen';
+        if (icon) icon.textContent = '▼';
+      } else {
+        stage.classList.remove('is-collapsed');
+        if (text) text.textContent = 'Männchen einklappen';
+        if (icon) icon.textContent = '▲';
+      }
+    }
+
+    function toggleMännchenManual() {
+      setMännchenCollapsed(!state.männchenCollapsed);
+      showToast(state.männchenCollapsed ? '👾 Männchen eingeklappt' : '👾 Männchen ausgeklappt');
+    }
+
+    /* ==========================================================================
+       6. KAPITEL-FREISCHALTUNG & PROGRESSION
+       ========================================================================== */
+    function checkChapter1Tasks() {
+      const dec = calculateDecimal();
+
+      if (dec === 1) {
+        state.chap1Tasks.task1 = true;
+      }
+      if (dec === 5) {
+        state.chap1Tasks.task2 = true;
+      }
+      if (dec === 42) {
+        state.chap1Tasks.task3 = true;
+      }
+      if (dec >= 100) {
+        state.chap1Tasks.task4 = true;
+      }
+      if (dec === 77) {
+        state.chap1Tasks.task6 = true;
+      }
+      if (dec === 170) {
+        state.chap1Tasks.task7 = true;
+      }
+
+      // Update Task Chips in DOM
+      for (let i = 1; i <= 7; i++) {
+        if (state.chap1Tasks[`task${i}`]) {
+          const c = document.getElementById(`task-chip-${i}`);
+          const ch = document.getElementById(`task-check-${i}`);
+          if (c) c.classList.add('done');
+          if (ch) ch.textContent = '✅';
+        }
+      }
+
+      // If at least 3 tasks are done, unlock Chapter 2 automatically
+      const doneCount = Object.values(state.chap1Tasks).filter(Boolean).length;
+      if (doneCount >= 3 && !state.unlockedChapters.includes(2)) {
+        unlockChapter(2);
+      }
+    }
+
+    function unlockChapter(chapNum) {
+      if (!state.unlockedChapters.includes(chapNum)) {
+        state.unlockedChapters.push(chapNum);
+        playSuccessSound();
+        showToast(`🎉 Kapitel ${chapNum} wurde erfolgreich freigeschaltet!`);
+      }
+
+      const tab = document.getElementById(`tab-chap${chapNum}`);
+      const status = document.getElementById(`tab-chap${chapNum}-status`);
+      if (tab) {
+        tab.classList.remove('locked');
+      }
+      if (status) {
+        status.textContent = '🟢';
+      }
+
+      saveProgressToStorage();
+    }
+
+    function forceUnlockChapter(chapNum) {
+      unlockChapter(chapNum);
+      switchChapter(chapNum);
+    }
+
+    function switchChapter(chapNum) {
+      if (!state.unlockedChapters.includes(chapNum) && !state.teacherMode) {
+        playHintSound();
+        showToast(`🔒 Kapitel ${chapNum} ist noch gesperrt. Löse zuerst die vorherigen Aufgaben!`);
+        return;
+      }
+
+      state.currentChapter = chapNum;
+
+      // Update Navigation Tabs
+      for (let i = 1; i <= 4; i++) {
+        const tab = document.getElementById(`tab-chap${i}`);
+        const sec = document.getElementById(`chapter-${i}`);
+        if (tab) {
+          if (i === chapNum) {
+            tab.classList.add('active');
+          } else {
+            tab.classList.remove('active');
+          }
+        }
+        if (sec) {
+          if (i === chapNum) {
+            sec.classList.add('active');
+          } else {
+            sec.classList.remove('active');
+          }
+        }
+      }
+
+      // Handle Entdecker-Auftrag visibility: only visible in Chapter 1
+      const exploreContainer = document.getElementById('explore-tasks-container');
+      if (exploreContainer) {
+        exploreContainer.style.display = (chapNum === 1) ? 'flex' : 'none';
+      }
+
+      // 8-Bit-Männchen (Simulator-Stage) in Kapitel 3 und 4 komplett ausblenden
+      const simStage = document.getElementById('simulator-stage');
+      if (simStage) {
+        simStage.style.display = (chapNum === 3 || chapNum === 4) ? 'none' : '';
+      }
+
+      // When Chapter 3 is selected: focus completely on ASCII
+      if (chapNum === 3) {
+        setMännchenCollapsed(true);
+        initAsciiDecoder();
+      } else if (chapNum === 4) {
+        setMännchenCollapsed(true);
+        initAlu();
+      } else {
+        setMännchenCollapsed(false);
+      }
+
+      const progText = document.getElementById('overall-progress-text');
+      if (progText) {
+        progText.textContent = `Kapitel ${chapNum} von 4`;
+      }
+
+      // Initialize Chapter 2 tasks
+      if (chapNum === 2) {
+        loadCurrentPuzzleTask();
+      }
+
+      saveProgressToStorage();
+    }
+
+    /* ==========================================================================
+       7. BEREICH A: ZAHLEN-RÄTSEL (4 AUFGABEN PRO MODUS)
+       ========================================================================== */
+    function setPuzzleSubmode(mode) {
+      state.puzzle.submode = mode;
+      state.puzzle.tippStep = 0;
+
+      const btnB2D = document.getElementById('submode-btn-b2d');
+      const btnD2B = document.getElementById('submode-btn-d2b');
+      const rechenbruecke = document.getElementById('rechenbruecke-container');
+      const targetNumCont = document.getElementById('target-number-container');
+      const tippBtn = document.getElementById('btn-tipp');
+      const tippBox = document.getElementById('tipp-box');
+      const fb = document.getElementById('puzzle-feedback');
+
+      if (fb) fb.style.display = 'none';
+      if (tippBox) tippBox.style.display = 'none';
+
+      if (mode === 'b2d') {
+        btnB2D.classList.add('active');
+        btnD2B.classList.remove('active');
+        if (rechenbruecke) rechenbruecke.style.display = 'flex';
+        if (targetNumCont) targetNumCont.style.display = 'none';
+        if (tippBtn) tippBtn.style.display = 'none';
+      } else {
+        btnD2B.classList.add('active');
+        btnB2D.classList.remove('active');
+        if (rechenbruecke) rechenbruecke.style.display = 'none';
+        if (targetNumCont) targetNumCont.style.display = 'block';
+        if (tippBtn) tippBtn.style.display = 'inline-flex';
+      }
+
+      clearHintHighlights();
+      loadCurrentPuzzleTask();
+    }
+
+    function loadCurrentPuzzleTask() {
+      state.puzzle.tippStep = 0;
+      clearHintHighlights();
+      const tippBox = document.getElementById('tipp-box');
+      if (tippBox) tippBox.style.display = 'none';
+      const fb = document.getElementById('puzzle-feedback');
+      if (fb) fb.style.display = 'none';
+
+      const starsDisplay = document.getElementById('puzzle-stars');
+      const levelLabel = document.getElementById('puzzle-level-label');
+
+      if (state.puzzle.submode === 'b2d') {
+        // Mode 1: Binary to Decimal (4 structured tasks)
+        const tIdx = state.puzzle.taskIndexB2D;
+        const task = state.puzzle.tasksB2D[tIdx];
+
+        state.bits = [...task.bits];
+        refreshAllBitColumns();
+        updateSimulatorOutputs();
+
+        // Update Instruction & Labels
+        document.getElementById('puzzle-instruction').innerHTML = 
+          `<span>${task.label}:</span> <strong style="color: #fff;">Berechne die Summe der Männchen!</strong>`;
+        
+        if (starsDisplay) {
+          starsDisplay.textContent = '⭐'.repeat(state.puzzle.starsB2D) + '☆'.repeat(4 - state.puzzle.starsB2D);
+        }
+        if (levelLabel) {
+          levelLabel.textContent = `(Aufgabe ${tIdx + 1} von 4)`;
+        }
+
+        // Build Rechenbrücke
+        const activeVals = [];
+        state.bits.forEach((b, idx) => {
+          if (b === 1) activeVals.push(BIT_VALUES[idx]);
+        });
+
+        const container = document.getElementById('rechenbruecke-container');
+        if (container) {
+          let html = '';
+          activeVals.forEach((val, i) => {
+            html += `<span class="bracket-slot">${val}</span>`;
+            if (i < activeVals.length - 1) {
+              html += `<span class="calc-operator">+</span>`;
+            }
+          });
+          html += `<span class="calc-equals">=</span>`;
+          html += `<input type="number" id="puzzle-answer-input" class="puzzle-input" placeholder="?" min="0" max="255" autocomplete="off">`;
+          container.innerHTML = html;
+
+          setTimeout(() => {
+            const inp = document.getElementById('puzzle-answer-input');
+            if (inp) {
+              inp.focus();
+              inp.onkeydown = (e) => {
+                if (e.key === 'Enter') checkPuzzleAnswer();
+              };
+            }
+          }, 50);
+        }
+      } else {
+        // Mode 2: Decimal to Binary (4 structured tasks)
+        const tIdx = state.puzzle.taskIndexD2B;
+        const task = state.puzzle.tasksD2B[tIdx];
+        state.puzzle.targetNumber = task.target;
+
+        state.bits = [0, 0, 0, 0, 0, 0, 0, 0];
+        refreshAllBitColumns();
+        updateSimulatorOutputs();
+
+        document.getElementById('puzzle-instruction').innerHTML = 
+          `<span>${task.label}:</span> <strong style="color: #fff;">Stelle die Zielzahl ${task.target} mit den Männchen ein!</strong>`;
+
+        const targetDisplay = document.getElementById('puzzle-target-num');
+        if (targetDisplay) targetDisplay.textContent = task.target;
+
+        if (starsDisplay) {
+          starsDisplay.textContent = '⭐'.repeat(state.puzzle.starsD2B) + '☆'.repeat(4 - state.puzzle.starsD2B);
+        }
+        if (levelLabel) {
+          levelLabel.textContent = `(Aufgabe ${tIdx + 1} von 4)`;
+        }
+      }
+    }
+
+    function generateNewPuzzleTask() {
+      // Advance to next task in current mode
+      if (state.puzzle.submode === 'b2d') {
+        state.puzzle.taskIndexB2D = (state.puzzle.taskIndexB2D + 1) % 4;
+      } else {
+        state.puzzle.taskIndexD2B = (state.puzzle.taskIndexD2B + 1) % 4;
+      }
+      loadCurrentPuzzleTask();
+    }
+
+    // 2-Stufen Denk-Tipp Button
+    function triggerPuzzleTipp() {
+      const tippBox = document.getElementById('tipp-box');
+      const tippHeadline = document.getElementById('tipp-headline');
+      const tippContent = document.getElementById('tipp-content');
+      if (!tippBox) return;
+
+      playHintSound();
+      tippBox.style.display = 'flex';
+      clearHintHighlights();
+
+      const target = state.puzzle.targetNumber;
+
+      if (state.puzzle.tippStep === 0) {
+        // Step 1: Find largest fitting power of 2
+        let largestFit = 0;
+        let largestIdx = -1;
+        for (let i = 0; i < BIT_VALUES.length; i++) {
+          if (BIT_VALUES[i] <= target) {
+            largestFit = BIT_VALUES[i];
+            largestIdx = i;
+            break;
+          }
+        }
+
+        tippHeadline.textContent = '💡 Denk-Tipp: Stufe 1 (Größte Zahl finden)';
+        tippContent.innerHTML = `Welches ist die größte Männchen-Zahl, die noch in <strong>${target}</strong> hineinpasst? 👉 Das ist die <strong>${largestFit}</strong>! Zeige zuerst dieses Männchen!`;
+
+        if (largestIdx >= 0) {
+          const col = document.getElementById(`bit-col-${largestIdx}`);
+          if (col) col.classList.add('highlight-hint');
+        }
+
+        state.puzzle.tippStep = 1;
+      } else {
+        // Step 2: Show remainder calculation
+        let largestFit = 0;
+        for (let i = 0; i < BIT_VALUES.length; i++) {
+          if (BIT_VALUES[i] <= target) {
+            largestFit = BIT_VALUES[i];
+            break;
+          }
+        }
+        const remainder = target - largestFit;
+
+        let nextFit = 0;
+        let nextIdx = -1;
+        for (let i = 0; i < BIT_VALUES.length; i++) {
+          if (BIT_VALUES[i] <= remainder) {
+            nextFit = BIT_VALUES[i];
+            nextIdx = i;
+            break;
+          }
+        }
+
+        tippHeadline.textContent = '💡 Denk-Tipp: Stufe 2 (Restrechnung)';
+        tippContent.innerHTML = `Restrechnung: <strong>${target} &minus; ${largestFit} = ${remainder}</strong>.<br>Welches Männchen passt nun in den Rest <strong>${remainder}</strong>? 👉 Es ist die <strong>${nextFit}</strong>!`;
+
+        if (nextIdx >= 0) {
+          const col = document.getElementById(`bit-col-${nextIdx}`);
+          if (col) col.classList.add('highlight-hint');
+        }
+
+        state.puzzle.tippStep = 0;
+      }
+    }
+
+    function clearHintHighlights() {
+      for (let i = 0; i < 8; i++) {
+        const col = document.getElementById(`bit-col-${i}`);
+        if (col) col.classList.remove('highlight-hint');
+      }
+    }
+
+    function checkPuzzleAnswer() {
+      const fb = document.getElementById('puzzle-feedback');
+      const fbIcon = document.getElementById('feedback-icon');
+      const fbText = document.getElementById('feedback-text');
+
+      if (state.puzzle.submode === 'b2d') {
+        const inp = document.getElementById('puzzle-answer-input');
+        if (!inp) return;
+        const userVal = parseInt(inp.value, 10);
+        const correctVal = calculateDecimal();
+
+        if (userVal === correctVal) {
+          handlePuzzleSuccess(`Perfekt! ${inp.value} ist genau richtig gerechnet!`);
+        } else {
+          playHintSound();
+          if (fb) {
+            fb.className = 'feedback-banner error';
+            fbIcon.textContent = '❌';
+            fbText.textContent = `Noch nicht ganz! Rechne die Zahlen der sichtbaren Männchen noch einmal in Ruhe zusammen.`;
+          }
+        }
+      } else {
+        // Mode 2: Decimal to Binary
+        const currentDec = calculateDecimal();
+        const target = state.puzzle.targetNumber;
+
+        if (currentDec === target) {
+          handlePuzzleSuccess(`Super gemacht! Die Männchen ergeben zusammen genau ${target}!`);
+        } else if (currentDec < target) {
+          playHintSound();
+          if (fb) {
+            fb.className = 'feedback-banner error';
+            fbIcon.textContent = '🤔';
+            fbText.textContent = `Deine Männchen ergeben aktuell ${currentDec}. Das ist noch zu wenig (Ziel: ${target})! Klicke auf den Tipp-Knopf für Hilfe.`;
+          }
+        } else {
+          playHintSound();
+          if (fb) {
+            fb.className = 'feedback-banner error';
+            fbIcon.textContent = '⚠️';
+            fbText.textContent = `Deine Männchen ergeben aktuell ${currentDec}. Das ist zu viel (Ziel: ${target})! Verstecke Männchen, die zu groß sind.`;
+          }
+        }
+      }
+    }
+
+    function handlePuzzleSuccess(msg) {
+      playSuccessSound();
+
+      // Trigger joyful hop animation on all active columns
+      state.bits.forEach((b, idx) => {
+        if (b === 1) {
+          const col = document.getElementById(`bit-col-${idx}`);
+          if (col) {
+            col.classList.remove('bounce');
+            void col.offsetWidth;
+            col.classList.add('bounce');
+          }
+        }
+      });
+
+      // Update stars for current mode
+      if (state.puzzle.submode === 'b2d') {
+        state.puzzle.starsB2D = Math.min(4, state.puzzle.starsB2D + 1);
+        state.puzzle.taskIndexB2D = (state.puzzle.taskIndexB2D + 1) % 4;
+      } else {
+        state.puzzle.starsD2B = Math.min(4, state.puzzle.starsD2B + 1);
+        state.puzzle.taskIndexD2B = (state.puzzle.taskIndexD2B + 1) % 4;
+      }
+
+      const totalStars = Math.max(state.puzzle.starsB2D, state.puzzle.starsD2B);
+
+      // Feedback Banner
+      const fb = document.getElementById('puzzle-feedback');
+      const fbIcon = document.getElementById('feedback-icon');
+      const fbText = document.getElementById('feedback-text');
+      if (fb) {
+        fb.className = 'feedback-banner success';
+        fbIcon.textContent = '🎉';
+        fbText.textContent = msg;
+      }
+
+      clearHintHighlights();
+
+      // Check if Chapter 3 should unlock (e.g. 4 stars in either mode or total >= 4)
+      if (totalStars >= 4 || (state.puzzle.starsB2D + state.puzzle.starsD2B) >= 4) {
+        const unlockBanner = document.getElementById('banner-chap3-unlock');
+        if (unlockBanner) unlockBanner.style.display = 'flex';
+        unlockChapter(3);
+      }
+
+      // Auto load next task after 1.8 seconds
+      setTimeout(() => {
+        loadCurrentPuzzleTask();
+      }, 1800);
+    }
+
+    /* ==========================================================================
+       8. BEREICH B: SPRINTER-STATION (ASCII-CODE & GEHEIMBOTSCHAFTEN)
+       Schrittweise didaktische Heranführung an das ASCII-System!
+       ========================================================================== */
+    function initAsciiDecoder() {
+      switchAsciiStep(state.ascii.currentStep || 1);
+      renderCompactBitStrip();
+    }
+
+    function switchAsciiStep(stepNum) {
+      state.ascii.currentStep = stepNum;
+
+      for (let i = 1; i <= 3; i++) {
+        const tab = document.getElementById(`ascii-tab-step${i}`);
+        const content = document.getElementById(`ascii-content-step${i}`);
+        if (tab) {
+          if (i === stepNum) tab.classList.add('active');
+          else tab.classList.remove('active');
+        }
+        if (content) {
+          if (i === stepNum) content.classList.add('active');
+          else content.classList.remove('active');
+        }
+      }
+
+      if (stepNum === 1) {
+        handleAsciiBitChange();
+      } else if (stepNum === 2) {
+        initAlphabetLadder();
+      } else if (stepNum === 3) {
+        renderCompactBitStrip();
+        selectMissionLevel(state.ascii.missionLevel);
+      }
+    }
+
+    // Dynamic feedback in ASCII step 1 (Hero Showcase) & step 3 (Realtime Snap)
+    function handleAsciiBitChange() {
+      const dec = calculateDecimal();
+      const binStr = getBinaryString();
+
+      // Step 1: Update Hero Showcase for letter exploration
+      const heroChar = document.getElementById('hero-char-display');
+      const heroDesc = document.getElementById('hero-desc-display');
+      if (heroChar && heroDesc) {
+        if (dec >= 65 && dec <= 90) {
+          const char = String.fromCharCode(dec);
+          heroChar.textContent = char;
+          const powers = [];
+          BIT_VALUES.forEach(v => {
+            if ((dec & v) === v) powers.push(v);
+          });
+          heroDesc.textContent = `Dezimal: ${dec} | Binär: ${binStr} (${powers.join(' + ')} = '${char}')`;
+        } else if (dec === 0) {
+          heroChar.textContent = '·';
+          heroDesc.textContent = `Dezimal: 0 | Binär: ${binStr} (Alle Karten versteckt)`;
+        } else {
+          heroChar.textContent = '?';
+          heroDesc.textContent = `Dezimal: ${dec} | Binär: ${binStr} (Tipp: 'A' hat den Wert 65)`;
+        }
+      }
+
+      // Step 3: Check realtime snap for secret missions
+      if (state.ascii.currentStep === 3) {
+        checkAsciiRealtimeSnap();
+      }
+    }
+
+    // Step 1 Action: Set bits to exact ASCII value (e.g. 65 for 'A')
+    function applyAsciiValue(decVal) {
+      setBitsForDecimal(decVal);
+      playSnapSound();
+      showToast(`🅰️ Bits auf ${decVal} eingestellt (${String.fromCharCode(decVal)})!`);
+      handleAsciiBitChange();
+    }
+
+    // Step 2: Alphabet Ladder Explorer (A=65, B=66, C=67...)
+    function initAlphabetLadder() {
+      const container = document.getElementById('alphabet-ladder');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+      letters.forEach(char => {
+        const code = char.charCodeAt(0);
+        const btn = document.createElement('button');
+        btn.className = 'ladder-btn' + (char === state.ascii.ladderSelectedChar ? ' active' : '');
+        btn.id = `ladder-btn-${char}`;
+        btn.onclick = () => selectLadderLetter(char, code, true);
+        btn.innerHTML = `
+          <span class="ladder-char">${char}</span>
+          <span class="ladder-val">${code}</span>
+        `;
+        container.appendChild(btn);
+      });
+
+      selectLadderLetter(state.ascii.ladderSelectedChar, state.ascii.ladderSelectedChar.charCodeAt(0), false);
+    }
+
+    function selectLadderLetter(char, code, shouldSetBits) {
+      state.ascii.ladderSelectedChar = char;
+
+      const allBtns = document.querySelectorAll('.ladder-btn');
+      allBtns.forEach(b => b.classList.remove('active'));
+      const activeBtn = document.getElementById(`ladder-btn-${char}`);
+      if (activeBtn) activeBtn.classList.add('active');
+
+      if (shouldSetBits) {
+        setBitsForDecimal(code);
+        playBitTone(4, true);
+      }
+
+      const powers = [];
+      BIT_VALUES.forEach(v => {
+        if ((code & v) === v) powers.push(v);
+      });
+
+      const bin = code.toString(2).padStart(8, '0');
+      const offset = code - 65;
+      const offsetFormula = offset === 0 ? 'Startpunkt des Alphabets' : `Basis 'A' (65) + ${offset}`;
+
+      const explainer = document.getElementById('ladder-explainer');
+      if (explainer) {
+        explainer.innerHTML = `
+          Buchstabe <strong style="color: var(--cyber-cyan); font-size: 1.15rem;">'${char}'</strong>: 
+          ASCII-Wert <strong style="color: #fef08a;">${code}</strong> (${offsetFormula})<br>
+          <span style="font-family: var(--font-mono); font-size: 0.95rem;">
+            Addition: <strong style="color: #4ade80;">${powers.join(' + ')} = ${code}</strong> 
+            &bull; Binärcode: <strong style="color: var(--cyber-cyan); letter-spacing: 1px;">${bin}</strong>
+          </span>
+        `;
+      }
+    }
+
+    // Step 3: Secret Word Missions (Level 1: HI, Level 2: CAB, Level 3: NERD)
+    function selectMissionLevel(lvl) {
+      state.ascii.missionLevel = lvl;
+      state.ascii.currentLetterIndex = 0;
+      state.ascii.snappedLetters = [];
+
+      for (let i = 1; i <= 3; i++) {
+        const mBtn = document.getElementById(`mission-btn-${i}`);
+        if (mBtn) {
+          if (i === lvl) mBtn.classList.add('active');
+          else mBtn.classList.remove('active');
+        }
+      }
+
+      const banner = document.getElementById('word-completed-banner');
+      if (banner) banner.style.display = 'none';
+
+      const mission = state.ascii.missions[lvl];
+      const badge = document.getElementById('mission-helper-badge');
+      if (badge) badge.textContent = mission.badge;
+
+      renderMissionLetterSlots();
+      updateCurrentMissionTarget();
+
+      // Start fresh with 0 for each mission
+      state.bits = [0, 0, 0, 0, 0, 0, 0, 0];
+      refreshAllBitColumns();
+      updateSimulatorOutputs();
+      updateCompactBitStrip();
+    }
+
+    function renderMissionLetterSlots() {
+      const container = document.getElementById('letter-slots');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const mission = state.ascii.missions[state.ascii.missionLevel];
+
+      mission.letters.forEach((item, i) => {
+        const slot = document.createElement('div');
+        slot.className = 'letter-slot';
+        slot.id = `ascii-slot-${i}`;
+
+        if (state.ascii.snappedLetters.includes(i)) {
+          slot.classList.add('snapped');
+        } else if (i === state.ascii.currentLetterIndex) {
+          slot.classList.add('current');
+        }
+
+        const isSnapped = state.ascii.snappedLetters.includes(i);
+        slot.innerHTML = `
+          <div class="target-char">${isSnapped ? item.char : '?'}</div>
+          <div class="target-code">${item.char} = ${item.code}</div>
+        `;
+
+        container.appendChild(slot);
+      });
+    }
+
+    function updateCurrentMissionTarget() {
+      const mission = state.ascii.missions[state.ascii.missionLevel];
+      const targetCharLabel = document.getElementById('current-target-char-label');
+      const targetHint = document.getElementById('current-target-hint');
+      const helperContent = document.getElementById('mission-helper-content');
+
+      if (state.ascii.currentLetterIndex < mission.letters.length) {
+        const target = mission.letters[state.ascii.currentLetterIndex];
+        if (targetCharLabel) targetCharLabel.textContent = target.char;
+        if (targetHint) targetHint.textContent = `(ASCII-Wert: ${target.code})`;
+        if (helperContent) helperContent.innerHTML = target.tip;
+      } else {
+        if (targetCharLabel) targetCharLabel.textContent = 'FERTIG! 🎉';
+        if (targetHint) targetHint.textContent = '';
+        if (helperContent) {
+          helperContent.innerHTML = `🎉 Hervorragend! Du hast alle Buchstaben für <strong>${mission.word}</strong> decodiert!`;
+        }
+      }
+    }
+
+    // Realtime Snap-In for Step 3 Mission Word Letters
+    function checkAsciiRealtimeSnap() {
+      const mission = state.ascii.missions[state.ascii.missionLevel];
+      if (!mission || state.ascii.currentLetterIndex >= mission.letters.length) return;
+
+      const target = mission.letters[state.ascii.currentLetterIndex];
+      const currentDec = calculateDecimal();
+
+      if (currentDec === target.code) {
+        // SNAP-IN!
+        playSnapSound();
+        const letterIdx = state.ascii.currentLetterIndex;
+        state.ascii.snappedLetters.push(letterIdx);
+
+        const slot = document.getElementById(`ascii-slot-${letterIdx}`);
+        if (slot) {
+          slot.classList.remove('current');
+          slot.classList.add('snapped');
+          const charEl = slot.querySelector('.target-char');
+          if (charEl) charEl.textContent = target.char;
+        }
+
+        showToast(`⚡ KLACK! Buchstabe '${target.char}' (${target.code}) eingerastet!`);
+
+        state.ascii.currentLetterIndex++;
+
+        if (state.ascii.currentLetterIndex >= mission.letters.length) {
+          setTimeout(() => {
+            playSuccessSound();
+            unlockChapter(4);
+            const banner = document.getElementById('word-completed-banner');
+            const sym = document.getElementById('word-symbol');
+            const desc = document.getElementById('word-success-desc');
+            if (banner) banner.style.display = 'flex';
+            if (sym) sym.textContent = mission.icon;
+            if (desc) desc.textContent = mission.desc;
+            updateCurrentMissionTarget();
+          }, 350);
+        } else {
+          setTimeout(() => {
+            const nextSlot = document.getElementById(`ascii-slot-${state.ascii.currentLetterIndex}`);
+            if (nextSlot) nextSlot.classList.add('current');
+            updateCurrentMissionTarget();
+          }, 250);
+        }
+      }
+    }
+
+    // Compact Inline 8-Bit Strip inside Chapter 3
+    function renderCompactBitStrip() {
+      const containers = document.querySelectorAll('.bit-strip-buttons');
+      containers.forEach(container => {
+        container.innerHTML = '';
+        BIT_VALUES.forEach((val, idx) => {
+          const btn = document.createElement('button');
+          btn.className = `strip-bit-btn strip-bit-${idx}` + (state.bits[idx] === 1 ? ' is-on' : '');
+          btn.onclick = () => toggleBit(idx);
+          btn.title = `Bit ${val} umschalten (Taste ${idx + 1})`;
+          btn.innerHTML = `
+            <span class="s-val">${val}</span>
+            <span class="s-state strip-state-${idx}">${state.bits[idx]}</span>
+          `;
+          container.appendChild(btn);
+        });
+      });
+
+      updateCompactBitStrip();
+    }
+
+    function updateCompactBitStrip() {
+      const dec = calculateDecimal();
+      const binStr = getBinaryString();
+
+      BIT_VALUES.forEach((val, idx) => {
+        const btns = document.querySelectorAll(`.strip-bit-${idx}`);
+        btns.forEach(btn => {
+          if (state.bits[idx] === 1) btn.classList.add('is-on');
+          else btn.classList.remove('is-on');
+        });
+
+        const stateEls = document.querySelectorAll(`.strip-state-${idx}`);
+        stateEls.forEach(el => {
+          el.textContent = state.bits[idx];
+        });
+      });
+
+      const decEls = document.querySelectorAll('.compact-strip-decimal');
+      decEls.forEach(el => {
+        el.textContent = `Dezimal: ${dec} (${binStr})`;
+      });
+    }
+
+    /* ==========================================================================
+       9. ASCII-SPICKZETTEL MODAL & FILTER
+       ========================================================================== */
+    function openAsciiModal() {
+      const modal = document.getElementById('ascii-modal');
+      const grid = document.getElementById('ascii-grid-table');
+      if (!modal || !grid) return;
+
+      grid.innerHTML = '';
+      const mission = state.ascii.missions[state.ascii.missionLevel];
+      let currentChar = null;
+      if (mission && state.ascii.currentLetterIndex < mission.letters.length) {
+        currentChar = mission.letters[state.ascii.currentLetterIndex].char;
+      }
+
+      // Populate A-Z (ASCII 65 to 90)
+      for (let code = 65; code <= 90; code++) {
+        const char = String.fromCharCode(code);
+        const bin = code.toString(2).padStart(8, '0');
+        const isCurrent = char === currentChar;
+
+        const cell = document.createElement('div');
+        cell.className = 'ascii-table-cell' + (isCurrent ? ' active-target' : '');
+        cell.setAttribute('data-search', `${char} ${code} ${bin}`.toLowerCase());
+
+        cell.innerHTML = `
+          <div class="ascii-cell-char">${char}</div>
+          <div class="ascii-cell-dec">Dez: ${code}</div>
+          <div class="ascii-cell-bin">${bin}</div>
+        `;
+
+        grid.appendChild(cell);
+      }
+
+      modal.classList.add('open');
+      const search = document.getElementById('ascii-search');
+      if (search) {
+        search.value = '';
+        search.focus();
+      }
+    }
+
+    function closeAsciiModal() {
+      const modal = document.getElementById('ascii-modal');
+      if (modal) modal.classList.remove('open');
+    }
+
+    function filterAsciiTable(query) {
+      const q = query.trim().toLowerCase();
+      const cells = document.querySelectorAll('.ascii-table-cell');
+      cells.forEach(cell => {
+        const text = cell.getAttribute('data-search') || '';
+        if (!q || text.includes(q)) {
+          cell.style.display = 'flex';
+        } else {
+          cell.style.display = 'none';
+        }
+      });
+    }
+
+    function handleModalOverlayClick(e) {
+      if (e.target.classList.contains('modal-overlay')) {
+        closeAsciiModal();
+        closeCertificateModal();
+      }
+    }
+
+    /* ==========================================================================
+       10. MEISTER-URKUNDE MODAL
+       ========================================================================== */
+    function openCertificateModal() {
+      const modal = document.getElementById('certificate-modal');
+      if (modal) modal.classList.add('open');
+    }
+
+    function closeCertificateModal() {
+      const modal = document.getElementById('certificate-modal');
+      if (modal) modal.classList.remove('open');
+    }
+
+    /* ==========================================================================
+       10B. BEREICH C: DAS RECHENWERK (ALU) – KAPITEL 4
+       ========================================================================== */
+    function getAluCharacterSvg(bitVal, bitState, rowType) {
+      if (rowType === 'carry') {
+        if (bitState === 1) {
+          return `
+            <svg class="alu-char-svg carry-svg is-on" viewBox="0 0 60 70" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <radialGradient id="carryGlow-${bitVal}" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#ff4444" stop-opacity="0.8"/>
+                  <stop offset="100%" stop-color="#ff4444" stop-opacity="0"/>
+                </radialGradient>
+              </defs>
+              <circle cx="30" cy="35" r="28" fill="url(#carryGlow-${bitVal})"/>
+              <path d="M 24 54 L 20 66 M 36 54 L 40 66" stroke="#f87171" stroke-width="3" stroke-linecap="round"/>
+              <ellipse cx="18" cy="66" rx="4" ry="2" fill="#ef4444"/>
+              <ellipse cx="42" cy="66" rx="4" ry="2" fill="#ef4444"/>
+              <rect x="20" y="28" width="20" height="28" rx="8" fill="#ef4444" stroke="#b91c1c" stroke-width="1.5"/>
+              <circle cx="30" cy="18" r="12" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+              <circle cx="26" cy="16" r="2" fill="#7f1d1d"/>
+              <circle cx="34" cy="16" r="2" fill="#7f1d1d"/>
+              <path d="M 30 6 L 30 2" stroke="#dc2626" stroke-width="2"/>
+              <circle cx="30" cy="2" r="3.5" fill="#f87171" stroke="#ef4444" stroke-width="1.5"/>
+              <rect x="12" y="32" width="36" height="20" rx="4" fill="#fef2f2" stroke="#dc2626" stroke-width="2"/>
+              <text x="30" y="46" font-family="'Fira Code', monospace" font-size="12" font-weight="900" fill="#b91c1c" text-anchor="middle">Ü=1</text>
+            </svg>
+          `;
+        } else {
+          return `
+            <svg class="alu-char-svg carry-svg is-off" viewBox="0 0 60 70" xmlns="http://www.w3.org/2000/svg">
+              <path d="M 24 54 L 20 66 M 36 54 L 40 66" stroke="#475569" stroke-width="2.5" stroke-linecap="round"/>
+              <rect x="20" y="28" width="20" height="28" rx="8" fill="#334155" stroke="#1e293b" stroke-width="1.5"/>
+              <circle cx="30" cy="18" r="12" fill="#64748b" stroke="#334155" stroke-width="1.5"/>
+              <circle cx="26" cy="17" r="1.5" fill="#1e293b"/>
+              <circle cx="34" cy="17" r="1.5" fill="#1e293b"/>
+              <rect x="15" y="34" width="30" height="18" rx="4" fill="#1e293b" stroke="#475569" stroke-width="1.5"/>
+              <text x="30" y="47" font-family="'Fira Code', monospace" font-size="11" font-weight="700" fill="#94a3b8" text-anchor="middle">0</text>
+            </svg>
+          `;
+        }
+      }
+
+      const colors = {
+        operandA: { body: '#0284c7', head: '#e0f2fe', eye: '#0369a1', card: '#38bdf8', cardBorder: '#0284c7', text: '#082f49' },
+        operandB: { body: '#7c3aed', head: '#f3e8ff', eye: '#6d28d9', card: '#c084fc', cardBorder: '#7c3aed', text: '#3b0764' },
+        result:   { body: '#059669', head: '#dcfce7', eye: '#047857', card: '#4ade80', cardBorder: '#16a34a', text: '#052e16' }
+      }[rowType] || { body: '#475569', head: '#94a3b8', eye: '#1e293b', card: '#cbd5e1', cardBorder: '#64748b', text: '#0f172a' };
+
+      if (bitState === 1) {
+        return `
+          <svg class="alu-char-svg alu-char-on" viewBox="0 0 70 85" xmlns="http://www.w3.org/2000/svg">
+            <path d="M 28 66 L 24 80 M 42 66 L 46 80" stroke="${colors.body}" stroke-width="3.5" stroke-linecap="round"/>
+            <ellipse cx="22" cy="80" rx="5" ry="2.5" fill="${colors.body}"/>
+            <ellipse cx="48" cy="80" rx="5" ry="2.5" fill="${colors.body}"/>
+            <rect x="22" y="36" width="26" height="34" rx="10" fill="${colors.body}"/>
+            <circle cx="35" cy="22" r="14" fill="${colors.head}" stroke="${colors.body}" stroke-width="2"/>
+            <circle cx="30" cy="20" r="2.2" fill="${colors.eye}"/>
+            <circle cx="40" cy="20" r="2.2" fill="${colors.eye}"/>
+            <path d="M 30 26 Q 35 30 40 26" stroke="${colors.eye}" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+            <path d="M 35 8 L 35 4" stroke="${colors.body}" stroke-width="2"/>
+            <circle cx="35" cy="3" r="3" fill="${colors.card}"/>
+            <rect x="14" y="42" width="42" height="26" rx="5" fill="${colors.card}" stroke="${colors.cardBorder}" stroke-width="2"/>
+            <text x="35" y="60" font-family="'Fira Code', monospace" font-size="18" font-weight="900" fill="${colors.text}" text-anchor="middle">1</text>
+            <circle cx="16" cy="54" r="3" fill="${colors.head}" stroke="${colors.body}" stroke-width="1.2"/>
+            <circle cx="54" cy="54" r="3" fill="${colors.head}" stroke="${colors.body}" stroke-width="1.2"/>
+          </svg>
+        `;
+      } else {
+        return `
+          <svg class="alu-char-svg alu-char-off" viewBox="0 0 70 85" xmlns="http://www.w3.org/2000/svg">
+            <path d="M 28 66 L 25 80 M 42 66 L 45 80" stroke="#475569" stroke-width="3.5" stroke-linecap="round"/>
+            <ellipse cx="23" cy="80" rx="4.5" ry="2.5" fill="#334155"/>
+            <ellipse cx="47" cy="80" rx="4.5" ry="2.5" fill="#334155"/>
+            <rect x="23" y="36" width="24" height="34" rx="10" fill="#334155"/>
+            <circle cx="35" cy="22" r="14" fill="#64748b" stroke="#334155" stroke-width="2"/>
+            <circle cx="30" cy="21" r="2" fill="#1e293b"/>
+            <circle cx="40" cy="21" r="2" fill="#1e293b"/>
+            <path d="M 31 27 Q 35 28 39 27" stroke="#1e293b" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            <rect x="16" y="44" width="38" height="24" rx="5" fill="#1e293b" stroke="#475569" stroke-width="1.8"/>
+            <text x="35" y="61" font-family="'Fira Code', monospace" font-size="16" font-weight="800" fill="#64748b" text-anchor="middle">0</text>
+          </svg>
+        `;
+      }
+    }
+
+    function aluBitsToDec(bits) {
+      return bits.reduce((sum, b, idx) => sum + (b ? BIT_VALUES[idx] : 0), 0);
+    }
+
+    function aluDecToBits(num) {
+      return BIT_VALUES.map(val => ((num & val) ? 1 : 0));
+    }
+
+    function calculateAluExpected(op, bitsA, bitsB) {
+      const expectedResult = [0, 0, 0, 0, 0, 0, 0, 0];
+      const expectedCarries = [0, 0, 0, 0, 0, 0, 0, 0];
+      let carry = 0;
+
+      if (op === 'add') {
+        for (let i = 7; i >= 0; i--) {
+          expectedCarries[i] = carry;
+          const sum = bitsA[i] + bitsB[i] + carry;
+          expectedResult[i] = sum % 2;
+          carry = Math.floor(sum / 2);
+        }
+      } else { // 'sub'
+        let borrow = 0;
+        for (let i = 7; i >= 0; i--) {
+          expectedCarries[i] = borrow;
+          const diff = bitsA[i] - bitsB[i] - borrow;
+          if (diff < 0) {
+            expectedResult[i] = diff + 2;
+            borrow = 1;
+          } else {
+            expectedResult[i] = diff;
+            borrow = 0;
+          }
+        }
+      }
+      return { expectedResult, expectedCarries, overflow: carry > 0 };
+    }
+
+    function initAlu() {
+      renderAluCheatSheet();
+      renderAluTaskPresets();
+      const tasks = state.alu.op === 'add' ? state.alu.tasksAdd : state.alu.tasksSub;
+      const tIdx = (state.alu.activeTaskIndex >= 0 && state.alu.activeTaskIndex < tasks.length) ? state.alu.activeTaskIndex : 0;
+      loadAluTask(tasks[tIdx].a, tasks[tIdx].b, tIdx);
+    }
+
+    function renderAluCheatSheet() {
+      const title = document.getElementById('cheat-op-title');
+      const badge = document.getElementById('cheat-op-badge');
+      const container = document.getElementById('cheat-rules-grid');
+      if (!container) return;
+
+      if (state.alu.op === 'add') {
+        if (title) title.textContent = 'Binäre Addition (+)';
+        if (badge) badge.textContent = 'Additionsregeln';
+        container.innerHTML = `
+          <div class="cheat-rule-pill"><span>0 + 0 = <strong>0</strong></span></div>
+          <div class="cheat-rule-pill"><span>0 + 1 = <strong>1</strong></span></div>
+          <div class="cheat-rule-pill"><span>1 + 0 = <strong>1</strong></span></div>
+          <div class="cheat-rule-pill highlight"><span>1 + 1 = <strong>0</strong> <small>(Übertrag 1 ➔)</small></span></div>
+          <div class="cheat-rule-pill highlight"><span>1 + 1 + 1 = <strong>1</strong> <small>(Übertrag 1 ➔)</small></span></div>
+        `;
+      } else {
+        if (title) title.textContent = 'Binäre Subtraktion (−)';
+        if (badge) badge.textContent = 'Subtraktionsregeln';
+        container.innerHTML = `
+          <div class="cheat-rule-pill"><span>0 − 0 = <strong>0</strong></span></div>
+          <div class="cheat-rule-pill"><span>1 − 0 = <strong>1</strong></span></div>
+          <div class="cheat-rule-pill"><span>1 − 1 = <strong>0</strong></span></div>
+          <div class="cheat-rule-pill highlight"><span>0 − 1 = <strong>1</strong> <small>(1 geborgt! ➔)</small></span></div>
+          <div class="cheat-rule-pill highlight"><span>0 − 1 − 1 = <strong>0</strong> <small>(mit Borgen! ➔)</small></span></div>
+        `;
+      }
+    }
+
+    function renderAluTaskPresets() {
+      const container = document.getElementById('alu-task-presets');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const tasks = state.alu.op === 'add' ? state.alu.tasksAdd : state.alu.tasksSub;
+      tasks.forEach((t, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'alu-task-chip' + (state.alu.activeTaskIndex === idx ? ' active' : '');
+        btn.textContent = t.label;
+        btn.onclick = () => loadAluTask(t.a, t.b, idx);
+        container.appendChild(btn);
+      });
+    }
+
+    function setAluOperation(op) {
+      state.alu.op = op;
+      const btnAdd = document.getElementById('alu-submode-add');
+      const btnSub = document.getElementById('alu-submode-sub');
+      const badge = document.getElementById('alu-operator-badge');
+      const text = document.getElementById('alu-operator-text');
+      const carryTag = document.getElementById('carry-row-tag');
+      const carrySubtext = document.getElementById('carry-row-subtext');
+
+      if (op === 'add') {
+        if (btnAdd) btnAdd.classList.add('active');
+        if (btnSub) btnSub.classList.remove('active');
+        if (badge) badge.textContent = '➕';
+        if (text) text.textContent = 'Addition: Operand A + Operand B';
+        if (carryTag) carryTag.textContent = 'Übertrag (Ü)';
+        if (carrySubtext) carrySubtext.textContent = 'Gemerkte 1en';
+      } else {
+        if (btnSub) btnSub.classList.add('active');
+        if (btnAdd) btnAdd.classList.remove('active');
+        if (badge) badge.textContent = '➖';
+        if (text) text.textContent = 'Subtraktion: Operand A − Operand B';
+        if (carryTag) carryTag.textContent = 'Borgen (B)';
+        if (carrySubtext) carrySubtext.textContent = 'Geborgte 1en';
+      }
+
+      renderAluCheatSheet();
+      renderAluTaskPresets();
+
+      const tasks = op === 'add' ? state.alu.tasksAdd : state.alu.tasksSub;
+      loadAluTask(tasks[0].a, tasks[0].b, 0);
+    }
+
+    function setAluMode(mode) {
+      state.alu.mode = mode;
+      const btnStep = document.getElementById('alu-mode-step');
+      const btnPractice = document.getElementById('alu-mode-practice');
+      const stepPanel = document.getElementById('alu-step-controls');
+      const practicePanel = document.getElementById('alu-practice-controls');
+
+      if (mode === 'step') {
+        if (btnStep) btnStep.classList.add('active');
+        if (btnPractice) btnPractice.classList.remove('active');
+        if (stepPanel) stepPanel.style.display = 'block';
+        if (practicePanel) practicePanel.style.display = 'none';
+        aluResetSteps();
+      } else {
+        if (btnPractice) btnPractice.classList.add('active');
+        if (btnStep) btnStep.classList.remove('active');
+        if (stepPanel) stepPanel.style.display = 'none';
+        if (practicePanel) practicePanel.style.display = 'block';
+        aluResetPracticeInputs();
+      }
+
+      renderAluStage();
+    }
+
+    function loadAluTask(a, b, idx) {
+      state.alu.operandA = aluDecToBits(a);
+      state.alu.operandB = aluDecToBits(b);
+      state.alu.activeTaskIndex = (idx !== undefined) ? idx : -1;
+
+      renderAluTaskPresets();
+      aluResetSteps();
+      aluResetPracticeInputs();
+      renderAluStage();
+      updateAluSentence();
+      showToast(`Aufgabe geladen: ${a} ${state.alu.op === 'add' ? '+' : '−'} ${b}`);
+    }
+
+    function generateRandomAluTask() {
+      let a, b;
+      if (state.alu.op === 'add') {
+        a = Math.floor(Math.random() * 60) + 3;
+        b = Math.floor(Math.random() * 50) + 2;
+      } else {
+        a = Math.floor(Math.random() * 70) + 12;
+        b = Math.floor(Math.random() * (a - 2)) + 2;
+      }
+      loadAluTask(a, b, -1);
+    }
+
+    function toggleAluOperandBit(row, colIndex) {
+      if (row === 'A') {
+        state.alu.operandA[colIndex] = state.alu.operandA[colIndex] === 1 ? 0 : 1;
+        playBitTone(colIndex, state.alu.operandA[colIndex] === 1);
+      } else {
+        state.alu.operandB[colIndex] = state.alu.operandB[colIndex] === 1 ? 0 : 1;
+        playBitTone(colIndex, state.alu.operandB[colIndex] === 1);
+      }
+
+      state.alu.activeTaskIndex = -1;
+      renderAluTaskPresets();
+      aluResetSteps();
+      aluResetPracticeInputs();
+      renderAluStage();
+      updateAluSentence();
+    }
+
+    function toggleAluPracticeBit(type, colIndex) {
+      if (state.alu.mode !== 'practice') return;
+
+      if (type === 'carry') {
+        state.alu.userCarries[colIndex] = state.alu.userCarries[colIndex] === 1 ? 0 : 1;
+        playBitTone(colIndex, state.alu.userCarries[colIndex] === 1);
+      } else if (type === 'result') {
+        state.alu.userResult[colIndex] = state.alu.userResult[colIndex] === 1 ? 0 : 1;
+        playBitTone(colIndex, state.alu.userResult[colIndex] === 1);
+      }
+
+      const fb = document.getElementById('alu-practice-feedback');
+      const tipp = document.getElementById('alu-tipp-box');
+      if (fb) fb.style.display = 'none';
+      if (tipp) tipp.style.display = 'none';
+      clearAluErrorHighlights();
+
+      renderAluStage();
+    }
+
+    function clearAluErrorHighlights() {
+      const cells = document.querySelectorAll('.alu-cell.error-hint');
+      cells.forEach(c => c.classList.remove('error-hint'));
+    }
+
+    function renderAluStage() {
+      const gridA = document.getElementById('alu-grid-a');
+      const gridB = document.getElementById('alu-grid-b');
+      const gridCarry = document.getElementById('alu-grid-carry');
+      const gridRes = document.getElementById('alu-grid-result');
+
+      const decAEl = document.getElementById('alu-dec-a');
+      const decBEl = document.getElementById('alu-dec-b');
+      const decResEl = document.getElementById('alu-dec-res');
+
+      const decA = aluBitsToDec(state.alu.operandA);
+      const decB = aluBitsToDec(state.alu.operandB);
+      if (decAEl) decAEl.textContent = `Dezimal: ${decA}`;
+      if (decBEl) decBEl.textContent = `Dezimal: ${decB}`;
+
+      const { expectedResult } = calculateAluExpected(state.alu.op, state.alu.operandA, state.alu.operandB);
+      const decResExpected = aluBitsToDec(expectedResult);
+
+      const activeCol = (state.alu.mode === 'step' && !state.alu.stepFinished) ? state.alu.stepIndex : -1;
+
+      // Update Column Header Highlights
+      const colHeaders = document.querySelectorAll('.alu-col-val');
+      colHeaders.forEach((el, idx) => {
+        if (idx === activeCol) el.classList.add('active-step');
+        else el.classList.remove('active-step');
+      });
+
+      // Render Row A
+      if (gridA) {
+        gridA.innerHTML = '';
+        BIT_VALUES.forEach((val, i) => {
+          const bitVal = state.alu.operandA[i];
+          const cell = document.createElement('div');
+          cell.className = 'alu-cell clickable' + (i === activeCol ? ' active-step' : '');
+          cell.id = `alu-cell-a-${i}`;
+          cell.onclick = () => toggleAluOperandBit('A', i);
+          cell.title = `Bit ${val} umschalten`;
+          cell.innerHTML = `
+            ${getAluCharacterSvg(val, bitVal, 'operandA')}
+            <button class="alu-cell-bit-btn ${bitVal ? 'is-on' : ''}">${bitVal}</button>
+          `;
+          gridA.appendChild(cell);
+        });
+      }
+
+      // Render Row B
+      if (gridB) {
+        gridB.innerHTML = '';
+        BIT_VALUES.forEach((val, i) => {
+          const bitVal = state.alu.operandB[i];
+          const cell = document.createElement('div');
+          cell.className = 'alu-cell clickable' + (i === activeCol ? ' active-step' : '');
+          cell.id = `alu-cell-b-${i}`;
+          cell.onclick = () => toggleAluOperandBit('B', i);
+          cell.title = `Bit ${val} umschalten`;
+          cell.innerHTML = `
+            ${getAluCharacterSvg(val, bitVal, 'operandB')}
+            <button class="alu-cell-bit-btn ${bitVal ? 'is-on' : ''}">${bitVal}</button>
+          `;
+          gridB.appendChild(cell);
+        });
+      }
+
+      // Render Carry Row
+      if (gridCarry) {
+        gridCarry.innerHTML = '';
+        const carries = state.alu.mode === 'step' ? state.alu.stepCarries : state.alu.userCarries;
+        BIT_VALUES.forEach((val, i) => {
+          const bitVal = carries[i];
+          const cell = document.createElement('div');
+          const isClickable = state.alu.mode === 'practice';
+          cell.className = 'alu-cell' + (isClickable ? ' clickable' : '') + (i === activeCol ? ' active-step' : '');
+          cell.id = `alu-cell-carry-${i}`;
+          if (isClickable) {
+            cell.onclick = () => toggleAluPracticeBit('carry', i);
+            cell.title = `Übertrag-Bit für ${val} umschalten`;
+          }
+          cell.innerHTML = `
+            ${getAluCharacterSvg(val, bitVal, 'carry')}
+            <button class="alu-cell-bit-btn ${bitVal ? 'is-on' : ''}" style="${bitVal ? 'background: #ef4444; border-color: #f87171; color: #fff;' : ''}">${bitVal}</button>
+          `;
+          gridCarry.appendChild(cell);
+        });
+      }
+
+      // Render Result Row
+      if (gridRes) {
+        gridRes.innerHTML = '';
+        const results = state.alu.mode === 'step' ? state.alu.stepResult : state.alu.userResult;
+        BIT_VALUES.forEach((val, i) => {
+          const bitVal = results[i];
+          const cell = document.createElement('div');
+          const isClickable = state.alu.mode === 'practice';
+          cell.className = 'alu-cell' + (isClickable ? ' clickable' : '') + (i === activeCol ? ' active-step' : '');
+          cell.id = `alu-cell-res-${i}`;
+          if (isClickable) {
+            cell.onclick = () => toggleAluPracticeBit('result', i);
+            cell.title = `Ergebnis-Bit für ${val} umschalten`;
+          }
+          cell.innerHTML = `
+            ${getAluCharacterSvg(val, bitVal, 'result')}
+            <button class="alu-cell-bit-btn ${bitVal ? 'is-on' : ''}" style="${bitVal ? 'background: #22c55e; border-color: #4ade80; color: #022c22;' : ''}">${bitVal}</button>
+          `;
+          gridRes.appendChild(cell);
+        });
+
+        if (decResEl) {
+          if (state.alu.mode === 'step') {
+            decResEl.textContent = state.alu.stepFinished ? `Dezimal: ${decResExpected}` : `In Berechnung...`;
+          } else {
+            const userDec = aluBitsToDec(state.alu.userResult);
+            decResEl.textContent = `Dezimal: ${userDec}`;
+          }
+        }
+      }
+    }
+
+    function aluNextStep() {
+      if (state.alu.stepFinished) {
+        aluResetSteps();
+        return;
+      }
+
+      const col = state.alu.stepIndex; // 7 (val 1) down to 0 (val 128)
+      const val = BIT_VALUES[col];
+      const a = state.alu.operandA[col];
+      const b = state.alu.operandB[col];
+      const op = state.alu.op;
+
+      playBitTone(col, true);
+
+      let stepText = '';
+      if (op === 'add') {
+        const carryIn = state.alu.stepCarries[col];
+        const sum = a + b + carryIn;
+        const res = sum % 2;
+        const carryOut = Math.floor(sum / 2);
+
+        state.alu.stepResult[col] = res;
+        if (carryOut > 0 && col > 0) {
+          state.alu.stepCarries[col - 1] = 1;
+        }
+
+        const leftNeighborVal = col > 0 ? BIT_VALUES[col - 1] : 256;
+        stepText = `<strong>Spalte [${val}er-Bit]:</strong> ${a} + ${b} ${carryIn ? '+ 1 (roter Übertrag)' : ''} = <strong>${sum}</strong>.<br>` +
+          `Das Ergebnis-Männchen zeigt <strong>${res}</strong>` +
+          (carryOut ? `, und <strong>1 wandert als roter Übertrag nach links zur ${leftNeighborVal}er-Spalte! 🔴</strong>` : ` (kein Übertrag).`);
+      } else { // 'sub'
+        const borrowIn = state.alu.stepCarries[col];
+        const diff = a - b - borrowIn;
+        let res = diff;
+        let borrowOut = 0;
+        if (diff < 0) {
+          res = diff + 2;
+          borrowOut = 1;
+        }
+
+        state.alu.stepResult[col] = res;
+        if (borrowOut > 0 && col > 0) {
+          state.alu.stepCarries[col - 1] = 1;
+        }
+
+        const leftNeighborVal = col > 0 ? BIT_VALUES[col - 1] : 256;
+        stepText = `<strong>Spalte [${val}er-Bit]:</strong> ${a} − ${b} ${borrowIn ? '− 1 (Geborgt)' : ''}.<br>` +
+          (borrowOut ? `Da ${a} kleiner ist: <strong>1 wird vom linken Nachbarn (${leftNeighborVal}er-Bit) geborgt!</strong> Ergebnis ist <strong>${res}</strong>. 🔴` : `Ergebnis ist <strong>${res}</strong> (kein Borgen nötig).`);
+      }
+
+      const stepTextEl = document.getElementById('alu-step-text');
+      if (stepTextEl) stepTextEl.innerHTML = stepText;
+
+      if (col === 0) {
+        state.alu.stepFinished = true;
+        playSuccessSound();
+        if (state.alu.autoPlayTimer) {
+          clearInterval(state.alu.autoPlayTimer);
+          state.alu.autoPlayTimer = null;
+          const autoBtn = document.getElementById('btn-alu-autoplay');
+          if (autoBtn) autoBtn.innerHTML = `<span>▶️</span> Auto-Play`;
+        }
+
+        const btnNext = document.getElementById('btn-alu-next-step');
+        if (btnNext) btnNext.innerHTML = `<span>🎉 Fertig! Nochmal ansehen 🔄</span>`;
+
+        const { expectedResult } = calculateAluExpected(state.alu.op, state.alu.operandA, state.alu.operandB);
+        const decRes = aluBitsToDec(expectedResult);
+        const binRes = expectedResult.join('');
+        if (stepTextEl) {
+          stepTextEl.innerHTML = `${stepText}<br><span style="color: #4ade80; font-weight: 700; margin-top: 4px; display: inline-block;">🎉 Alle 8 Spalten berechnet! Endergebnis: ${decRes} (${binRes})</span>`;
+        }
+      } else {
+        state.alu.stepIndex--;
+      }
+
+      renderAluStage();
+    }
+
+    function aluResetSteps() {
+      if (state.alu.autoPlayTimer) {
+        clearInterval(state.alu.autoPlayTimer);
+        state.alu.autoPlayTimer = null;
+        const autoBtn = document.getElementById('btn-alu-autoplay');
+        if (autoBtn) autoBtn.innerHTML = `<span>▶️</span> Auto-Play`;
+      }
+
+      state.alu.stepIndex = 7;
+      state.alu.stepCarries = [0, 0, 0, 0, 0, 0, 0, 0];
+      state.alu.stepResult = [0, 0, 0, 0, 0, 0, 0, 0];
+      state.alu.stepFinished = false;
+
+      const btnNext = document.getElementById('btn-alu-next-step');
+      if (btnNext) btnNext.innerHTML = `<span>Nächster Schritt (Bit für Bit) ➔</span>`;
+
+      const stepTextEl = document.getElementById('alu-step-text');
+      if (stepTextEl) {
+        stepTextEl.innerHTML = `Klicke auf <strong>„Nächster Schritt (Bit für Bit)“</strong>, um die Berechnung Spalte für Spalte von rechts (1er-Bit) nach links (128er-Bit) zu starten!`;
+      }
+
+      renderAluStage();
+    }
+
+    function aluToggleAutoPlay() {
+      const autoBtn = document.getElementById('btn-alu-autoplay');
+      if (state.alu.autoPlayTimer) {
+        clearInterval(state.alu.autoPlayTimer);
+        state.alu.autoPlayTimer = null;
+        if (autoBtn) autoBtn.innerHTML = `<span>▶️</span> Auto-Play`;
+      } else {
+        if (state.alu.stepFinished) aluResetSteps();
+        if (autoBtn) autoBtn.innerHTML = `<span>⏸️</span> Pause`;
+        aluNextStep();
+        state.alu.autoPlayTimer = setInterval(() => {
+          if (state.alu.stepFinished) {
+            clearInterval(state.alu.autoPlayTimer);
+            state.alu.autoPlayTimer = null;
+            if (autoBtn) autoBtn.innerHTML = `<span>▶️</span> Auto-Play`;
+          } else {
+            aluNextStep();
+          }
+        }, 1350);
+      }
+    }
+
+    function aluCheckPractice() {
+      const { expectedResult, expectedCarries } = calculateAluExpected(state.alu.op, state.alu.operandA, state.alu.operandB);
+
+      let isCorrect = true;
+      for (let i = 0; i < 8; i++) {
+        if (state.alu.userResult[i] !== expectedResult[i]) {
+          isCorrect = false;
+          break;
+        }
+        if (i < 7 && state.alu.userCarries[i] !== expectedCarries[i]) {
+          isCorrect = false;
+          break;
+        }
+      }
+
+      const fb = document.getElementById('alu-practice-feedback');
+      const tipp = document.getElementById('alu-tipp-box');
+
+      if (isCorrect) {
+        playSuccessSound();
+        triggerConfetti();
+        if (fb) {
+          fb.style.display = 'flex';
+          document.getElementById('alu-feedback-icon').textContent = '🎉';
+          document.getElementById('alu-feedback-text').textContent = 'Perfekt gerechnet! Alle Bits und Überträge stimmen haargenau!';
+        }
+        if (tipp) tipp.style.display = 'none';
+        clearAluErrorHighlights();
+        showToast('🌟 Großartig! Die ALU-Rechnung ist 100% korrekt!');
+      } else {
+        playHintSound();
+        if (fb) fb.style.display = 'none';
+        aluShowTipp();
+      }
+    }
+
+    function aluShowTipp() {
+      const { expectedResult, expectedCarries } = calculateAluExpected(state.alu.op, state.alu.operandA, state.alu.operandB);
+      clearAluErrorHighlights();
+
+      let errCol = -1;
+      let errType = '';
+      for (let i = 7; i >= 0; i--) {
+        if (state.alu.userCarries[i] !== expectedCarries[i]) {
+          errCol = i;
+          errType = 'carry';
+          break;
+        }
+        if (state.alu.userResult[i] !== expectedResult[i]) {
+          errCol = i;
+          errType = 'result';
+          break;
+        }
+      }
+
+      if (errCol === -1) {
+        showToast('Alles sieht bisher gut aus!');
+        return;
+      }
+
+      const val = BIT_VALUES[errCol];
+      const a = state.alu.operandA[errCol];
+      const b = state.alu.operandB[errCol];
+      const c = expectedCarries[errCol];
+      const op = state.alu.op;
+
+      const cellRes = document.getElementById(`alu-cell-res-${errCol}`);
+      const cellCarry = document.getElementById(`alu-cell-carry-${errCol}`);
+      if (cellRes) cellRes.classList.add('error-hint');
+      if (cellCarry) cellCarry.classList.add('error-hint');
+
+      const tippBox = document.getElementById('alu-tipp-box');
+      const tippContent = document.getElementById('alu-tipp-content');
+
+      let msg = '';
+      if (op === 'add') {
+        const sum = a + b + c;
+        const res = sum % 2;
+        const carryOut = Math.floor(sum / 2);
+        if (errType === 'carry') {
+          msg = `Schau auf die <strong>${val}er-Spalte</strong>: Hierhin wandert ein Übertrag von der rechten Nachbarspalte! Prüfe dein rotes Übertrag-Männchen (sollte auf <strong>${expectedCarries[errCol]}</strong> stehen).`;
+        } else {
+          msg = `Schau auf die <strong>${val}er-Spalte</strong>: ${a} + ${b} ${c ? '+ 1 (roter Übertrag)' : ''} ergibt zusammen <strong>${sum}</strong>. Das Ergebnis-Bit an dieser Stelle muss daher <strong>${res}</strong> sein${carryOut ? ' (und 1 wandert nach links)!' : '.'}`;
+        }
+      } else { // 'sub'
+        const diff = a - b - c;
+        const res = diff < 0 ? diff + 2 : diff;
+        if (errType === 'carry') {
+          msg = `Schau auf die <strong>${val}er-Spalte</strong>: Hier wurde von der rechten Spalte geborgt! Prüfe das Übertrag/Borg-Bit (sollte auf <strong>${expectedCarries[errCol]}</strong> stehen).`;
+        } else {
+          msg = `Schau auf die <strong>${val}er-Spalte</strong>: ${a} − ${b} ${c ? '− 1 (Geborgt)' : ''}. ${diff < 0 ? 'Da ' + a + ' kleiner ist, musst du 1 von links borgen! Das Ergebnis-Bit ist <strong>' + res + '</strong>.' : 'Das Ergebnis-Bit an dieser Stelle muss <strong>' + res + '</strong> sein.'}`;
+        }
+      }
+
+      if (tippBox && tippContent) {
+        tippContent.innerHTML = msg;
+        tippBox.style.display = 'block';
+      }
+      showToast(`💡 Tipp für die ${val}er-Spalte angezeigt.`);
+    }
+
+    function aluResetPracticeInputs() {
+      state.alu.userCarries = [0, 0, 0, 0, 0, 0, 0, 0];
+      state.alu.userResult = [0, 0, 0, 0, 0, 0, 0, 0];
+      const fb = document.getElementById('alu-practice-feedback');
+      const tipp = document.getElementById('alu-tipp-box');
+      if (fb) fb.style.display = 'none';
+      if (tipp) tipp.style.display = 'none';
+      clearAluErrorHighlights();
+      renderAluStage();
+    }
+
+    function updateAluSentence() {
+      const box = document.getElementById('alu-sentence-box');
+      if (!box) return;
+
+      const decA = aluBitsToDec(state.alu.operandA);
+      const binA = state.alu.operandA.join('');
+      const decB = aluBitsToDec(state.alu.operandB);
+      const binB = state.alu.operandB.join('');
+
+      const { expectedResult } = calculateAluExpected(state.alu.op, state.alu.operandA, state.alu.operandB);
+      const decRes = aluBitsToDec(expectedResult);
+      const binRes = expectedResult.join('');
+
+      let sentence = '';
+      if (state.alu.op === 'add') {
+        sentence = `Wir addieren <strong>${decA}</strong> (${binA}) und <strong>${decB}</strong> (${binB}). Die CPU rechnet Spalte für Spalte von rechts nach links. Das Ergebnis ist <mark>${decRes}</mark> (${binRes}).`;
+      } else {
+        sentence = `Wir subtrahieren <strong>${decB}</strong> (${binB}) von <strong>${decA}</strong> (${binA}). Das Rechenwerk zieht die Bits ab. Das Ergebnis ist <mark>${decRes}</mark> (${binRes}).`;
+      }
+
+      box.innerHTML = sentence;
+    }
+
+    function aluCopySentence() {
+      const box = document.getElementById('alu-sentence-box');
+      if (!box) return;
+      const text = box.innerText || box.textContent;
+
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('📋 Erklärungssatz in die Zwischenablage kopiert!');
+        const icon = document.getElementById('alu-copy-icon');
+        const textEl = document.getElementById('alu-copy-text');
+        if (icon) icon.textContent = '✔';
+        if (textEl) textEl.textContent = 'Kopiert!';
+        setTimeout(() => {
+          if (icon) icon.textContent = '📋';
+          if (textEl) textEl.textContent = 'Satz kopieren';
+        }, 2000);
+      }).catch(() => {
+        showToast('Kopieren fehlgeschlagen.');
+      });
+    }
+
+    function aluSpeakSentence() {
+      if (!('speechSynthesis' in window)) {
+        showToast('Sprachausgabe wird vom Browser nicht unterstützt.');
+        return;
+      }
+      const box = document.getElementById('alu-sentence-box');
+      if (!box) return;
+      const text = box.innerText || box.textContent;
+
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'de-DE';
+      utterance.rate = 0.95;
+      window.speechSynthesis.speak(utterance);
+      showToast('🗣️ Lese Erklärungssatz vor...');
+    }
+
+    /* ==========================================================================
+       11. LEHRERMODUS & PERSISTENZ
+       ========================================================================== */
+    function toggleTeacherMode() {
+      state.teacherMode = !state.teacherMode;
+      const btn = document.getElementById('btn-teacher-mode');
+
+      if (state.teacherMode) {
+        btn.classList.add('active');
+        state.unlockedChapters = [1, 2, 3, 4];
+        for (let i = 1; i <= 4; i++) {
+          const tab = document.getElementById(`tab-chap${i}`);
+          const status = document.getElementById(`tab-chap${i}-status`);
+          if (tab) tab.classList.remove('locked');
+          if (status) status.textContent = '🟢';
+        }
+        showToast('🔓 Lehrkraft-Modus AKTIV: Alle Kapitel sind frei wählbar!');
+      } else {
+        btn.classList.remove('active');
+        showToast('🔒 Lehrkraft-Modus deaktiviert.');
+      }
+    }
+
+    function toggleAudio() {
+      state.audioEnabled = !state.audioEnabled;
+      const icon = document.getElementById('audio-icon');
+      const text = document.getElementById('audio-state-text');
+      const btn = document.getElementById('btn-audio-toggle');
+
+      if (state.audioEnabled) {
+        icon.textContent = '🔊';
+        text.textContent = 'AN';
+        btn.classList.remove('active');
+        showToast('🔊 Ton aktiviert');
+      } else {
+        icon.textContent = '🔇';
+        text.textContent = 'AUS';
+        btn.classList.add('active');
+        showToast('🔇 Ton stummgeschaltet');
+      }
+    }
+
+    function saveProgressToStorage() {
+      try {
+        localStorage.setItem('binaer_labor_progress', JSON.stringify({
+          unlocked: state.unlockedChapters,
+          starsB2D: state.puzzle.starsB2D,
+          starsD2B: state.puzzle.starsD2B,
+          chap1Tasks: state.chap1Tasks
+        }));
+      } catch (e) {}
+    }
+
+    function loadProgressFromStorage() {
+      try {
+        const raw = localStorage.getItem('binaer_labor_progress');
+        if (raw) {
+          const data = JSON.parse(raw);
+          if (Array.isArray(data.unlocked)) {
+            data.unlocked.forEach(num => unlockChapter(num));
+          }
+          if (data.starsB2D !== undefined) state.puzzle.starsB2D = data.starsB2D;
+          if (data.starsD2B !== undefined) state.puzzle.starsD2B = data.starsD2B;
+          if (data.chap1Tasks) {
+            state.chap1Tasks = data.chap1Tasks;
+            checkChapter1Tasks();
+          }
+        }
+      } catch (e) {}
+    }
+
+    function resetAllProgress() {
+      if (confirm('Möchtest du deinen gesamten Lernfortschritt wirklich zurücksetzen?')) {
+        try {
+          localStorage.removeItem('binaer_labor_progress');
+        } catch (e) {}
+        location.reload();
+      }
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const text = document.getElementById('toast-msg');
+      if (!toast || !text) return;
+
+      text.textContent = msg;
+      toast.classList.add('visible');
+
+      clearTimeout(toast._timeout);
+      toast._timeout = setTimeout(() => {
+        toast.classList.remove('visible');
+      }, 2800);
+    }
+
+    /* ==========================================================================
+       12. GLOBAL KEYBOARD SHORTCUTS (TASTEN 1 BIS 8)
+       ========================================================================== */
+    window.addEventListener('keydown', (e) => {
+      // If typing in an input field, do not trigger shortcuts
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+      // Keys 1 to 8 toggle bits (1 = bit 128, 8 = bit 1)
+      const num = parseInt(e.key, 10);
+      if (num >= 1 && num <= 8) {
+        e.preventDefault();
+        toggleBit(num - 1);
+      } else if (e.key === 'r' || e.key === 'R') {
+        resetAllBits();
+      }
+    });
+
+    /* ==========================================================================
+       13. EVENT LISTENERS INITIALISIERUNG
+       ========================================================================== */
+    document.addEventListener('DOMContentLoaded', () => {
+      initSimulator();
+      loadProgressFromStorage();
+      renderCompactBitStrip();
+      initAlphabetLadder();
+
+      document.getElementById('btn-audio-toggle').onclick = toggleAudio;
+      document.getElementById('btn-teacher-mode').onclick = toggleTeacherMode;
+      document.getElementById('btn-reset-progress').onclick = resetAllProgress;
+    });
+  </script>
+</body>
+</html>
+
