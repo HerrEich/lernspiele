@@ -184,6 +184,7 @@
     .chapter-tabs {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
       gap: 12px;
     }
 
@@ -1764,8 +1765,11 @@
 
     /* ==========================================================================
        BEREICH C: DAS RECHENWERK (ALU) – KAPITEL 4
+       BEREICH C: BINÄRE ADDITION (ALU) – KAPITEL 4
+       BEREICHE C & D: DAS RECHENWERK (ALU) – KAPITEL 4 (ADDITION) & KAPITEL 5 (SUBTRAKTION)
        ========================================================================== */
     .alu-card {
+    .alu-card, .sub-card {
       background: var(--bg-card);
       border: 1px solid var(--bg-card-border);
       border-radius: var(--radius-lg);
@@ -1776,6 +1780,7 @@
     }
 
     .alu-top-bar {
+    .alu-top-bar, .sub-top-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -1786,6 +1791,7 @@
     }
 
     .alu-title-group h3 {
+    .alu-title-group h3, .sub-title-group h3 {
       color: var(--cyber-cyan);
       font-size: 1.25rem;
       font-weight: 800;
@@ -1796,40 +1802,211 @@
     }
 
     .alu-title-group p {
+    .alu-title-group p, .sub-title-group p {
       color: var(--text-muted);
       font-size: 0.88rem;
     }
 
     .alu-top-controls {
+    /* Kapitel 4 Stufen-Navigation (5 Tabs) */
+    .alu-stage-nav {
+    /* 5-Stufen-Navigation */
+    .alu-stage-nav, .sub-stage-nav {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    @media (max-width: 992px) {
+      .alu-stage-nav {
+      .alu-stage-nav, .sub-stage-nav {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .alu-stage-nav {
+      .alu-stage-nav, .sub-stage-nav {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .alu-stage-tab {
+    .alu-stage-tab, .sub-stage-tab {
+      background: rgba(30, 41, 59, 0.7);
+      border: 2px solid rgba(100, 116, 139, 0.3);
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+      color: var(--text-muted);
+      cursor: pointer;
       display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 3px;
+      transition: all 0.2s ease;
+      text-align: left;
+    }
+
+    .alu-stage-tab .step-badge {
+    .alu-stage-tab .step-badge, .sub-stage-tab .step-badge {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--cyber-cyan);
+    }
+
+    .alu-stage-tab strong {
+    .alu-stage-tab strong, .sub-stage-tab strong {
+      font-size: 0.88rem;
+      color: var(--text-main);
+    }
+
+    .alu-stage-tab small {
+    .alu-stage-tab small, .sub-stage-tab small {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      opacity: 0.85;
+    }
+
+    .alu-stage-tab:hover {
+    .alu-stage-tab:hover, .sub-stage-tab:hover {
+      border-color: var(--cyber-cyan);
+      background: rgba(30, 41, 59, 0.95);
+    }
+
+    .alu-stage-tab.active {
+    .alu-stage-tab.active, .sub-stage-tab.active {
+      border-color: var(--cyber-cyan);
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.15), rgba(16, 185, 129, 0.1));
+      box-shadow: 0 0 15px rgba(0, 240, 255, 0.25);
+    }
+
+    /* Didaktische Rechenregel-Box pro Stufe */
+    .alu-rule-card {
+    .alu-rule-card, .sub-rule-card {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.9) 100%);
+      border: 1.5px solid rgba(56, 189, 248, 0.35);
+      border-radius: var(--radius-lg);
+      padding: 18px 22px;
+      display: flex;
+      flex-direction: column;
       gap: 12px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .alu-rule-title-bar {
+    .alu-rule-title-bar, .sub-rule-title-bar {
+      display: flex;
+      justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
+      gap: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 10px;
     }
 
     .alu-submodes {
       display: inline-flex;
       background: rgba(15, 23, 42, 0.8);
       border: 1px solid rgba(56, 189, 248, 0.3);
+    .alu-rule-title-bar h4 {
+    .alu-rule-title-bar h4, .sub-rule-title-bar h4 {
+      font-size: 1.15rem;
+      color: var(--cyber-cyan);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+    }
+
+    .alu-rule-badge {
+    .alu-rule-badge, .sub-rule-badge {
+      font-size: 0.75rem;
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: var(--cyber-cyan);
+      padding: 3px 10px;
       border-radius: 999px;
       padding: 4px;
       gap: 4px;
+      font-weight: 700;
     }
 
     .alu-interact-modes {
+    .alu-rule-desc {
+    .alu-rule-desc, .sub-rule-desc {
+      font-size: 0.95rem;
+      line-height: 1.55;
+      color: #e2e8f0;
+    }
+
+    .alu-rules-pills {
+    .alu-rules-pills, .sub-rules-pills {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .alu-rule-pill {
+    .alu-rule-pill, .sub-rule-pill {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: var(--radius-md);
+      padding: 6px 14px;
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      color: #f8fafc;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .alu-rule-pill strong {
+    .alu-rule-pill strong, .sub-rule-pill strong {
+      color: #fef08a;
+    }
+
+    .alu-rule-pill.highlight {
+    .alu-rule-pill.highlight, .sub-rule-pill.highlight {
+      border-color: #ef4444;
+      background: rgba(239, 68, 68, 0.15);
+      color: #fca5a5;
+    }
+
+    .alu-rule-tip {
+    .alu-rule-tip, .sub-rule-tip {
+      background: rgba(234, 179, 8, 0.1);
+      border-left: 3px solid var(--accent-gold);
+      padding: 8px 14px;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      font-size: 0.88rem;
+      color: #fef08a;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Submodus-Umschalter (Geführt vs Üben) */
+    .alu-submode-tabs {
+    .alu-submode-tabs, .sub-submode-tabs {
       display: inline-flex;
       background: rgba(15, 23, 42, 0.8);
       border: 1px solid rgba(234, 179, 8, 0.35);
+      border: 1px solid rgba(56, 189, 248, 0.3);
       border-radius: 999px;
       padding: 4px;
       gap: 4px;
     }
 
     .mode-toggle-btn {
+    .alu-submode-btn {
+    .alu-submode-btn, .sub-submode-btn {
       background: transparent;
       border: none;
       color: var(--text-muted);
       padding: 8px 16px;
+      padding: 7px 16px;
       border-radius: 999px;
       font-size: 0.85rem;
       font-weight: 700;
@@ -1841,21 +2018,29 @@
     }
 
     .mode-toggle-btn.active {
+    .alu-submode-btn.active {
+    .alu-submode-btn.active, .sub-submode-btn.active {
       background: var(--accent-gold);
       color: #0f172a;
       box-shadow: 0 0 12px rgba(234, 179, 8, 0.4);
     }
 
+    /* Aufgaben-Auswahlleiste */
     .alu-task-bar {
+    .alu-exercise-selector, .sub-exercise-selector {
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 12px;
+      gap: 8px;
       flex-wrap: wrap;
       background: rgba(15, 23, 42, 0.6);
+      padding: 10px 14px;
+      background: rgba(15, 23, 42, 0.7);
       border-radius: var(--radius-md);
       padding: 10px 16px;
       border: 1px solid rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.08);
     }
 
     .alu-task-presets {
@@ -1866,24 +2051,31 @@
     }
 
     .alu-task-chip {
+    .alu-exercise-chip, .sub-exercise-chip {
       background: rgba(30, 41, 59, 0.8);
       border: 1px solid rgba(56, 189, 248, 0.25);
       color: var(--text-main);
       padding: 6px 14px;
       border-radius: var(--radius-md);
       font-size: 0.82rem;
+      font-size: 0.84rem;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
     }
 
     .alu-task-chip:hover {
+    .alu-exercise-chip:hover, .sub-exercise-chip:hover {
       border-color: var(--cyber-cyan);
       background: rgba(56, 189, 248, 0.15);
       transform: translateY(-1px);
     }
 
     .alu-task-chip.active {
+    .alu-exercise-chip.active, .sub-exercise-chip.active {
       border-color: var(--cyber-cyan);
       background: rgba(56, 189, 248, 0.3);
       color: #fff;
@@ -1899,6 +2091,10 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
+    .alu-task-chip .chip-check {
+    .alu-exercise-chip .chip-check, .sub-exercise-chip .chip-check {
+      color: #4ade80;
+      font-weight: 900;
     }
 
     .cheat-header {
@@ -1952,6 +2148,8 @@
 
     /* ALU Männchen Stage */
     .alu-stage-container {
+    /* Männchen Stage */
+    .alu-stage-container, .sub-stage-container {
       background: rgba(10, 15, 29, 0.95);
       border: 1.5px solid rgba(56, 189, 248, 0.3);
       border-radius: var(--radius-lg);
@@ -1961,6 +2159,7 @@
     }
 
     .alu-grid-wrapper {
+    .alu-grid-wrapper, .sub-grid-wrapper {
       min-width: 680px;
       display: flex;
       flex-direction: column;
@@ -1969,6 +2168,7 @@
     }
 
     .alu-row-columns-header {
+    .alu-row-columns-header, .sub-row-columns-header {
       display: grid;
       grid-template-columns: 140px 1fr;
       align-items: center;
@@ -1977,6 +2177,7 @@
     }
 
     .alu-row-label-spacer {
+    .alu-row-label-spacer, .sub-row-label-spacer {
       font-size: 0.78rem;
       font-weight: 700;
       text-transform: uppercase;
@@ -1986,12 +2187,14 @@
     }
 
     .alu-cols-header-grid {
+    .alu-cols-header-grid, .sub-cols-header-grid {
       display: grid;
       grid-template-columns: repeat(8, 1fr);
       gap: 6px;
     }
 
     .alu-col-val {
+    .alu-col-val, .sub-col-val {
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -2006,12 +2209,14 @@
     }
 
     .alu-col-val small {
+    .alu-col-val small, .sub-col-val small {
       font-size: 0.65rem;
       opacity: 0.7;
       font-weight: 400;
     }
 
     .alu-col-val.active-step {
+    .alu-col-val.active-step, .sub-col-val.active-step {
       color: #fef08a;
       text-shadow: 0 0 10px rgba(254, 240, 138, 0.8);
       background: rgba(234, 179, 8, 0.2);
@@ -2020,6 +2225,7 @@
     }
 
     .alu-row {
+    .alu-row, .sub-row {
       display: grid;
       grid-template-columns: 140px 1fr;
       align-items: center;
@@ -2030,6 +2236,7 @@
     }
 
     .alu-row-label {
+    .alu-row-label, .sub-row-label {
       display: flex;
       flex-direction: column;
       gap: 3px;
@@ -2061,6 +2268,7 @@
     }
 
     .row-tag.tag-carry {
+    .row-tag.tag-carry, .row-tag.tag-borrow {
       background: rgba(239, 68, 68, 0.2);
       color: #f87171;
       border: 1px solid rgba(239, 68, 68, 0.4);
@@ -2080,12 +2288,14 @@
     }
 
     .alu-row-grid {
+    .alu-row-grid, .sub-row-grid {
       display: grid;
       grid-template-columns: repeat(8, 1fr);
       gap: 6px;
     }
 
     .alu-cell {
+    .alu-cell, .sub-cell {
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -2098,6 +2308,7 @@
     }
 
     .alu-cell.active-step {
+    .alu-cell.active-step, .sub-cell.active-step {
       background: rgba(234, 179, 8, 0.15);
       border-color: var(--accent-gold);
       box-shadow: 0 0 14px rgba(234, 179, 8, 0.35);
@@ -2105,6 +2316,7 @@
     }
 
     .alu-cell.error-hint {
+    .alu-cell.error-hint, .sub-cell.error-hint {
       background: rgba(239, 68, 68, 0.2);
       border-color: #ef4444;
       box-shadow: 0 0 16px rgba(239, 68, 68, 0.5);
@@ -2118,15 +2330,18 @@
     }
 
     .alu-cell.clickable {
+    .alu-cell.clickable, .sub-cell.clickable {
       cursor: pointer;
     }
 
     .alu-cell.clickable:hover {
+    .alu-cell.clickable:hover, .sub-cell.clickable:hover {
       border-color: rgba(56, 189, 248, 0.5);
       background: rgba(56, 189, 248, 0.1);
     }
 
     .alu-char-svg {
+    .alu-char-svg, .sub-char-svg {
       width: 100%;
       max-width: 65px;
       height: 75px;
@@ -2135,15 +2350,18 @@
     }
 
     .alu-char-svg.carry-svg {
+    .alu-char-svg.carry-svg, .sub-char-svg.carry-svg {
       max-width: 50px;
       height: 55px;
     }
 
     .alu-cell.clickable:hover .alu-char-svg {
+    .alu-cell.clickable:hover .alu-char-svg, .sub-cell.clickable:hover .sub-char-svg {
       transform: scale(1.06);
     }
 
     .alu-cell-bit-btn {
+    .alu-cell-bit-btn, .sub-cell-bit-btn {
       margin-top: 3px;
       font-family: var(--font-mono);
       font-size: 0.72rem;
@@ -2157,6 +2375,7 @@
     }
 
     .alu-cell-bit-btn.is-on {
+    .alu-cell-bit-btn.is-on, .sub-cell-bit-btn.is-on {
       background: var(--cyber-cyan);
       border-color: #38bdf8;
       color: #032b43;
@@ -2164,6 +2383,7 @@
     }
 
     .alu-row-operator-bar {
+    .alu-row-operator-bar, .sub-row-operator-bar {
       display: flex;
       align-items: center;
       gap: 12px;
@@ -2173,6 +2393,7 @@
     }
 
     .alu-operator-badge {
+    .alu-operator-badge, .sub-operator-badge {
       font-size: 1.3rem;
       font-weight: 900;
       background: rgba(234, 179, 8, 0.15);
@@ -2187,6 +2408,7 @@
     }
 
     .alu-operator-text {
+    .alu-operator-text, .sub-operator-text {
       font-size: 0.8rem;
       font-weight: 700;
       text-transform: uppercase;
@@ -2195,6 +2417,7 @@
     }
 
     .alu-row-carry {
+    .alu-row-carry, .sub-row-carry, .sub-row-borrow {
       background: rgba(239, 68, 68, 0.06);
       border: 1px dashed rgba(239, 68, 68, 0.3);
       border-radius: var(--radius-md);
@@ -2202,6 +2425,7 @@
     }
 
     .alu-calc-divider-line {
+    .alu-calc-divider-line, .sub-calc-divider-line {
       height: 3px;
       background: linear-gradient(90deg, transparent 0%, var(--cyber-cyan) 15%, var(--accent-gold) 50%, var(--matrix-green) 85%, transparent 100%);
       margin: 6px 0;
@@ -2210,6 +2434,7 @@
     }
 
     .alu-controls-card {
+    .alu-controls-card, .sub-controls-card {
       background: var(--bg-card);
       border: 1px solid var(--bg-card-border);
       border-radius: var(--radius-md);
@@ -2217,6 +2442,7 @@
     }
 
     .alu-step-actions, .alu-practice-actions {
+    .alu-step-actions, .sub-step-actions, .alu-practice-actions, .sub-practice-actions {
       display: flex;
       gap: 10px;
       align-items: center;
@@ -2225,6 +2451,7 @@
     }
 
     .alu-step-explanation-box {
+    .alu-step-explanation-box, .sub-step-explanation-box {
       background: rgba(15, 23, 42, 0.85);
       border: 1px solid rgba(56, 189, 248, 0.35);
       border-radius: var(--radius-md);
@@ -2244,43 +2471,128 @@
     }
 
     .alu-step-explanation-box strong {
+    .alu-step-explanation-box strong, .sub-step-explanation-box strong {
       color: #fef08a;
     }
 
-    /* 4. Automatische Sprachausgabe (Heft-Generator für Kapitel 4) */
-    .alu-heft-card {
-      background: linear-gradient(180deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.95) 100%);
+    /* Stufen-Fortschritts-Navigation unten */
+    .alu-stage-bottom-nav {
+    .alu-stage-bottom-nav, .sub-stage-bottom-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    /* Multiple-Choice Quiz Styles (Stufe 5) */
+    .alu-quiz-container {
+    .alu-quiz-container, .sub-quiz-container {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .alu-quiz-header {
+    .alu-quiz-header, .sub-quiz-header {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.9));
       border: 1.5px solid rgba(56, 189, 248, 0.35);
       border-radius: var(--radius-lg);
+      padding: 18px 22px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .alu-quiz-score-badge {
+    .alu-quiz-score-badge, .sub-quiz-score-badge {
+      background: rgba(234, 179, 8, 0.15);
+      border: 1px solid var(--accent-gold);
+      color: var(--accent-gold);
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 0.95rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .alu-quiz-card {
+    .alu-quiz-card, .sub-quiz-card {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius-md);
       padding: 18px;
       display: flex;
       flex-direction: column;
       gap: 12px;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      transition: all 0.25s;
     }
 
     .heft-header {
+    .alu-quiz-q-title {
+    .alu-quiz-q-title, .sub-quiz-q-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #ffffff;
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
+      align-items: flex-start;
       gap: 10px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       padding-bottom: 10px;
     }
 
     .heft-title {
+    .alu-quiz-q-num {
+    .alu-quiz-q-num, .sub-quiz-q-num {
+      background: rgba(56, 189, 248, 0.2);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      color: var(--cyber-cyan);
+      font-size: 0.8rem;
+      font-weight: 800;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
       display: flex;
       align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .alu-quiz-options {
+    .alu-quiz-options, .sub-quiz-options {
+      display: grid;
+      grid-template-columns: 1fr;
       gap: 8px;
       font-size: 1.05rem;
       color: var(--cyber-cyan);
     }
 
     .heft-actions {
+    .alu-quiz-opt-btn {
+    .alu-quiz-opt-btn, .sub-quiz-opt-btn {
+      background: rgba(30, 41, 59, 0.7);
+      border: 1.5px solid rgba(100, 116, 139, 0.3);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      color: #f1f5f9;
+      font-size: 0.92rem;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.2s ease;
       display: flex;
       gap: 8px;
       align-items: center;
+      gap: 12px;
     }
 
     .heft-sentence-box {
@@ -2288,11 +2600,103 @@
       font-size: 1.05rem;
       line-height: 1.6;
       color: #ffffff;
+    .alu-quiz-opt-btn:hover:not(:disabled) {
+    .alu-quiz-opt-btn:hover:not(:disabled), .sub-quiz-opt-btn:hover:not(:disabled) {
+      border-color: var(--cyber-cyan);
+      background: rgba(56, 189, 248, 0.12);
+      transform: translateX(4px);
+    }
+
+    .alu-quiz-opt-btn .opt-letter {
+    .alu-quiz-opt-btn .opt-letter, .sub-quiz-opt-btn .opt-letter {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 6px;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .alu-quiz-opt-btn.correct {
+    .alu-quiz-opt-btn.correct, .sub-quiz-opt-btn.correct {
+      border-color: #22c55e;
+      background: rgba(34, 197, 94, 0.15);
+      color: #86efac;
+    }
+
+    .alu-quiz-opt-btn.correct .opt-letter {
+    .alu-quiz-opt-btn.correct .opt-letter, .sub-quiz-opt-btn.correct .opt-letter {
+      background: #22c55e;
+      color: #022c22;
+      border-color: #22c55e;
+    }
+
+    .alu-quiz-opt-btn.incorrect {
+    .alu-quiz-opt-btn.incorrect, .sub-quiz-opt-btn.incorrect {
+      border-color: #ef4444;
+      background: rgba(239, 68, 68, 0.15);
+      color: #fca5a5;
+    }
+
+    .alu-quiz-opt-btn.incorrect .opt-letter {
+    .alu-quiz-opt-btn.incorrect .opt-letter, .sub-quiz-opt-btn.incorrect .opt-letter {
+      background: #ef4444;
+      color: #fff;
+      border-color: #ef4444;
+    }
+
+    .alu-quiz-feedback-box {
+    .alu-quiz-feedback-box, .sub-quiz-feedback-box {
+      margin-top: 6px;
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 0.88rem;
+      line-height: 1.5;
       background: rgba(15, 23, 42, 0.9);
       border: 1px dashed rgba(56, 189, 248, 0.4);
       border-radius: var(--radius-md);
       padding: 14px 20px;
       font-weight: 500;
+      border-left: 3px solid;
+      display: none;
+    }
+
+    .alu-quiz-feedback-box.correct {
+    .alu-quiz-feedback-box.correct, .sub-quiz-feedback-box.correct {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-color: #22c55e;
+      color: #86efac;
+    }
+
+    .alu-quiz-feedback-box.incorrect {
+    .alu-quiz-feedback-box.incorrect, .sub-quiz-feedback-box.incorrect {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-color: #ef4444;
+      color: #fca5a5;
+    }
+
+    .alu-quiz-summary-card {
+    .alu-quiz-summary-card, .sub-quiz-summary-card {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.95));
+      border: 2px solid var(--accent-gold);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 0 30px rgba(234, 179, 8, 0.25);
     }
 
     /* Toast Notification */
@@ -2368,6 +2772,7 @@
       <div class="chapter-nav-title">
         <span>Lernpfad & Kapitel</span>
         <span id="overall-progress-text">Kapitel 1 von 4</span>
+        <span id="overall-progress-text">Kapitel 1 von 5</span>
       </div>
       <div class="chapter-tabs">
         <!-- Tab 1 -->
@@ -2402,8 +2807,18 @@
           <div class="tab-info">
             <span class="tab-num">Kapitel 4</span>
             <span class="tab-name">⚡ Das Rechenwerk (ALU)</span>
+            <span class="tab-name">➕ Binäre Addition</span>
           </div>
           <div class="tab-status" id="tab-chap4-status">🔒</div>
+        </button>
+
+        <!-- Tab 5 -->
+        <button id="tab-chap5" class="chapter-tab-btn locked" onclick="switchChapter(5)">
+          <div class="tab-info">
+            <span class="tab-num">Kapitel 5</span>
+            <span class="tab-name">➖ Binäre Subtraktion</span>
+          </div>
+          <div class="tab-status" id="tab-chap5-status">🔒</div>
         </button>
       </div>
     </nav>
@@ -2852,6 +3267,8 @@
             </div>
             <button class="btn-glow" style="margin-left: 12px; padding: 8px 16px; font-size: 0.85rem;" onclick="openCertificateModal()">
               🏆 Urkunde anzeigen
+            <button class="btn-glow" id="btn-advance-chap4" style="margin-left: auto; padding: 8px 16px; font-size: 0.85rem;" onclick="forceUnlockChapter(4)">
+              ➕ Weiter zu Kapitel 4 (Binäre Addition) ➔
             </button>
             <button class="btn-glow" id="btn-advance-chap4" style="margin-left: 8px; padding: 8px 16px; font-size: 0.85rem;" onclick="forceUnlockChapter(4)">
             <button class="btn-glow" id="btn-advance-chap4" style="margin-left: 12px; padding: 8px 16px; font-size: 0.85rem;" onclick="forceUnlockChapter(4)">
@@ -2866,14 +3283,18 @@
 
     <!-- ======================================================================
          KAPITEL 4: BEREICH C: "Das Rechenwerk (ALU) – Binäre Addition & Subtraktion"
+         KAPITEL 4: BEREICH C: "Binäre Addition – Schritt für Schritt zum Rechenprofi"
          ====================================================================== -->
     <section id="chapter-4" class="chapter-section">
       <div class="alu-card">
         <!-- ALU Header & Submodes -->
+        <!-- Chapter Header -->
         <div class="alu-top-bar">
           <div class="alu-title-group">
             <h3><span>⚡</span> BEREICH C: "Das Rechenwerk (ALU) – Binäre Addition & Subtraktion"</h3>
             <p>Wie rechnet ein Computer im Prozessor (CPU)? Erlebe das binäre Rechenwerk Schritt für Schritt oder rechne selbst!</p>
+            <h3><span>➕</span> BEREICH C: "Binäre Addition – Schritt für Schritt mit den 8-Bit-Männchen"</h3>
+            <p>Wie addiert ein Prozessor (ALU)? Lerne jede Rechenregel an den Männchen kennen, übe selbst und meistere den Abschlusstest!</p>
           </div>
 
           <div class="alu-top-controls">
@@ -2906,6 +3327,33 @@
           </div>
           <button class="btn-action" onclick="generateRandomAluTask()">
             <span>🎲</span> Zufalls-Aufgabe
+      <div class="alu-main-container">
+        <!-- 5-Stufen-Navigation (Unterseiten) -->
+        <div class="alu-stage-nav" id="alu-stage-nav">
+          <button class="alu-stage-tab active" id="alu-tab-stage1" onclick="switchAluStage(1)">
+            <span class="step-badge">Stufe 1</span>
+            <strong>0️⃣ Ohne Übertrag</strong>
+            <small>0+0=0, 0+1=1, 1+0=1</small>
+          </button>
+          <button class="alu-stage-tab" id="alu-tab-stage2" onclick="switchAluStage(2)">
+            <span class="step-badge">Stufe 2</span>
+            <strong>1️⃣ Ein Übertrag</strong>
+            <small>1+1 = 0 (Übertrag 1 ➔)</small>
+          </button>
+          <button class="alu-stage-tab" id="alu-tab-stage3" onclick="switchAluStage(3)">
+            <span class="step-badge">Stufe 3</span>
+            <strong>🔄 Mehrere Überträge</strong>
+            <small>1+1+1 = 1 (Kettenreaktion)</small>
+          </button>
+          <button class="alu-stage-tab" id="alu-tab-stage4" onclick="switchAluStage(4)">
+            <span class="step-badge">Stufe 4</span>
+            <strong>🏋️ Meister-Training</strong>
+            <small>Schrittweise schwerere Aufgaben</small>
+          </button>
+          <button class="alu-stage-tab" id="alu-tab-stage5" onclick="switchAluStage(5)">
+            <span class="step-badge">Stufe 5</span>
+            <strong>📝 Verständnis-Test</strong>
+            <small>5 Prüfungsfragen</small>
           </button>
         </div>
 
@@ -2919,10 +3367,15 @@
           <div class="cheat-rules-grid" id="cheat-rules-grid">
             <!-- Rendered by JS based on current operation -->
           </div>
+        <!-- DYNAMISCHER STUFEN-HEADER: Regel-Erklärung & Aufgaben-Auswahl -->
+        <div id="alu-stage-header-container">
+          <!-- Populated dynamically by switchAluStage(stageNum) -->
         </div>
 
         <!-- ALU STAGE: DIE VIER MÄNNCHEN-REIHEN -->
         <div class="alu-stage-container">
+        <!-- ALU STAGE: DIE VIER MÄNNCHEN-REIHEN (Für Stufen 1 bis 4) -->
+        <div class="alu-stage-container" id="alu-stage-männchen-box">
           <div class="alu-grid-wrapper">
             <!-- Column Place Values (128 .. 1) -->
             <div class="alu-row-columns-header">
@@ -2954,6 +3407,7 @@
             <div class="alu-row-operator-bar">
               <div class="alu-operator-badge" id="alu-operator-badge">➕</div>
               <div class="alu-operator-text" id="alu-operator-text">Addition: Operand A + Operand B</div>
+              <div class="alu-operator-text" id="alu-operator-text">Binäre Addition: Operand A + Operand B</div>
             </div>
 
             <!-- REIHE B: Zweiter Operand (8 Männchen) -->
@@ -2996,6 +3450,8 @@
 
         <!-- STEUERUNGSLEISTE: Schritt-für-Schritt vs Selbst rechnen -->
         <div class="alu-controls-card">
+        <!-- STEUERUNGSLEISTE: Geführt (Demo) vs Selbst rechnen (Übungen) -->
+        <div class="alu-controls-card" id="alu-controls-card">
           <!-- Guided Step-by-Step Controls -->
           <div id="alu-step-controls" class="alu-control-panel">
             <div class="alu-step-actions">
@@ -3014,6 +3470,7 @@
               <span class="step-bulb">💡</span>
               <div id="alu-step-text">
                 Klicke auf <strong>„Nächster Schritt (Bit für Bit)“</strong>, um die Berechnung Spalte für Spalte von rechts (1er-Bit) nach links (128er-Bit) zu starten!
+                Klicke auf <strong>„Nächster Schritt (Bit für Bit)“</strong>, um die Berechnung Spalte für Spalte von rechts (1er-Bit) nach links (128er-Bit) anzusehen!
               </div>
             </div>
           </div>
@@ -3063,10 +3520,207 @@
                 <span id="alu-copy-icon">📋</span> <span id="alu-copy-text">Satz kopieren</span>
               </button>
             </div>
+        <!-- STUFE 5: MULTIPLE-CHOICE TEST CONTAINER (Nur in Stufe 5 sichtbar) -->
+        <div class="alu-quiz-container" id="alu-quiz-container" style="display: none;">
+          <!-- Dynamically rendered by renderAluQuiz() -->
+        </div>
+
+        <!-- STUFEN-FORTSCHRITTS-NAVIGATION (UNTEN) -->
+        <div class="alu-stage-bottom-nav">
+          <div id="alu-stage-indicator" style="font-size: 0.9rem; color: var(--text-muted); font-weight: 600;">
+            Stufe 1 von 5: Ohne Übertrag
           </div>
           <div class="heft-sentence-box" id="alu-sentence-box">
             <!-- Dynamically generated explanation sentence -->
           </div>
+          <button class="btn-glow" id="btn-alu-next-stage" onclick="aluAdvanceToNextStage()">
+            <span>Weiter zu Stufe 2 (Ein Übertrag) ➔</span>
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         KAPITEL 5: PROFI-KAPITEL: BINÄRE SUBTRAKTION
+         Schritt für Schritt mit den 8-Bit-Männchen und Borg-Regel (B=1)
+         ====================================================================== -->
+    <section id="chapter-5" class="chapter-section">
+      <div class="alu-main-container">
+        <!-- 5-Stufen-Navigation (Unterseiten) -->
+        <div class="alu-stage-nav sub-stage-nav" id="sub-stage-nav">
+          <button class="alu-stage-tab active" id="sub-tab-stage1" onclick="switchSubStage(1)">
+            <span class="step-badge">Stufe 1</span>
+            <strong>0️⃣ Ohne Borgen</strong>
+            <small>0−0=0, 1−0=1, 1−1=0</small>
+          </button>
+          <button class="alu-stage-tab" id="sub-tab-stage2" onclick="switchSubStage(2)">
+            <span class="step-badge">Stufe 2</span>
+            <strong>1️⃣ Die Borg-Regel</strong>
+            <small>0−1 = 1 (1 geborgt ➔)</small>
+          </button>
+          <button class="alu-stage-tab" id="sub-tab-stage3" onclick="switchSubStage(3)">
+            <span class="step-badge">Stufe 3</span>
+            <strong>🔄 Ketten-Borgen</strong>
+            <small>Borgen über Nullstellen</small>
+          </button>
+          <button class="alu-stage-tab" id="sub-tab-stage4" onclick="switchSubStage(4)">
+            <span class="step-badge">Stufe 4</span>
+            <strong>🏋️ Meister-Training</strong>
+            <small>Schrittweise schwerere Aufgaben</small>
+          </button>
+          <button class="alu-stage-tab" id="sub-tab-stage5" onclick="switchSubStage(5)">
+            <span class="step-badge">Stufe 5</span>
+            <strong>📝 Verständnis-Test</strong>
+            <small>5 Prüfungsfragen</small>
+          </button>
+        </div>
+
+        <!-- DYNAMISCHER STUFEN-HEADER: Regel-Erklärung & Aufgaben-Auswahl -->
+        <div id="sub-stage-header-container">
+          <!-- Populated dynamically by switchSubStage(stageNum) -->
+        </div>
+
+        <!-- SUB STAGE: DIE VIER MÄNNCHEN-REIHEN (Für Stufen 1 bis 4) -->
+        <div class="alu-stage-container" id="sub-stage-männchen-box">
+          <div class="alu-grid-wrapper">
+            <!-- Column Place Values (128 .. 1) -->
+            <div class="alu-row-columns-header">
+              <div class="alu-row-label-spacer">Stellenwert:</div>
+              <div class="alu-cols-header-grid" id="sub-cols-header-grid">
+                <div class="alu-col-val" data-col="0"><span>128</span><small>2⁷</small></div>
+                <div class="alu-col-val" data-col="1"><span>64</span><small>2⁶</small></div>
+                <div class="alu-col-val" data-col="2"><span>32</span><small>2⁵</small></div>
+                <div class="alu-col-val" data-col="3"><span>16</span><small>2⁴</small></div>
+                <div class="alu-col-val" data-col="4"><span>8</span><small>2³</small></div>
+                <div class="alu-col-val" data-col="5"><span>4</span><small>2²</small></div>
+                <div class="alu-col-val" data-col="6"><span>2</span><small>2¹</small></div>
+                <div class="alu-col-val" data-col="7"><span>1</span><small>2⁰</small></div>
+              </div>
+            </div>
+
+            <!-- REIHE A: Minuend A (8 Männchen) -->
+            <div class="alu-row alu-row-operand" id="sub-row-operandA">
+              <div class="alu-row-label">
+                <span class="row-tag tag-a">Minuend A</span>
+                <span class="row-dec" id="sub-dec-a">Dezimal: 7</span>
+              </div>
+              <div class="alu-row-grid" id="sub-grid-a">
+                <!-- 8 Männchen A -->
+              </div>
+            </div>
+
+            <!-- Operator bar -->
+            <div class="alu-row-operator-bar">
+              <div class="alu-operator-badge" id="sub-operator-badge">➖</div>
+              <div class="alu-operator-text" id="sub-operator-text">Binäre Subtraktion: Operand A − Operand B</div>
+            </div>
+
+            <!-- REIHE B: Subtrahend B (8 Männchen) -->
+            <div class="alu-row alu-row-operand" id="sub-row-operandB">
+              <div class="alu-row-label">
+                <span class="row-tag tag-b">Subtrahend B</span>
+                <span class="row-dec" id="sub-dec-b">Dezimal: 5</span>
+              </div>
+              <div class="alu-row-grid" id="sub-grid-b">
+                <!-- 8 Männchen B -->
+              </div>
+            </div>
+
+            <!-- BORG-ZEILE: Borrow-Männchen (Rot, B=1) -->
+            <div class="alu-row alu-row-carry" id="sub-row-borrow">
+              <div class="alu-row-label">
+                <span class="row-tag tag-borrow" id="sub-borrow-row-tag">Borgen (B)</span>
+                <small style="color: #fca5a5; font-size: 0.7rem;">Geborgte 1en</small>
+              </div>
+              <div class="alu-row-grid" id="sub-grid-borrow">
+                <!-- 8 rote Borg-Männchen -->
+              </div>
+            </div>
+
+            <!-- Rechenstrich -->
+            <div class="alu-calc-divider-line"></div>
+
+            <!-- ERGEBNIS-ZEILE: Differenz (8 Männchen) -->
+            <div class="alu-row alu-row-result" id="sub-row-result">
+              <div class="alu-row-label">
+                <span class="row-tag tag-res">Differenz (=)</span>
+                <span class="row-dec" id="sub-dec-res">Dezimal: 2</span>
+              </div>
+              <div class="alu-row-grid" id="sub-grid-result">
+                <!-- 8 Differenz-Männchen -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEUERUNGSLEISTE: Geführt vs Selbst rechnen -->
+        <div class="alu-controls-card" id="sub-controls-card">
+          <!-- Guided Step-by-Step Controls -->
+          <div id="sub-step-controls" class="alu-control-panel">
+            <div class="alu-step-actions">
+              <button class="btn-glow" id="btn-sub-next-step" onclick="subNextStep()">
+                <span>Nächster Schritt (Bit für Bit) ➔</span>
+              </button>
+              <button class="btn-action" onclick="subResetSteps()">
+                <span>🔄</span> Von vorne beginnen
+              </button>
+              <button class="btn-action" id="btn-sub-autoplay" onclick="subToggleAutoPlay()">
+                <span id="sub-autoplay-icon">▶️</span> <span id="sub-autoplay-text">Auto-Play</span>
+              </button>
+            </div>
+            <!-- Live Schritt-Erklärung -->
+            <div class="alu-step-explanation-box" id="sub-step-explanation">
+              <span class="step-bulb">💡</span>
+              <div id="sub-step-text">
+                Klicke auf <strong>„Nächster Schritt (Bit für Bit)“</strong>, um die Subtraktion Spalte für Spalte von rechts (1er-Bit) nach links (128er-Bit) anzusehen!
+              </div>
+            </div>
+          </div>
+
+          <!-- Practice Mode Controls (Selbst rechnen) -->
+          <div id="sub-practice-controls" class="alu-control-panel" style="display: none;">
+            <div class="alu-practice-actions">
+              <button class="btn-glow" onclick="subCheckPractice()">
+                <span>Prüfen ✔</span>
+              </button>
+              <button class="btn-tipp" id="btn-sub-tipp" onclick="subShowTipp()">
+                <span>💡</span> Tipp anzeigen
+              </button>
+              <button class="btn-action reset" onclick="subResetPracticeInputs()">
+                <span>🔄</span> Eingaben löschen
+              </button>
+            </div>
+            <!-- Practice Feedback Banner -->
+            <div class="feedback-banner" id="sub-practice-feedback" style="display: none;">
+              <span id="sub-feedback-icon">🎉</span>
+              <span id="sub-feedback-text">Perfekt gerechnet! Alle Differenz-Bits und Borge-Werte stimmen!</span>
+            </div>
+            <!-- Practice Tipp Box -->
+            <div class="tipp-box" id="sub-tipp-box" style="display: none;">
+              <div style="font-weight: 700; color: var(--accent-gold); display: flex; align-items: center; gap: 6px;">
+                <span>💡</span> <span>Didaktischer Rechen-Tipp</span>
+              </div>
+              <div class="tipp-step" id="sub-tipp-content">
+                <!-- Pedagogical hint pointing to specific column -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STUFE 5: MULTIPLE-CHOICE TEST CONTAINER (Nur in Stufe 5 sichtbar) -->
+        <div class="alu-quiz-container" id="sub-quiz-container" style="display: none;">
+          <!-- Dynamically rendered by renderSubQuiz() -->
+        </div>
+
+        <!-- STUFEN-FORTSCHRITTS-NAVIGATION (UNTEN) -->
+        <div class="alu-stage-bottom-nav">
+          <div id="sub-stage-indicator" style="font-size: 0.9rem; color: var(--text-muted); font-weight: 600;">
+            Stufe 1 von 5: Ohne Borgen
+          </div>
+          <button class="btn-glow" id="btn-sub-next-stage" onclick="subAdvanceToNextStage()">
+            <span>Weiter zu Stufe 2 (Die Borg-Regel) ➔</span>
+          </button>
         </div>
 
       </div>
@@ -3231,14 +3885,92 @@
       },
 
       // Kapitel 4: ALU Rechenwerk State
+      // Kapitel 4: ALU Rechenwerk State (Didaktischer 5-Stufen-Aufbau)
+      // Kapitel 4: ALU Rechenwerk State (Didaktischer 5-Stufen-Aufbau: Addition)
       alu: {
         op: 'add', // 'add' or 'sub'
         mode: 'step', // 'step' (Geführt) or 'practice' (Selbst rechnen)
         operandA: [0, 0, 0, 0, 0, 0, 1, 0], // default 2 (Aufgabe 1: 2 + 5 = 7 ohne Übertrag)
         operandB: [0, 0, 0, 0, 0, 1, 0, 1], // default 5
+        operandA: [0, 0, 0, 0, 0, 0, 1, 0], // default 2
+        operandB: [0, 0, 0, 0, 0, 1, 0, 1], // default 5 (2 + 5 = 7 ohne Übertrag)
+        currentStage: 1, // 1: Ohne Übertrag, 2: 1 Übertrag, 3: Mehrere Überträge, 4: Meister-Training, 5: Multiple-Choice-Test
+        submode: 'demo', // 'demo' (Geführte Männchen-Erklärung) or 'practice' (Schüler-Übung)
+        stages: {
+          1: {
+            title: "0️⃣ Die Grundregeln & Addition ohne Übertrag",
+            badge: "Grundregeln",
+            desc: "Ein Computer addiert Spalte für Spalte von rechts (1er-Bit) nach links (128er-Bit). Wenn an einer Bitstelle höchstens ein Männchen seine Karte hebt, entsteht <strong>kein Übertrag</strong>!",
+            pills: [
+              { text: "0 + 0 = <strong>0</strong>", hl: false },
+              { text: "0 + 1 = <strong>1</strong>", hl: false },
+              { text: "1 + 0 = <strong>1</strong>", hl: false }
+            ],
+            tip: "💡 Merkregel: Kein Übertrag nötig! Das Ergebnis-Männchen übernimmt einfach die 1 oder bleibt bei 0.",
+            demo: { a: 2, b: 5, label: "Beispiel zur Anschauung: 2 + 5 = 7 (0 Überträge)" },
+            tasks: [
+              { a: 1, b: 4, label: "Übung 1: 1 + 4 = 5" },
+              { a: 10, b: 5, label: "Übung 2: 10 + 5 = 15" },
+              { a: 16, b: 10, label: "Übung 3: 16 + 10 = 26" }
+            ],
+            completed: [false, false, false],
+            currentTaskIdx: 0
+          },
+          2: {
+            title: "1️⃣ Die Übertrags-Regel: 1 + 1 = 0 (mit 1 Übertrag)",
+            badge: "Übertragsregel",
+            desc: "Was passiert, wenn BEIDE Männchen in einer Spalte eine 1 zeigen? Im Binärsystem gibt es keine Ziffer '2'! Die Zahl 2 heißt binär: 10 (1 Zwei + 0 Einsen). Deshalb gilt: <strong>1 + 1 = 0</strong>, und <strong>1 wandert als roter Übertrag nach links</strong>!",
+            pills: [
+              { text: "1 + 1 = <strong>0</strong> <small>(Übertrag 1 ➔ links)</small>", hl: true }
+            ],
+            tip: "💡 Das rote Übertrag-Männchen der Nachbarspalte wacht auf und zeigt stolz Ü=1!",
+            demo: { a: 4, b: 4, label: "Beispiel zur Anschauung: 4 + 4 = 8 (1 Übertrag bei Bit 4 ➔ Bit 8)" },
+            tasks: [
+              { a: 1, b: 1, label: "Übung 1: 1 + 1 = 2 (Übertrag bei 1)" },
+              { a: 5, b: 1, label: "Übung 2: 5 + 1 = 6 (Übertrag bei 1)" },
+              { a: 8, b: 8, label: "Übung 3: 8 + 8 = 16 (Übertrag bei 8)" }
+            ],
+            completed: [false, false, false],
+            currentTaskIdx: 0
+          },
+          3: {
+            title: "🔄 Mehrere Überträge & Ketten-Reaktion: 1 + 1 + 1 = 1",
+            badge: "Kettenreaktion",
+            desc: "Was passiert, wenn in einer Spalte bereits ein Übertrag ankommt und beide Operanden 1 sind? <strong>1 + 1 + 1 = 3₁₀ = 11₂</strong>! Das Ergebnis-Männchen zeigt 1 und reicht wieder 1 als Übertrag weiter nach links. Wie bei Dominosteinen kann so eine Kettenreaktion entstehen!",
+            pills: [
+              { text: "1 + 1 + 1 = <strong>1</strong> <small>(Übertrag 1 ➔ links)</small>", hl: true },
+              { text: "Ketten-Übertrag <small>(Domino-Effekt)</small>", hl: true }
+            ],
+            tip: "💡 Kettenreaktion: Ein Übertrag kann über mehrere Spalten hinweg nach links weiterwandern!",
+            demo: { a: 3, b: 1, label: "Beispiel zur Anschauung: 3 + 1 = 4 (Kettenübertrag Bit 1 ➔ 2 ➔ 4)" },
+            tasks: [
+              { a: 3, b: 1, label: "Übung 1: 3 + 1 = 4 (Kettenreaktion)" },
+              { a: 5, b: 5, label: "Übung 2: 5 + 5 = 10 (2 Überträge)" },
+              { a: 7, b: 1, label: "Übung 3: 7 + 1 = 8 (Dreifach-Kette!)" }
+            ],
+            completed: [false, false, false],
+            currentTaskIdx: 0
+          },
+          4: {
+            title: "🏋️ Stufe 4: Meister-Training (Schrittweise schwierigere Aufgaben)",
+            badge: "Profi-Training",
+            desc: "Trainiere wie ein echter Prozessor! Die Aufgaben werden Schritt für Schritt anspruchsvoller. Wähle eine Medaillen-Stufe oder würfle eine Zufallsaufgabe:",
+            levels: [
+              { a: 14, b: 2, label: "🥉 Bronze: 14 + 2 = 16" },
+              { a: 20, b: 12, label: "🥈 Silber: 20 + 12 = 32" },
+              { a: 11, b: 7, label: "🥇 Gold: 11 + 7 = 18 (1+1+1!)" },
+              { a: 39, b: 25, label: "💎 Diamant: 39 + 25 = 64 (Profi-Kette)" }
+            ],
+            completed: [false, false, false, false],
+            currentLevelIdx: 0
+          }
+        },
+        operandA: [0, 0, 0, 0, 0, 0, 1, 0],
+        operandB: [0, 0, 0, 0, 0, 1, 0, 1],
         userCarries: [0, 0, 0, 0, 0, 0, 0, 0],
         userResult: [0, 0, 0, 0, 0, 0, 0, 0],
         stepIndex: 7, // starts at column 7 (value 1) down to 0 (value 128)
+        stepIndex: 7,
         stepCarries: [0, 0, 0, 0, 0, 0, 0, 0],
         stepResult: [0, 0, 0, 0, 0, 0, 0, 0],
         stepFinished: false,
@@ -3258,6 +3990,100 @@
           { a: 10, b: 5, label: "Aufgabe 4 (10 − 5: 2 Borgen)" },
           { a: 4, b: 1, label: "Aufgabe 5 (4 − 1: 2 Borgen)" }
         ]
+        quiz: {
+          answered: [null, null, null, null, null],
+          score: 0,
+          finished: false
+        }
+      },
+
+      // Kapitel 5: Binäre Subtraktion (Didaktischer 5-Stufen-Aufbau)
+      sub: {
+        operandA: [0, 0, 0, 0, 0, 1, 1, 1], // default 7
+        operandB: [0, 0, 0, 0, 0, 1, 0, 1], // default 5 (7 − 5 = 2 ohne Borgen)
+        currentStage: 1, // 1: Ohne Borgen, 2: Borg-Regel, 3: Ketten-Borgen, 4: Meister-Training, 5: Multiple-Choice-Test
+        submode: 'demo', // 'demo' (Geführte Männchen-Erklärung) or 'practice' (Schüler-Übung)
+        stages: {
+          1: {
+            title: "0️⃣ Die Grundregeln & Subtraktion ohne Borgen",
+            badge: "Grundregeln",
+            desc: "Die CPU zieht die Bits Spalte für Spalte von rechts (1er-Bit) nach links (128er-Bit) ab. Solange das obere Bit größer oder gleich dem unteren ist, muss <strong>nichts geborgt</strong> werden!",
+            pills: [
+              { text: "0 − 0 = <strong>0</strong>", hl: false },
+              { text: "1 − 0 = <strong>1</strong>", hl: false },
+              { text: "1 − 1 = <strong>0</strong>", hl: false }
+            ],
+            tip: "💡 Merkregel: Kein Borgen nötig! 1 − 0 = 1 und 1 − 1 = 0. Das Differenz-Männchen zeigt einfach das Ergebnis.",
+            demo: { a: 7, b: 5, label: "Beispiel zur Anschauung: 7 − 5 = 2 (0 geborgt)" },
+            tasks: [
+              { a: 5, b: 1, label: "Übung 1: 5 − 1 = 4" },
+              { a: 15, b: 5, label: "Übung 2: 15 − 5 = 10" },
+              { a: 26, b: 10, label: "Übung 3: 26 − 10 = 16" }
+            ],
+            completed: [false, false, false],
+            currentTaskIdx: 0
+          },
+          2: {
+            title: "1️⃣ Die Borg-Regel: 0 − 1 = 1 (1 geborgt)",
+            badge: "Borg-Regel",
+            desc: "Was passiert, wenn oben eine 0 und unten eine 1 steht? Man kann von 0 nicht 1 abziehen! Die CPU borgt sich eine 1 von der linken Nachbarspalte. Da die linke Spalte doppelt so viel wert ist (2), rechnet man <strong>2 − 1 = 1</strong>! Die linke Spalte merkt sich die 'Schuld' mit dem roten Borg-Männchen (<strong>B=1</strong>).",
+            pills: [
+              { text: "0 − 1 = <strong>1</strong> <small>(1 geborgt ➔ links)</small>", hl: true }
+            ],
+            tip: "💡 Das rote Borg-Männchen der Nachbarspalte wacht auf und zeigt stolz B=1!",
+            demo: { a: 6, b: 1, label: "Beispiel zur Anschauung: 6 − 1 = 5 (1 Borgen bei Bit 1 ➔ Bit 2)" },
+            tasks: [
+              { a: 2, b: 1, label: "Übung 1: 2 − 1 = 1 (Borgen bei 1 ➔ 2)" },
+              { a: 10, b: 1, label: "Übung 2: 10 − 1 = 9 (Borgen bei 1 ➔ 2)" },
+              { a: 14, b: 5, label: "Übung 3: 14 − 5 = 9 (Borgen bei 1 ➔ 2)" }
+            ],
+            completed: [false, false, false],
+            currentTaskIdx: 0
+          },
+          3: {
+            title: "🔄 Ketten-Borgen über Nullstellen (Domino-Effekt)",
+            badge: "Ketten-Borgen",
+            desc: "Was passiert, wenn der linke Nachbar eine 0 ist und selbst nichts hergeben kann? Er muss wiederum von SEINEM linken Nachbarn borgen! Wie Dominosteine wandert der Borg-Vorgang nach links weiter, bis eine 1 gefunden wird.",
+            pills: [
+              { text: "0 − 1 − 1 = <strong>0</strong> <small>(Borg-Kette)</small>", hl: true },
+              { text: "Ketten-Borgen <small>(Domino-Effekt)</small>", hl: true }
+            ],
+            tip: "💡 Kettenreaktion: Wenn Nachbarn den Wert 0 haben, wird der Borg-Vorgang nach links durchgereicht!",
+            demo: { a: 4, b: 1, label: "Beispiel zur Anschauung: 4 − 1 = 3 (Ketten-Borgen Bit 1 ➔ 2 ➔ 4)" },
+            tasks: [
+              { a: 4, b: 1, label: "Übung 1: 4 − 1 = 3 (2 Borg-Männchen)" },
+              { a: 8, b: 1, label: "Übung 2: 8 − 1 = 7 (3 Borg-Männchen)" },
+              { a: 16, b: 3, label: "Übung 3: 16 − 3 = 13 (4 Borg-Männchen!)" }
+            ],
+            completed: [false, false, false],
+            currentTaskIdx: 0
+          },
+          4: {
+            title: "🏋️ Stufe 4: Meister-Training (Schrittweise schwierigere Aufgaben)",
+            badge: "Profi-Training",
+            desc: "Werde zum Meister des binären Abziehens! Wähle eine Medaillen-Stufe oder würfle eine Zufallsaufgabe:",
+            levels: [
+              { a: 12, b: 5, label: "🥉 Bronze: 12 − 5 = 7" },
+              { a: 20, b: 6, label: "🥈 Silber: 20 − 6 = 14" },
+              { a: 32, b: 9, label: "🥇 Gold: 32 − 9 = 23" },
+              { a: 64, b: 25, label: "💎 Diamant: 64 − 25 = 39 (Profi-Kette)" }
+            ],
+            completed: [false, false, false, false],
+            currentLevelIdx: 0
+          }
+        },
+        userBorrows: [0, 0, 0, 0, 0, 0, 0, 0],
+        userResult: [0, 0, 0, 0, 0, 0, 0, 0],
+        stepIndex: 7,
+        stepBorrows: [0, 0, 0, 0, 0, 0, 0, 0],
+        stepResult: [0, 0, 0, 0, 0, 0, 0, 0],
+        stepFinished: false,
+        autoPlayTimer: null,
+        quiz: {
+          answered: [null, null, null, null, null],
+          score: 0,
+          finished: false
+        }
       }
     };
 
@@ -3770,6 +4596,7 @@
 
       // Update Navigation Tabs
       for (let i = 1; i <= 4; i++) {
+      for (let i = 1; i <= 5; i++) {
         const tab = document.getElementById(`tab-chap${i}`);
         const sec = document.getElementById(`chapter-${i}`);
         if (tab) {
@@ -3795,9 +4622,11 @@
       }
 
       // 8-Bit-Männchen (Simulator-Stage) in Kapitel 3 und 4 komplett ausblenden
+      // 8-Bit-Männchen (Simulator-Stage) in Kapitel 3, 4 und 5 komplett ausblenden
       const simStage = document.getElementById('simulator-stage');
       if (simStage) {
         simStage.style.display = (chapNum === 3 || chapNum === 4) ? 'none' : '';
+        simStage.style.display = (chapNum === 3 || chapNum === 4 || chapNum === 5) ? 'none' : '';
       }
 
       // When Chapter 3 is selected: focus completely on ASCII
@@ -3807,6 +4636,9 @@
       } else if (chapNum === 4) {
         setMännchenCollapsed(true);
         initAlu();
+      } else if (chapNum === 5) {
+        setMännchenCollapsed(true);
+        initSub();
       } else {
         setMännchenCollapsed(false);
       }
@@ -3814,6 +4646,7 @@
       const progText = document.getElementById('overall-progress-text');
       if (progText) {
         progText.textContent = `Kapitel ${chapNum} von 4`;
+        progText.textContent = `Kapitel ${chapNum} von 5`;
       }
 
       // Initialize Chapter 2 tasks
@@ -4512,19 +5345,25 @@
 
     /* ==========================================================================
        10B. BEREICH C: DAS RECHENWERK (ALU) – KAPITEL 4
+       10B. BEREICH C: BINÄRE ADDITION (KAPITEL 4)
        ========================================================================== */
     function getAluCharacterSvg(bitVal, bitState, rowType) {
       if (rowType === 'carry') {
+      if (rowType === 'carry' || rowType === 'borrow') {
+        const isBorrow = rowType === 'borrow';
+        const cardText = isBorrow ? 'B=1' : 'Ü=1';
         if (bitState === 1) {
           return `
             <svg class="alu-char-svg carry-svg is-on" viewBox="0 0 60 70" xmlns="http://www.w3.org/2000/svg">
               <defs>
                 <radialGradient id="carryGlow-${bitVal}" cx="50%" cy="50%" r="50%">
+                <radialGradient id="cbGlow-${rowType}-${bitVal}" cx="50%" cy="50%" r="50%">
                   <stop offset="0%" stop-color="#ff4444" stop-opacity="0.8"/>
                   <stop offset="100%" stop-color="#ff4444" stop-opacity="0"/>
                 </radialGradient>
               </defs>
               <circle cx="30" cy="35" r="28" fill="url(#carryGlow-${bitVal})"/>
+              <circle cx="30" cy="35" r="28" fill="url(#cbGlow-${rowType}-${bitVal})"/>
               <path d="M 24 54 L 20 66 M 36 54 L 40 66" stroke="#f87171" stroke-width="3" stroke-linecap="round"/>
               <ellipse cx="18" cy="66" rx="4" ry="2" fill="#ef4444"/>
               <ellipse cx="42" cy="66" rx="4" ry="2" fill="#ef4444"/>
@@ -4536,6 +5375,7 @@
               <circle cx="30" cy="2" r="3.5" fill="#f87171" stroke="#ef4444" stroke-width="1.5"/>
               <rect x="12" y="32" width="36" height="20" rx="4" fill="#fef2f2" stroke="#dc2626" stroke-width="2"/>
               <text x="30" y="46" font-family="'Fira Code', monospace" font-size="12" font-weight="900" fill="#b91c1c" text-anchor="middle">Ü=1</text>
+              <text x="30" y="46" font-family="'Fira Code', monospace" font-size="12" font-weight="900" fill="#b91c1c" text-anchor="middle">${cardText}</text>
             </svg>
           `;
         } else {
@@ -4605,6 +5445,42 @@
     }
 
     function calculateAluExpected(op, bitsA, bitsB) {
+    function triggerConfetti() {
+      const colors = ['#38bdf8', '#eab308', '#22c55e', '#ec4899', '#a855f7', '#f97316'];
+      const container = document.body;
+      if (!container) return;
+
+      for (let i = 0; i < 35; i++) {
+        const conf = document.createElement('div');
+        conf.className = 'confetti-particle';
+        conf.style.position = 'fixed';
+        conf.style.left = (Math.random() * 96 + 2) + 'vw';
+        conf.style.top = '-15px';
+        conf.style.width = (Math.random() * 8 + 6) + 'px';
+        conf.style.height = (Math.random() * 12 + 8) + 'px';
+        conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        conf.style.zIndex = '9999';
+        conf.style.borderRadius = '3px';
+        conf.style.pointerEvents = 'none';
+        conf.style.opacity = '0.9';
+        conf.style.transform = `rotate(${Math.random() * 360}deg)`;
+        conf.style.transition = `transform ${Math.random() * 1.5 + 1.2}s cubic-bezier(0.25, 0.46, 0.45, 0.94), top ${Math.random() * 1.5 + 1.2}s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.5s ease 1s`;
+
+        container.appendChild(conf);
+
+        setTimeout(() => {
+          conf.style.top = (Math.random() * 40 + 60) + 'vh';
+          conf.style.transform = `rotate(${Math.random() * 720}deg) translateX(${Math.random() * 60 - 30}px)`;
+          conf.style.opacity = '0';
+        }, 20);
+
+        setTimeout(() => {
+          if (conf.parentNode) conf.parentNode.removeChild(conf);
+        }, 2500);
+      }
+    }
+
+    function calculateAluExpected(bitsA, bitsB) {
       const expectedResult = [0, 0, 0, 0, 0, 0, 0, 0];
       const expectedCarries = [0, 0, 0, 0, 0, 0, 0, 0];
       let carry = 0;
@@ -4629,9 +5505,67 @@
             borrow = 0;
           }
         }
+      for (let i = 7; i >= 0; i--) {
+        expectedCarries[i] = carry;
+        const sum = bitsA[i] + bitsB[i] + carry;
+        expectedResult[i] = sum % 2;
+        carry = Math.floor(sum / 2);
       }
       return { expectedResult, expectedCarries, overflow: carry > 0 };
     }
+
+    const ALU_QUIZ_QUESTIONS = [
+      {
+        question: "Was ergibt 1 + 0 im Binärsystem?",
+        options: [
+          "0",
+          "1",
+          "10"
+        ],
+        correct: 1,
+        explanation: "Richtig! 1 + 0 = 1. Wenn an einer Bitstelle nur ein Männchen seine Karte hebt, ist das Ergebnis 1."
+      },
+      {
+        question: "Was passiert im Rechenwerk, wenn in einer Spalte 1 + 1 gerechnet wird?",
+        options: [
+          "Das Ergebnis ist 2, weil 1 + 1 = 2 ist.",
+          "Das Ergebnis-Männchen zeigt 0, und 1 wandert als roter Übertrag zur linken Nachbarspalte.",
+          "Das Ergebnis ist 1, und es gibt keinen Übertrag."
+        ],
+        correct: 1,
+        explanation: "Richtig! Im Binärsystem gibt es keine Ziffer '2'. Die Zahl 2 lautet binär 10 (1 Zwei + 0 Einsen). Deshalb zeigt das Ergebnis-Männchen 0, und 1 wandert als roter Übertrag nach links!"
+      },
+      {
+        question: "Was ergibt 1 + 1 + 1 (zwei Einsen plus ankommender roter Übertrag)?",
+        options: [
+          "0 mit Übertrag 1",
+          "1 mit Übertrag 1 nach links",
+          "3 mit Übertrag 0"
+        ],
+        correct: 1,
+        explanation: "Richtig! 1 + 1 + 1 = 3₁₀ = 11₂. Das Ergebnis-Bit an dieser Stelle ist 1 und 1 wandert als roter Übertrag zur nächsten linken Stelle!"
+      },
+      {
+        question: "Welcher 8-Bit-Binärcode entsteht beim Rechenergebnis von 1 + 1?",
+        options: [
+          "00000001",
+          "00000010",
+          "00000011"
+        ],
+        correct: 1,
+        explanation: "Richtig! 1 + 1 = 2₁₀. Die Dezimalzahl 2 hat das 2er-Bit aktiviert: 00000010."
+      },
+      {
+        question: "Warum rechnet das Rechenwerk der CPU die Spalten immer von rechts nach links durch?",
+        options: [
+          "Weil Überträge immer zur nächsthöheren, linken Stelle weitergereicht werden müssen.",
+          "Weil Computer Zahlen immer von hinten lesen.",
+          "Das ist reiner Zufall, von links nach rechts ginge genauso."
+        ],
+        correct: 0,
+        explanation: "Richtig! Genau wie beim schriftlichen Rechnen in der Schule wandert der Übertrag immer zur nächstgrößeren (linken) Stelle."
+      }
+    ];
 
     function initAlu() {
       renderAluCheatSheet();
@@ -4639,33 +5573,197 @@
       const tasks = state.alu.op === 'add' ? state.alu.tasksAdd : state.alu.tasksSub;
       const tIdx = (state.alu.activeTaskIndex >= 0 && state.alu.activeTaskIndex < tasks.length) ? state.alu.activeTaskIndex : 0;
       loadAluTask(tasks[tIdx].a, tasks[tIdx].b, tIdx);
+      switchAluStage(state.alu.currentStage || 1);
     }
 
     function renderAluCheatSheet() {
       const title = document.getElementById('cheat-op-title');
       const badge = document.getElementById('cheat-op-badge');
       const container = document.getElementById('cheat-rules-grid');
+    function switchAluStage(stageNum) {
+      state.alu.currentStage = stageNum;
+
+      // Update 5 stage tabs
+      for (let i = 1; i <= 5; i++) {
+        const tab = document.getElementById(`alu-tab-stage${i}`);
+        if (tab) {
+          if (i === stageNum) tab.classList.add('active');
+          else tab.classList.remove('active');
+        }
+      }
+
+      const stageNames = {
+        1: "Ohne Übertrag",
+        2: "Ein Übertrag",
+        3: "Mehrere Überträge",
+        4: "Meister-Training",
+        5: "Verständnis-Test"
+      };
+
+      // Update bottom indicator & button
+      const indEl = document.getElementById('alu-stage-indicator');
+      const nextBtn = document.getElementById('btn-alu-next-stage');
+      if (indEl) indEl.textContent = `Stufe ${stageNum} von 5: ${stageNames[stageNum]}`;
+      if (nextBtn) {
+        if (stageNum < 5) {
+          nextBtn.style.display = 'inline-flex';
+          nextBtn.innerHTML = `<span>Weiter zu Stufe ${stageNum + 1} (${stageNames[stageNum + 1]}) ➔</span>`;
+        } else {
+          nextBtn.style.display = 'inline-flex';
+          nextBtn.innerHTML = `<span>Test wiederholen 🔄</span>`;
+        }
+      }
+
+      const headerCont = document.getElementById('alu-stage-header-container');
+      const stageBox = document.getElementById('alu-stage-männchen-box');
+      const controlsCard = document.getElementById('alu-controls-card');
+      const quizCont = document.getElementById('alu-quiz-container');
+
+      if (stageNum === 5) {
+        if (headerCont) headerCont.style.display = 'none';
+        if (stageBox) stageBox.style.display = 'none';
+        if (controlsCard) controlsCard.style.display = 'none';
+        if (quizCont) {
+          quizCont.style.display = 'flex';
+          renderAluQuiz();
+        }
+        return;
+      }
+
+      // Stages 1 to 4
+      if (headerCont) headerCont.style.display = 'block';
+      if (stageBox) stageBox.style.display = 'block';
+      if (controlsCard) controlsCard.style.display = 'block';
+      if (quizCont) quizCont.style.display = 'none';
+
+      renderAluStageHeader(stageNum);
+
+      if (stageNum >= 1 && stageNum <= 3) {
+        const stage = state.alu.stages[stageNum];
+        if (state.alu.submode === 'demo') {
+          loadAluTask(stage.demo.a, stage.demo.b);
+          setAluControlsMode('step');
+        } else {
+          const t = stage.tasks[stage.currentTaskIdx || 0];
+          loadAluTask(t.a, t.b);
+          setAluControlsMode('practice');
+        }
+      } else if (stageNum === 4) {
+        const stage = state.alu.stages[4];
+        const lvl = stage.levels[stage.currentLevelIdx || 0];
+        loadAluTask(lvl.a, lvl.b);
+        setAluControlsMode(state.alu.submode === 'demo' ? 'step' : 'practice');
+      }
+    }
+
+    function renderAluStageHeader(stageNum) {
+      const container = document.getElementById('alu-stage-header-container');
       if (!container) return;
 
       if (state.alu.op === 'add') {
         if (title) title.textContent = 'Binäre Addition (+)';
         if (badge) badge.textContent = 'Additionsregeln';
+      const stage = state.alu.stages[stageNum];
+      if (!stage) return;
+
+      if (stageNum >= 1 && stageNum <= 3) {
+        const pillsHtml = stage.pills.map(p => `
+          <div class="alu-rule-pill ${p.hl ? 'highlight' : ''}">${p.text}</div>
+        `).join('');
+
+        const isDemo = state.alu.submode === 'demo';
+
+        let exerciseChipsHtml = '';
+        if (!isDemo) {
+          exerciseChipsHtml = `
+            <div class="alu-exercise-selector" style="margin-top: 10px;">
+              <span style="font-size: 0.85rem; font-weight: 700; color: var(--cyber-cyan);">Schüler-Übungen:</span>
+              ${stage.tasks.map((t, idx) => `
+                <button class="alu-exercise-chip ${stage.currentTaskIdx === idx ? 'active' : ''} ${stage.completed[idx] ? 'solved' : ''}" onclick="selectAluExerciseTask(${idx})">
+                  <span>${t.label}</span>
+                  <span class="chip-check">${stage.completed[idx] ? '✔' : ''}</span>
+                </button>
+              `).join('')}
+            </div>
+          `;
+        }
+
         container.innerHTML = `
           <div class="cheat-rule-pill"><span>0 + 0 = <strong>0</strong></span></div>
           <div class="cheat-rule-pill"><span>0 + 1 = <strong>1</strong></span></div>
           <div class="cheat-rule-pill"><span>1 + 0 = <strong>1</strong></span></div>
           <div class="cheat-rule-pill highlight"><span>1 + 1 = <strong>0</strong> <small>(Übertrag 1 ➔)</small></span></div>
           <div class="cheat-rule-pill highlight"><span>1 + 1 + 1 = <strong>1</strong> <small>(Übertrag 1 ➔)</small></span></div>
+          <div class="alu-rule-card">
+            <div class="alu-rule-title-bar">
+              <h4><span>📖</span> ${stage.title}</h4>
+              <span class="alu-rule-badge">${stage.badge}</span>
+            </div>
+            <div class="alu-rule-desc">${stage.desc}</div>
+            <div class="alu-rules-pills">${pillsHtml}</div>
+            <div class="alu-rule-tip">${stage.tip}</div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 6px; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.08);">
+              <div class="alu-submode-tabs">
+                <button class="alu-submode-btn ${isDemo ? 'active' : ''}" onclick="setAluStageSubmode('demo')">
+                  👁️ 1. An den 8-Bit-Männchen ansehen (Geführt)
+                </button>
+                <button class="alu-submode-btn ${!isDemo ? 'active' : ''}" onclick="setAluStageSubmode('practice')">
+                  ✍️ 2. Jetzt selbst einüben (3 Aufgaben)
+                </button>
+              </div>
+              <div style="font-size: 0.84rem; color: var(--text-muted);">
+                ${isDemo ? `<strong>Anschauung:</strong> ${stage.demo.label}` : `Gelöst: <strong>${stage.completed.filter(Boolean).length} von 3</strong>`}
+              </div>
+            </div>
+            ${exerciseChipsHtml}
+          </div>
         `;
       } else {
         if (title) title.textContent = 'Binäre Subtraktion (−)';
         if (badge) badge.textContent = 'Subtraktionsregeln';
+      } else if (stageNum === 4) {
+        const isDemo = state.alu.submode === 'demo';
         container.innerHTML = `
           <div class="cheat-rule-pill"><span>0 − 0 = <strong>0</strong></span></div>
           <div class="cheat-rule-pill"><span>1 − 0 = <strong>1</strong></span></div>
           <div class="cheat-rule-pill"><span>1 − 1 = <strong>0</strong></span></div>
           <div class="cheat-rule-pill highlight"><span>0 − 1 = <strong>1</strong> <small>(1 geborgt! ➔)</small></span></div>
           <div class="cheat-rule-pill highlight"><span>0 − 1 − 1 = <strong>0</strong> <small>(mit Borgen! ➔)</small></span></div>
+          <div class="alu-rule-card">
+            <div class="alu-rule-title-bar">
+              <h4><span>🏋️</span> ${stage.title}</h4>
+              <span class="alu-rule-badge">${stage.badge}</span>
+            </div>
+            <div class="alu-rule-desc">${stage.desc}</div>
+
+            <div class="alu-exercise-selector">
+              <span style="font-size: 0.85rem; font-weight: 700; color: var(--cyber-cyan);">Schwierigkeitsstufen:</span>
+              ${stage.levels.map((lvl, idx) => `
+                <button class="alu-exercise-chip ${stage.currentLevelIdx === idx ? 'active' : ''} ${stage.completed[idx] ? 'solved' : ''}" onclick="selectAluLevelTask(${idx})">
+                  <span>${lvl.label}</span>
+                  <span class="chip-check">${stage.completed[idx] ? '✔' : ''}</span>
+                </button>
+              `).join('')}
+              <button class="alu-exercise-chip" onclick="generateRandomAluTask()" style="border-color: rgba(234, 179, 8, 0.4); color: #fef08a;">
+                <span>🎲 Zufalls-Aufgabe</span>
+              </button>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 4px; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.08);">
+              <div class="alu-submode-tabs">
+                <button class="alu-submode-btn ${!isDemo ? 'active' : ''}" onclick="setAluStageSubmode('practice')">
+                  ✍️ Selbst rechnen (Übung)
+                </button>
+                <button class="alu-submode-btn ${isDemo ? 'active' : ''}" onclick="setAluStageSubmode('demo')">
+                  🚶 Geführt (Schritt für Schritt)
+                </button>
+              </div>
+              <div style="font-size: 0.84rem; color: var(--text-muted);">
+                Level gemeistert: <strong>${stage.completed.filter(Boolean).length} von 4</strong>
+              </div>
+            </div>
+          </div>
         `;
       }
     }
@@ -4674,6 +5772,10 @@
       const container = document.getElementById('alu-task-presets');
       if (!container) return;
       container.innerHTML = '';
+    function setAluStageSubmode(submode) {
+      state.alu.submode = submode;
+      const stageNum = state.alu.currentStage;
+      renderAluStageHeader(stageNum);
 
       const tasks = state.alu.op === 'add' ? state.alu.tasksAdd : state.alu.tasksSub;
       tasks.forEach((t, idx) => {
@@ -4708,6 +5810,21 @@
         if (text) text.textContent = 'Subtraktion: Operand A − Operand B';
         if (carryTag) carryTag.textContent = 'Borgen (B)';
         if (carrySubtext) carrySubtext.textContent = 'Geborgte 1en';
+      if (stageNum >= 1 && stageNum <= 3) {
+        const stage = state.alu.stages[stageNum];
+        if (submode === 'demo') {
+          loadAluTask(stage.demo.a, stage.demo.b);
+          setAluControlsMode('step');
+        } else {
+          const t = stage.tasks[stage.currentTaskIdx || 0];
+          loadAluTask(t.a, t.b);
+          setAluControlsMode('practice');
+        }
+      } else if (stageNum === 4) {
+        const stage = state.alu.stages[4];
+        const lvl = stage.levels[stage.currentLevelIdx || 0];
+        loadAluTask(lvl.a, lvl.b);
+        setAluControlsMode(submode === 'demo' ? 'step' : 'practice');
       }
 
       renderAluCheatSheet();
@@ -4721,6 +5838,7 @@
       state.alu.mode = mode;
       const btnStep = document.getElementById('alu-mode-step');
       const btnPractice = document.getElementById('alu-mode-practice');
+    function setAluControlsMode(mode) {
       const stepPanel = document.getElementById('alu-step-controls');
       const practicePanel = document.getElementById('alu-practice-controls');
 
@@ -4737,11 +5855,44 @@
         if (practicePanel) practicePanel.style.display = 'block';
         aluResetPracticeInputs();
       }
+    }
 
       renderAluStage();
+    function selectAluExerciseTask(idx) {
+      const stageNum = state.alu.currentStage;
+      const stage = state.alu.stages[stageNum];
+      if (!stage || !stage.tasks[idx]) return;
+
+      stage.currentTaskIdx = idx;
+      renderAluStageHeader(stageNum);
+      const t = stage.tasks[idx];
+      loadAluTask(t.a, t.b);
+      showToast(`Aufgabe geladen: ${t.label}`);
     }
 
     function loadAluTask(a, b, idx) {
+    function selectAluLevelTask(idx) {
+      const stage = state.alu.stages[4];
+      if (!stage || !stage.levels[idx]) return;
+
+      stage.currentLevelIdx = idx;
+      renderAluStageHeader(4);
+      const lvl = stage.levels[idx];
+      loadAluTask(lvl.a, lvl.b);
+      showToast(`Level geladen: ${lvl.label}`);
+    }
+
+    function generateRandomAluTask() {
+      const a = Math.floor(Math.random() * 50) + 5;
+      const b = Math.floor(Math.random() * 50) + 5;
+      const stage = state.alu.stages[4];
+      stage.currentLevelIdx = -1;
+      renderAluStageHeader(4);
+      loadAluTask(a, b);
+      showToast(`🎲 Zufallsaufgabe: ${a} + ${b} = ${a + b}`);
+    }
+
+    function loadAluTask(a, b) {
       state.alu.operandA = aluDecToBits(a);
       state.alu.operandB = aluDecToBits(b);
       state.alu.activeTaskIndex = (idx !== undefined) ? idx : -1;
@@ -4752,6 +5903,7 @@
       renderAluStage();
       updateAluSentence();
       showToast(`Aufgabe geladen: ${a} ${state.alu.op === 'add' ? '+' : '−'} ${b}`);
+      showToast(`Aufgabe geladen: ${a} + ${b}`);
     }
 
     function generateRandomAluTask() {
@@ -4759,9 +5911,15 @@
       if (state.alu.op === 'add') {
         a = Math.floor(Math.random() * 60) + 3;
         b = Math.floor(Math.random() * 50) + 2;
+    function aluAdvanceToNextStage() {
+      if (state.alu.currentStage < 5) {
+        switchAluStage(state.alu.currentStage + 1);
+        window.scrollTo({ top: document.getElementById('chapter-4').offsetTop - 60, behavior: 'smooth' });
       } else {
         a = Math.floor(Math.random() * 70) + 12;
         b = Math.floor(Math.random() * (a - 2)) + 2;
+        resetAluQuiz();
+        showToast('Quiz neu gestartet!');
       }
       loadAluTask(a, b, -1);
     }
@@ -4773,6 +5931,19 @@
       } else {
         state.alu.operandB[colIndex] = state.alu.operandB[colIndex] === 1 ? 0 : 1;
         playBitTone(colIndex, state.alu.operandB[colIndex] === 1);
+      }
+      aluResetSteps();
+      aluResetPracticeInputs();
+      renderAluStage();
+    }
+
+    function toggleAluPracticeBit(type, colIndex) {
+      if (state.alu.submode === 'demo') return;
+
+      // In Stage 1 practice, carries are 0, students only click result
+      if (type === 'carry' && state.alu.currentStage === 1) {
+        showToast('In Stufe 1 entsteht kein Übertrag!');
+        return;
       }
 
       state.alu.activeTaskIndex = -1;
@@ -4824,12 +5995,15 @@
       if (decBEl) decBEl.textContent = `Dezimal: ${decB}`;
 
       const { expectedResult } = calculateAluExpected(state.alu.op, state.alu.operandA, state.alu.operandB);
+      const { expectedResult } = calculateAluExpected(state.alu.operandA, state.alu.operandB);
       const decResExpected = aluBitsToDec(expectedResult);
 
       const activeCol = (state.alu.mode === 'step' && !state.alu.stepFinished) ? state.alu.stepIndex : -1;
+      const activeCol = (state.alu.submode === 'demo' && !state.alu.stepFinished) ? state.alu.stepIndex : -1;
 
       // Update Column Header Highlights
       const colHeaders = document.querySelectorAll('.alu-col-val');
+      const colHeaders = document.querySelectorAll('#alu-cols-header-grid .alu-col-val');
       colHeaders.forEach((el, idx) => {
         if (idx === activeCol) el.classList.add('active-step');
         else el.classList.remove('active-step');
@@ -4842,6 +6016,7 @@
           const bitVal = state.alu.operandA[i];
           const cell = document.createElement('div');
           cell.className = 'alu-cell clickable' + (i === activeCol ? ' active-step' : '');
+          cell.className = 'alu-cell' + (i === activeCol ? ' active-step' : '');
           cell.id = `alu-cell-a-${i}`;
           cell.onclick = () => toggleAluOperandBit('A', i);
           cell.title = `Bit ${val} umschalten`;
@@ -4860,6 +6035,7 @@
           const bitVal = state.alu.operandB[i];
           const cell = document.createElement('div');
           cell.className = 'alu-cell clickable' + (i === activeCol ? ' active-step' : '');
+          cell.className = 'alu-cell' + (i === activeCol ? ' active-step' : '');
           cell.id = `alu-cell-b-${i}`;
           cell.onclick = () => toggleAluOperandBit('B', i);
           cell.title = `Bit ${val} umschalten`;
@@ -4875,6 +6051,9 @@
       if (gridCarry) {
         gridCarry.innerHTML = '';
         const carries = state.alu.mode === 'step' ? state.alu.stepCarries : state.alu.userCarries;
+        const carries = state.alu.submode === 'demo' ? state.alu.stepCarries : state.alu.userCarries;
+        const isClickable = state.alu.submode === 'practice' && state.alu.currentStage > 1;
+
         BIT_VALUES.forEach((val, i) => {
           const bitVal = carries[i];
           const cell = document.createElement('div');
@@ -4897,6 +6076,9 @@
       if (gridRes) {
         gridRes.innerHTML = '';
         const results = state.alu.mode === 'step' ? state.alu.stepResult : state.alu.userResult;
+        const results = state.alu.submode === 'demo' ? state.alu.stepResult : state.alu.userResult;
+        const isClickable = state.alu.submode === 'practice';
+
         BIT_VALUES.forEach((val, i) => {
           const bitVal = results[i];
           const cell = document.createElement('div');
@@ -4916,6 +6098,7 @@
 
         if (decResEl) {
           if (state.alu.mode === 'step') {
+          if (state.alu.submode === 'demo') {
             decResEl.textContent = state.alu.stepFinished ? `Dezimal: ${decResExpected}` : `In Berechnung...`;
           } else {
             const userDec = aluBitsToDec(state.alu.userResult);
@@ -4936,6 +6119,7 @@
       const a = state.alu.operandA[col];
       const b = state.alu.operandB[col];
       const op = state.alu.op;
+      const carryIn = state.alu.stepCarries[col];
 
       playBitTone(col, true);
 
@@ -4945,11 +6129,18 @@
         const sum = a + b + carryIn;
         const res = sum % 2;
         const carryOut = Math.floor(sum / 2);
+      const sum = a + b + carryIn;
+      const res = sum % 2;
+      const carryOut = Math.floor(sum / 2);
 
         state.alu.stepResult[col] = res;
         if (carryOut > 0 && col > 0) {
           state.alu.stepCarries[col - 1] = 1;
         }
+      state.alu.stepResult[col] = res;
+      if (carryOut > 0 && col > 0) {
+        state.alu.stepCarries[col - 1] = 1;
+      }
 
         const leftNeighborVal = col > 0 ? BIT_VALUES[col - 1] : 256;
         stepText = `<strong>Spalte [${val}er-Bit]:</strong> ${a} + ${b} ${carryIn ? '+ 1 (roter Übertrag)' : ''} = <strong>${sum}</strong>.<br>` +
@@ -4964,6 +6155,10 @@
           res = diff + 2;
           borrowOut = 1;
         }
+      const leftNeighborVal = col > 0 ? BIT_VALUES[col - 1] : 256;
+      let stepText = `<strong>Spalte [${val}er-Bit]:</strong> ${a} + ${b} ${carryIn ? '+ 1 (roter Übertrag)' : ''} = <strong>${sum}</strong>.<br>` +
+        `Das Ergebnis-Männchen zeigt <strong>${res}</strong>` +
+        (carryOut ? `, und <strong>1 wandert als roter Übertrag nach links zur ${leftNeighborVal}er-Spalte! 🔴</strong>` : ` (kein Übertrag).`);
 
         state.alu.stepResult[col] = res;
         if (borrowOut > 0 && col > 0) {
@@ -4992,10 +6187,12 @@
         if (btnNext) btnNext.innerHTML = `<span>🎉 Fertig! Nochmal ansehen 🔄</span>`;
 
         const { expectedResult } = calculateAluExpected(state.alu.op, state.alu.operandA, state.alu.operandB);
+        const { expectedResult } = calculateAluExpected(state.alu.operandA, state.alu.operandB);
         const decRes = aluBitsToDec(expectedResult);
         const binRes = expectedResult.join('');
         if (stepTextEl) {
           stepTextEl.innerHTML = `${stepText}<br><span style="color: #4ade80; font-weight: 700; margin-top: 4px; display: inline-block;">🎉 Alle 8 Spalten berechnet! Endergebnis: ${decRes} (${binRes})</span>`;
+          stepTextEl.innerHTML = `${stepText}<br><span style="color: #4ade80; font-weight: 700; margin-top: 4px; display: inline-block;">🎉 Alle 8 Spalten berechnet! Gesamtergebnis: ${decRes} (${binRes})</span>`;
         }
       } else {
         state.alu.stepIndex--;
@@ -5023,6 +6220,7 @@
       const stepTextEl = document.getElementById('alu-step-text');
       if (stepTextEl) {
         stepTextEl.innerHTML = `Klicke auf <strong>„Nächster Schritt (Bit für Bit)“</strong>, um die Berechnung Spalte für Spalte von rechts (1er-Bit) nach links (128er-Bit) zu starten!`;
+        stepTextEl.innerHTML = `Klicke auf <strong>„Nächster Schritt (Bit für Bit)“</strong>, um die Berechnung Spalte für Spalte von rechts (1er-Bit) nach links (128er-Bit) anzusehen!`;
       }
 
       renderAluStage();
@@ -5052,6 +6250,7 @@
 
     function aluCheckPractice() {
       const { expectedResult, expectedCarries } = calculateAluExpected(state.alu.op, state.alu.operandA, state.alu.operandB);
+      const { expectedResult, expectedCarries } = calculateAluExpected(state.alu.operandA, state.alu.operandB);
 
       let isCorrect = true;
       for (let i = 0; i < 8; i++) {
@@ -5060,6 +6259,8 @@
           break;
         }
         if (i < 7 && state.alu.userCarries[i] !== expectedCarries[i]) {
+        // Check carries for stages 2 to 4
+        if (state.alu.currentStage > 1 && i < 7 && state.alu.userCarries[i] !== expectedCarries[i]) {
           isCorrect = false;
           break;
         }
@@ -5071,6 +6272,21 @@
       if (isCorrect) {
         playSuccessSound();
         triggerConfetti();
+
+        // Mark completed
+        const stageNum = state.alu.currentStage;
+        if (stageNum >= 1 && stageNum <= 3) {
+          const stage = state.alu.stages[stageNum];
+          stage.completed[stage.currentTaskIdx] = true;
+          renderAluStageHeader(stageNum);
+        } else if (stageNum === 4) {
+          const stage = state.alu.stages[4];
+          if (stage.currentLevelIdx >= 0) {
+            stage.completed[stage.currentLevelIdx] = true;
+            renderAluStageHeader(4);
+          }
+        }
+
         if (fb) {
           fb.style.display = 'flex';
           document.getElementById('alu-feedback-icon').textContent = '🎉';
@@ -5079,6 +6295,7 @@
         if (tipp) tipp.style.display = 'none';
         clearAluErrorHighlights();
         showToast('🌟 Großartig! Die ALU-Rechnung ist 100% korrekt!');
+        showToast('🌟 Großartig! Die Addition ist 100% richtig!');
       } else {
         playHintSound();
         if (fb) fb.style.display = 'none';
@@ -5088,12 +6305,15 @@
 
     function aluShowTipp() {
       const { expectedResult, expectedCarries } = calculateAluExpected(state.alu.op, state.alu.operandA, state.alu.operandB);
+      const { expectedResult, expectedCarries } = calculateAluExpected(state.alu.operandA, state.alu.operandB);
       clearAluErrorHighlights();
 
       let errCol = -1;
       let errType = '';
+
       for (let i = 7; i >= 0; i--) {
         if (state.alu.userCarries[i] !== expectedCarries[i]) {
+        if (state.alu.currentStage > 1 && state.alu.userCarries[i] !== expectedCarries[i]) {
           errCol = i;
           errType = 'carry';
           break;
@@ -5107,6 +6327,7 @@
 
       if (errCol === -1) {
         showToast('Alles sieht bisher gut aus!');
+        showToast('Bisher sieht alles gut aus!');
         return;
       }
 
@@ -5123,6 +6344,10 @@
 
       const tippBox = document.getElementById('alu-tipp-box');
       const tippContent = document.getElementById('alu-tipp-content');
+
+      const sum = a + b + c;
+      const res = sum % 2;
+      const carryOut = Math.floor(sum / 2);
 
       let msg = '';
       if (op === 'add') {
@@ -5142,6 +6367,11 @@
         } else {
           msg = `Schau auf die <strong>${val}er-Spalte</strong>: ${a} − ${b} ${c ? '− 1 (Geborgt)' : ''}. ${diff < 0 ? 'Da ' + a + ' kleiner ist, musst du 1 von links borgen! Das Ergebnis-Bit ist <strong>' + res + '</strong>.' : 'Das Ergebnis-Bit an dieser Stelle muss <strong>' + res + '</strong> sein.'}`;
         }
+      if (errType === 'carry') {
+        msg = `Schau auf die <strong>${val}er-Spalte</strong>: Hierhin wandert ein Übertrag von der rechten Nachbarspalte! Prüfe dein rotes Übertrag-Männchen (sollte auf <strong>${expectedCarries[errCol]}</strong> stehen).`;
+      } else {
+        msg = `Schau auf die <strong>${val}er-Spalte</strong>: ${a} + ${b} ${c ? '+ 1 (roter Übertrag)' : ''} ergibt zusammen <strong>${sum}</strong>. Das Ergebnis-Bit muss daher <strong>${res}</strong> sein${carryOut ? ' (und 1 wandert als roter Übertrag nach links)!' : '.'}`;
+        msg = `Schau auf die <strong>${val}er-Spalte</strong>: ${a} + ${b} ${c ? '+ 1 (roter Übertrag)' : ''} ergibt zusammen <strong>${sum}</strong>. Das Ergebnis-Bit an dieser Stelle muss daher <strong>${res}</strong> sein${carryOut ? ' (und 1 wandert nach links)!' : '.'}`;
       }
 
       if (tippBox && tippContent) {
@@ -5165,30 +6395,122 @@
     function updateAluSentence() {
       const box = document.getElementById('alu-sentence-box');
       if (!box) return;
+    /* ==========================================================================
+       MULTIPLE-CHOICE QUIZ (STUFE 5)
+       MULTIPLE-CHOICE QUIZ (STUFE 5 - ADDITION)
+       ========================================================================== */
+    function renderAluQuiz() {
+      const container = document.getElementById('alu-quiz-container');
+      if (!container) return;
 
       const decA = aluBitsToDec(state.alu.operandA);
       const binA = state.alu.operandA.join('');
       const decB = aluBitsToDec(state.alu.operandB);
       const binB = state.alu.operandB.join('');
+      const answeredCount = state.alu.quiz.answered.filter(x => x !== null).length;
+      const allDone = answeredCount === ALU_QUIZ_QUESTIONS.length;
 
       const { expectedResult } = calculateAluExpected(state.alu.op, state.alu.operandA, state.alu.operandB);
       const decRes = aluBitsToDec(expectedResult);
       const binRes = expectedResult.join('');
+      let html = `
+        <div class="alu-quiz-header">
+          <div>
+            <h3 style="color: var(--cyber-cyan); font-size: 1.2rem; display: flex; align-items: center; gap: 8px; margin: 0 0 4px 0;">
+              <span>📝</span> Multiple-Choice-Test: Binäre Addition
+            </h3>
+            <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">
+              Beantworte die 5 Fragen, um dein Wissen über Grundregeln und Überträge zu testen!
+            </p>
+          </div>
+          <div class="alu-quiz-score-badge">
+            <span>⭐ Punkte:</span> <strong>${state.alu.quiz.score} / ${ALU_QUIZ_QUESTIONS.length}</strong>
+          </div>
+        </div>
+      `;
 
       let sentence = '';
       if (state.alu.op === 'add') {
         sentence = `Wir addieren <strong>${decA}</strong> (${binA}) und <strong>${decB}</strong> (${binB}). Die CPU rechnet Spalte für Spalte von rechts nach links. Das Ergebnis ist <mark>${decRes}</mark> (${binRes}).`;
       } else {
         sentence = `Wir subtrahieren <strong>${decB}</strong> (${binB}) von <strong>${decA}</strong> (${binA}). Das Rechenwerk zieht die Bits ab. Das Ergebnis ist <mark>${decRes}</mark> (${binRes}).`;
+      ALU_QUIZ_QUESTIONS.forEach((q, qIdx) => {
+        const userChoice = state.alu.quiz.answered[qIdx];
+        const isAnswered = userChoice !== null;
+
+        html += `
+          <div class="alu-quiz-card" id="alu-quiz-card-${qIdx}">
+            <div class="alu-quiz-q-title">
+              <span class="alu-quiz-q-num">${qIdx + 1}</span>
+              <div>${q.question}</div>
+            </div>
+            <div class="alu-quiz-options">
+              ${q.options.map((opt, optIdx) => {
+                const optLetter = String.fromCharCode(65 + optIdx);
+                let btnClass = 'alu-quiz-opt-btn';
+                if (isAnswered) {
+                  if (optIdx === q.correct) btnClass += ' correct';
+                  else if (optIdx === userChoice) btnClass += ' incorrect';
+                }
+                return `
+                  <button class="${btnClass}" ${isAnswered ? 'disabled' : ''} onclick="selectQuizOption(${qIdx}, ${optIdx})">
+                    <span class="opt-letter">${optLetter}</span>
+                    <span>${opt}</span>
+                  </button>
+                `;
+              }).join('')}
+            </div>
+            <div class="alu-quiz-feedback-box ${isAnswered ? (userChoice === q.correct ? 'correct' : 'incorrect') : ''}" style="${isAnswered ? 'display: flex;' : 'display: none;'}">
+              <span>${userChoice === q.correct ? '✔' : 'ℹ️'}</span>
+              <div>${q.explanation}</div>
+            </div>
+          </div>
+        `;
+      });
+
+      if (allDone) {
+        // Unlock Chapter 5 automatically
+        if (!state.unlockedChapters.includes(5)) {
+          unlockChapter(5);
+        }
+
+        html += `
+          <div class="alu-quiz-summary-card">
+            <div style="font-size: 2.5rem;">🎓</div>
+            <div style="font-size: 2.8rem;">🎓</div>
+            <h3 style="color: var(--accent-gold); font-size: 1.4rem; margin: 0;">
+              Test abgeschlossen! Du hast ${state.alu.quiz.score} von ${ALU_QUIZ_QUESTIONS.length} Punkten erreicht!
+            </h3>
+            <p style="color: #e2e8f0; max-width: 600px; font-size: 0.95rem; margin: 0;">
+              ${state.alu.quiz.score === 5 
+                ? 'Ausgezeichnet! Du bist ein echter Binär-Rechenmeister und beherrschst alle Regeln der Addition perfekt!' 
+                : 'Gut gemacht! Du hast den Test durchlaufen. Schau dir die Erklärungen an oder wiederhole den Test für die volle Punktzahl!'}
+            </p>
+            <button class="btn-glow" onclick="resetAluQuiz()">
+              <span>🔄 Test wiederholen</span>
+            </button>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 10px;">
+              <button class="btn-glow" onclick="forceUnlockChapter(5)">
+                <span>👑 Weiter zum Profi-Kapitel (Subtraktion) ➔</span>
+              </button>
+              <button class="btn-action" onclick="resetAluQuiz()">
+                <span>🔄 Test wiederholen</span>
+              </button>
+            </div>
+          </div>
+        `;
       }
 
       box.innerHTML = sentence;
+      container.innerHTML = html;
     }
 
     function aluCopySentence() {
       const box = document.getElementById('alu-sentence-box');
       if (!box) return;
       const text = box.innerText || box.textContent;
+    function selectQuizOption(qIdx, optIdx) {
+      if (state.alu.quiz.answered[qIdx] !== null) return;
 
       navigator.clipboard.writeText(text).then(() => {
         showToast('📋 Erklärungssatz in die Zwischenablage kopiert!');
@@ -5204,11 +6526,18 @@
         showToast('Kopieren fehlgeschlagen.');
       });
     }
+      const q = ALU_QUIZ_QUESTIONS[qIdx];
+      state.alu.quiz.answered[qIdx] = optIdx;
 
     function aluSpeakSentence() {
       if (!('speechSynthesis' in window)) {
         showToast('Sprachausgabe wird vom Browser nicht unterstützt.');
         return;
+      if (optIdx === q.correct) {
+        state.alu.quiz.score++;
+        playSuccessSound();
+      } else {
+        playHintSound();
       }
       const box = document.getElementById('alu-sentence-box');
       if (!box) return;
@@ -5220,7 +6549,887 @@
       utterance.rate = 0.95;
       window.speechSynthesis.speak(utterance);
       showToast('🗣️ Lese Erklärungssatz vor...');
+      const answeredCount = state.alu.quiz.answered.filter(x => x !== null).length;
+      if (answeredCount === ALU_QUIZ_QUESTIONS.length) {
+        state.alu.quiz.finished = true;
+        setTimeout(() => {
+          triggerConfetti();
+          playSuccessSound();
+        }, 300);
+      }
+
+      renderAluQuiz();
     }
+
+    function resetAluQuiz() {
+      state.alu.quiz = {
+        answered: [null, null, null, null, null],
+        score: 0,
+        finished: false
+      };
+      renderAluQuiz();
+    }
+
+    /* ==========================================================================
+       10C. BEREICH D: BINÄRE SUBTRAKTION (KAPITEL 5 - PROFI-KAPITEL)
+       ========================================================================== */
+    function calculateSubExpected(bitsA, bitsB) {
+      const expectedResult = [0, 0, 0, 0, 0, 0, 0, 0];
+      const expectedBorrows = [0, 0, 0, 0, 0, 0, 0, 0];
+      let borrow = 0;
+
+      for (let i = 7; i >= 0; i--) {
+        expectedBorrows[i] = borrow;
+        const diff = bitsA[i] - bitsB[i] - borrow;
+        if (diff < 0) {
+          expectedResult[i] = diff + 2;
+          borrow = 1;
+        } else {
+          expectedResult[i] = diff;
+          borrow = 0;
+        }
+      }
+      return { expectedResult, expectedBorrows, underflow: borrow > 0 };
+    }
+
+    const SUB_QUIZ_QUESTIONS = [
+      {
+        question: "Was ergibt 1 − 0 im Binärsystem?",
+        options: [
+          "0",
+          "1",
+          "Nicht definiert"
+        ],
+        correct: 1,
+        explanation: "Richtig! 1 − 0 = 1. Wenn vom oberen Männchen nichts abgezogen wird, bleibt die 1 einfach stehen."
+      },
+      {
+        question: "Was muss das Rechenwerk tun, wenn in einer Spalte 0 − 1 gerechnet wird?",
+        options: [
+          "Das Ergebnis ist 0, weil man von 0 nichts abziehen kann.",
+          "Es borgt 1 von der linken Nachbarspalte (B=1) und rechnet 2 − 1 = 1.",
+          "Es bricht die Rechnung ab und zeigt einen Fehler an."
+        ],
+        correct: 1,
+        explanation: "Richtig! Weil die linke Nachbarstelle den doppelten Stellenwert hat (2), wird durch das Borgen aus der 0 eine 2: 2 − 1 = 1! Das rote Borg-Männchen merkt sich B=1."
+      },
+      {
+        question: "Was passiert beim sogenannten 'Ketten-Borgen' (z. B. bei 4 − 1)?",
+        options: [
+          "Der Borg-Vorgang wandert wie Dominosteine über mehrere Nullstellen nach links weiter.",
+          "Das Ergebnis wird automatisch 0.",
+          "Alle Männchen heben gleichzeitig die rote Flagge."
+        ],
+        correct: 0,
+        explanation: "Richtig! Wenn eine Nachbarspalte selbst 0 ist, muss sie wiederum von ihrer linken Nachbarstelle borgen, bis eine 1 gefunden wird."
+      },
+      {
+        question: "Welcher Binärcode entsteht beim Ergebnis von 6 − 1 (00000110₂ − 00000001₂)?",
+        options: [
+          "00000100₂ (4₁₀)",
+          "00000101₂ (5₁₀)",
+          "00000111₂ (7₁₀)"
+        ],
+        correct: 1,
+        explanation: "Richtig! 6 − 1 = 5. Die Dezimalzahl 5 entspricht binär 4 + 1 = 00000101₂."
+      },
+      {
+        question: "Welche Aufgabe hat das rote Borg-Männchen (B=1) über einer Spalte?",
+        options: [
+          "Es zeigt an, dass die Spalte 1 an die rechte Nachbarspalte verliehen hat und selbst 1 abziehen muss.",
+          "Es verdoppelt den Wert der Spalte.",
+          "Es ist nur zur Dekoration da."
+        ],
+        correct: 0,
+        explanation: "Richtig! Das Borg-Männchen speichert die 'Schuld': Die Spalte hat 1 an ihren rechten Nachbarn verliehen, die sie bei ihrer eigenen Berechnung abziehen muss."
+      }
+    ];
+
+    function initSub() {
+      switchSubStage(state.sub.currentStage || 1);
+    }
+
+    function switchSubStage(stageNum) {
+      state.sub.currentStage = stageNum;
+
+      // Update 5 stage tabs
+      for (let i = 1; i <= 5; i++) {
+        const tab = document.getElementById(`sub-tab-stage${i}`);
+        if (tab) {
+          if (i === stageNum) tab.classList.add('active');
+          else tab.classList.remove('active');
+        }
+      }
+
+      const stageNames = {
+        1: "Ohne Borgen",
+        2: "Die Borg-Regel",
+        3: "Ketten-Borgen",
+        4: "Meister-Training",
+        5: "Verständnis-Test"
+      };
+
+      // Update bottom indicator & button
+      const indEl = document.getElementById('sub-stage-indicator');
+      const nextBtn = document.getElementById('btn-sub-next-stage');
+      if (indEl) indEl.textContent = `Stufe ${stageNum} von 5: ${stageNames[stageNum]}`;
+      if (nextBtn) {
+        if (stageNum < 5) {
+          nextBtn.style.display = 'inline-flex';
+          nextBtn.innerHTML = `<span>Weiter zu Stufe ${stageNum + 1} (${stageNames[stageNum + 1]}) ➔</span>`;
+        } else {
+          nextBtn.style.display = 'inline-flex';
+          nextBtn.innerHTML = `<span>Test wiederholen 🔄</span>`;
+        }
+      }
+
+      const headerCont = document.getElementById('sub-stage-header-container');
+      const stageBox = document.getElementById('sub-stage-männchen-box');
+      const controlsCard = document.getElementById('sub-controls-card');
+      const quizCont = document.getElementById('sub-quiz-container');
+
+      if (stageNum === 5) {
+        if (headerCont) headerCont.style.display = 'none';
+        if (stageBox) stageBox.style.display = 'none';
+        if (controlsCard) controlsCard.style.display = 'none';
+        if (quizCont) {
+          quizCont.style.display = 'flex';
+          renderSubQuiz();
+        }
+        return;
+      }
+
+      // Stages 1 to 4
+      if (headerCont) headerCont.style.display = 'block';
+      if (stageBox) stageBox.style.display = 'block';
+      if (controlsCard) controlsCard.style.display = 'block';
+      if (quizCont) quizCont.style.display = 'none';
+
+      renderSubStageHeader(stageNum);
+
+      if (stageNum >= 1 && stageNum <= 3) {
+        const stage = state.sub.stages[stageNum];
+        if (state.sub.submode === 'demo') {
+          loadSubTask(stage.demo.a, stage.demo.b);
+          setSubControlsMode('step');
+        } else {
+          const t = stage.tasks[stage.currentTaskIdx || 0];
+          loadSubTask(t.a, t.b);
+          setSubControlsMode('practice');
+        }
+      } else if (stageNum === 4) {
+        const stage = state.sub.stages[4];
+        const lvl = stage.levels[stage.currentLevelIdx || 0];
+        loadSubTask(lvl.a, lvl.b);
+        setSubControlsMode(state.sub.submode === 'demo' ? 'step' : 'practice');
+      }
+    }
+
+    function renderSubStageHeader(stageNum) {
+      const container = document.getElementById('sub-stage-header-container');
+      if (!container) return;
+
+      const stage = state.sub.stages[stageNum];
+      if (!stage) return;
+
+      if (stageNum >= 1 && stageNum <= 3) {
+        const pillsHtml = stage.pills.map(p => `
+          <div class="alu-rule-pill ${p.hl ? 'highlight' : ''}">${p.text}</div>
+        `).join('');
+
+        const isDemo = state.sub.submode === 'demo';
+
+        let exerciseChipsHtml = '';
+        if (!isDemo) {
+          exerciseChipsHtml = `
+            <div class="alu-exercise-selector" style="margin-top: 10px;">
+              <span style="font-size: 0.85rem; font-weight: 700; color: var(--cyber-cyan);">Schüler-Übungen:</span>
+              ${stage.tasks.map((t, idx) => `
+                <button class="alu-exercise-chip ${stage.currentTaskIdx === idx ? 'active' : ''} ${stage.completed[idx] ? 'solved' : ''}" onclick="selectSubExerciseTask(${idx})">
+                  <span>${t.label}</span>
+                  <span class="chip-check">${stage.completed[idx] ? '✔' : ''}</span>
+                </button>
+              `).join('')}
+            </div>
+          `;
+        }
+
+        container.innerHTML = `
+          <div class="alu-rule-card">
+            <div class="alu-rule-title-bar">
+              <h4><span>📖</span> ${stage.title}</h4>
+              <span class="alu-rule-badge">${stage.badge}</span>
+            </div>
+            <div class="alu-rule-desc">${stage.desc}</div>
+            <div class="alu-rules-pills">${pillsHtml}</div>
+            <div class="alu-rule-tip">${stage.tip}</div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 6px; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.08);">
+              <div class="alu-submode-tabs">
+                <button class="alu-submode-btn ${isDemo ? 'active' : ''}" onclick="setSubStageSubmode('demo')">
+                  👁️ 1. An den 8-Bit-Männchen ansehen (Geführt)
+                </button>
+                <button class="alu-submode-btn ${!isDemo ? 'active' : ''}" onclick="setSubStageSubmode('practice')">
+                  ✍️ 2. Jetzt selbst einüben (3 Aufgaben)
+                </button>
+              </div>
+              <div style="font-size: 0.84rem; color: var(--text-muted);">
+                ${isDemo ? `<strong>Anschauung:</strong> ${stage.demo.label}` : `Gelöst: <strong>${stage.completed.filter(Boolean).length} von 3</strong>`}
+              </div>
+            </div>
+            ${exerciseChipsHtml}
+          </div>
+        `;
+      } else if (stageNum === 4) {
+        const isDemo = state.sub.submode === 'demo';
+        container.innerHTML = `
+          <div class="alu-rule-card">
+            <div class="alu-rule-title-bar">
+              <h4><span>🏋️</span> ${stage.title}</h4>
+              <span class="alu-rule-badge">${stage.badge}</span>
+            </div>
+            <div class="alu-rule-desc">${stage.desc}</div>
+
+            <div class="alu-exercise-selector">
+              <span style="font-size: 0.85rem; font-weight: 700; color: var(--cyber-cyan);">Schwierigkeitsstufen:</span>
+              ${stage.levels.map((lvl, idx) => `
+                <button class="alu-exercise-chip ${stage.currentLevelIdx === idx ? 'active' : ''} ${stage.completed[idx] ? 'solved' : ''}" onclick="selectSubLevelTask(${idx})">
+                  <span>${lvl.label}</span>
+                  <span class="chip-check">${stage.completed[idx] ? '✔' : ''}</span>
+                </button>
+              `).join('')}
+              <button class="alu-exercise-chip" onclick="generateRandomSubTask()" style="border-color: rgba(234, 179, 8, 0.4); color: #fef08a;">
+                <span>🎲 Zufalls-Aufgabe</span>
+              </button>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 4px; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.08);">
+              <div class="alu-submode-tabs">
+                <button class="alu-submode-btn ${!isDemo ? 'active' : ''}" onclick="setSubStageSubmode('practice')">
+                  ✍️ Selbst rechnen (Übung)
+                </button>
+                <button class="alu-submode-btn ${isDemo ? 'active' : ''}" onclick="setSubStageSubmode('demo')">
+                  🚶 Geführt (Schritt für Schritt)
+                </button>
+              </div>
+              <div style="font-size: 0.84rem; color: var(--text-muted);">
+                Level gemeistert: <strong>${stage.completed.filter(Boolean).length} von 4</strong>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    function setSubStageSubmode(submode) {
+      state.sub.submode = submode;
+      const stageNum = state.sub.currentStage;
+      renderSubStageHeader(stageNum);
+
+      if (stageNum >= 1 && stageNum <= 3) {
+        const stage = state.sub.stages[stageNum];
+        if (submode === 'demo') {
+          loadSubTask(stage.demo.a, stage.demo.b);
+          setSubControlsMode('step');
+        } else {
+          const t = stage.tasks[stage.currentTaskIdx || 0];
+          loadSubTask(t.a, t.b);
+          setSubControlsMode('practice');
+        }
+      } else if (stageNum === 4) {
+        const stage = state.sub.stages[4];
+        const lvl = stage.levels[stage.currentLevelIdx || 0];
+        loadSubTask(lvl.a, lvl.b);
+        setSubControlsMode(submode === 'demo' ? 'step' : 'practice');
+      }
+    }
+
+    function setSubControlsMode(mode) {
+      const stepPanel = document.getElementById('sub-step-controls');
+      const practicePanel = document.getElementById('sub-practice-controls');
+
+      if (mode === 'step') {
+        if (stepPanel) stepPanel.style.display = 'block';
+        if (practicePanel) practicePanel.style.display = 'none';
+        subResetSteps();
+      } else {
+        if (stepPanel) stepPanel.style.display = 'none';
+        if (practicePanel) practicePanel.style.display = 'block';
+        subResetPracticeInputs();
+      }
+    }
+
+    function selectSubExerciseTask(idx) {
+      const stageNum = state.sub.currentStage;
+      const stage = state.sub.stages[stageNum];
+      if (!stage || !stage.tasks[idx]) return;
+
+      stage.currentTaskIdx = idx;
+      renderSubStageHeader(stageNum);
+      const t = stage.tasks[idx];
+      loadSubTask(t.a, t.b);
+      showToast(`Aufgabe geladen: ${t.label}`);
+    }
+
+    function selectSubLevelTask(idx) {
+      const stage = state.sub.stages[4];
+      if (!stage || !stage.levels[idx]) return;
+
+      stage.currentLevelIdx = idx;
+      renderSubStageHeader(4);
+      const lvl = stage.levels[idx];
+      loadSubTask(lvl.a, lvl.b);
+      showToast(`Level geladen: ${lvl.label}`);
+    }
+
+    function generateRandomSubTask() {
+      const b = Math.floor(Math.random() * 40) + 1;
+      const a = b + Math.floor(Math.random() * 50) + 1;
+      const stage = state.sub.stages[4];
+      stage.currentLevelIdx = -1;
+      renderSubStageHeader(4);
+      loadSubTask(a, b);
+      showToast(`🎲 Zufallsaufgabe: ${a} − ${b} = ${a - b}`);
+    }
+
+    function loadSubTask(a, b) {
+      state.sub.operandA = aluDecToBits(a);
+      state.sub.operandB = aluDecToBits(b);
+      subResetSteps();
+      subResetPracticeInputs();
+      renderSubStage();
+      showToast(`Aufgabe geladen: ${a} − ${b}`);
+    }
+
+    function subAdvanceToNextStage() {
+      if (state.sub.currentStage < 5) {
+        switchSubStage(state.sub.currentStage + 1);
+        window.scrollTo({ top: document.getElementById('chapter-5').offsetTop - 60, behavior: 'smooth' });
+      } else {
+        resetSubQuiz();
+        showToast('Quiz neu gestartet!');
+      }
+    }
+
+    function toggleSubOperandBit(row, colIndex) {
+      if (row === 'A') {
+        state.sub.operandA[colIndex] = state.sub.operandA[colIndex] === 1 ? 0 : 1;
+        playBitTone(colIndex, state.sub.operandA[colIndex] === 1);
+      } else {
+        state.sub.operandB[colIndex] = state.sub.operandB[colIndex] === 1 ? 0 : 1;
+        playBitTone(colIndex, state.sub.operandB[colIndex] === 1);
+      }
+
+      const decA = aluBitsToDec(state.sub.operandA);
+      const decB = aluBitsToDec(state.sub.operandB);
+      if (decA < decB) {
+        showToast('Hinweis: Minuend A sollte größer oder gleich Subtrahend B sein!');
+      }
+
+      subResetSteps();
+      subResetPracticeInputs();
+      renderSubStage();
+    }
+
+    function toggleSubPracticeBit(type, colIndex) {
+      if (state.sub.submode === 'demo') return;
+
+      // In Stage 1 practice, borrows are 0, students only click result
+      if (type === 'borrow' && state.sub.currentStage === 1) {
+        showToast('In Stufe 1 muss nichts geborgt werden!');
+        return;
+      }
+
+      if (type === 'borrow') {
+        state.sub.userBorrows[colIndex] = state.sub.userBorrows[colIndex] === 1 ? 0 : 1;
+        playBitTone(colIndex, state.sub.userBorrows[colIndex] === 1);
+      } else if (type === 'result') {
+        state.sub.userResult[colIndex] = state.sub.userResult[colIndex] === 1 ? 0 : 1;
+        playBitTone(colIndex, state.sub.userResult[colIndex] === 1);
+      }
+
+      const fb = document.getElementById('sub-practice-feedback');
+      const tipp = document.getElementById('sub-tipp-box');
+      if (fb) fb.style.display = 'none';
+      if (tipp) tipp.style.display = 'none';
+      clearSubErrorHighlights();
+
+      renderSubStage();
+    }
+
+    function clearSubErrorHighlights() {
+      const cells = document.querySelectorAll('#chapter-5 .alu-cell.error-hint');
+      cells.forEach(c => c.classList.remove('error-hint'));
+    }
+
+    function renderSubStage() {
+      const gridA = document.getElementById('sub-grid-a');
+      const gridB = document.getElementById('sub-grid-b');
+      const gridBorrow = document.getElementById('sub-grid-borrow');
+      const gridRes = document.getElementById('sub-grid-result');
+
+      const decAEl = document.getElementById('sub-dec-a');
+      const decBEl = document.getElementById('sub-dec-b');
+      const decResEl = document.getElementById('sub-dec-res');
+
+      const decA = aluBitsToDec(state.sub.operandA);
+      const decB = aluBitsToDec(state.sub.operandB);
+      if (decAEl) decAEl.textContent = `Dezimal: ${decA}`;
+      if (decBEl) decBEl.textContent = `Dezimal: ${decB}`;
+
+      const { expectedResult } = calculateSubExpected(state.sub.operandA, state.sub.operandB);
+      const decResExpected = aluBitsToDec(expectedResult);
+
+      const activeCol = (state.sub.submode === 'demo' && !state.sub.stepFinished) ? state.sub.stepIndex : -1;
+
+      // Update Column Header Highlights
+      const colHeaders = document.querySelectorAll('#sub-cols-header-grid .alu-col-val');
+      colHeaders.forEach((el, idx) => {
+        if (idx === activeCol) el.classList.add('active-step');
+        else el.classList.remove('active-step');
+      });
+
+      // Render Row A (Minuend)
+      if (gridA) {
+        gridA.innerHTML = '';
+        BIT_VALUES.forEach((val, i) => {
+          const bitVal = state.sub.operandA[i];
+          const cell = document.createElement('div');
+          cell.className = 'alu-cell' + (i === activeCol ? ' active-step' : '');
+          cell.id = `sub-cell-a-${i}`;
+          cell.onclick = () => toggleSubOperandBit('A', i);
+          cell.title = `Bit ${val} umschalten`;
+          cell.innerHTML = `
+            ${getAluCharacterSvg(val, bitVal, 'operandA')}
+            <button class="alu-cell-bit-btn ${bitVal ? 'is-on' : ''}">${bitVal}</button>
+          `;
+          gridA.appendChild(cell);
+        });
+      }
+
+      // Render Row B (Subtrahend)
+      if (gridB) {
+        gridB.innerHTML = '';
+        BIT_VALUES.forEach((val, i) => {
+          const bitVal = state.sub.operandB[i];
+          const cell = document.createElement('div');
+          cell.className = 'alu-cell' + (i === activeCol ? ' active-step' : '');
+          cell.id = `sub-cell-b-${i}`;
+          cell.onclick = () => toggleSubOperandBit('B', i);
+          cell.title = `Bit ${val} umschalten`;
+          cell.innerHTML = `
+            ${getAluCharacterSvg(val, bitVal, 'operandB')}
+            <button class="alu-cell-bit-btn ${bitVal ? 'is-on' : ''}">${bitVal}</button>
+          `;
+          gridB.appendChild(cell);
+        });
+      }
+
+      // Render Borrow Row
+      if (gridBorrow) {
+        gridBorrow.innerHTML = '';
+        const borrows = state.sub.submode === 'demo' ? state.sub.stepBorrows : state.sub.userBorrows;
+        const isClickable = state.sub.submode === 'practice' && state.sub.currentStage > 1;
+
+        BIT_VALUES.forEach((val, i) => {
+          const bitVal = borrows[i];
+          const cell = document.createElement('div');
+          cell.className = 'alu-cell' + (isClickable ? ' clickable' : '') + (i === activeCol ? ' active-step' : '');
+          cell.id = `sub-cell-borrow-${i}`;
+          if (isClickable) {
+            cell.onclick = () => toggleSubPracticeBit('borrow', i);
+            cell.title = `Borg-Bit für ${val} umschalten`;
+          }
+          cell.innerHTML = `
+            ${getAluCharacterSvg(val, bitVal, 'borrow')}
+            <button class="alu-cell-bit-btn ${bitVal ? 'is-on' : ''}" style="${bitVal ? 'background: #ef4444; border-color: #f87171; color: #fff;' : ''}">${bitVal}</button>
+          `;
+          gridBorrow.appendChild(cell);
+        });
+      }
+
+      // Render Result Row (Differenz)
+      if (gridRes) {
+        gridRes.innerHTML = '';
+        const results = state.sub.submode === 'demo' ? state.sub.stepResult : state.sub.userResult;
+        const isClickable = state.sub.submode === 'practice';
+
+        BIT_VALUES.forEach((val, i) => {
+          const bitVal = results[i];
+          const cell = document.createElement('div');
+          cell.className = 'alu-cell' + (isClickable ? ' clickable' : '') + (i === activeCol ? ' active-step' : '');
+          cell.id = `sub-cell-res-${i}`;
+          if (isClickable) {
+            cell.onclick = () => toggleSubPracticeBit('result', i);
+            cell.title = `Differenz-Bit für ${val} umschalten`;
+          }
+          cell.innerHTML = `
+            ${getAluCharacterSvg(val, bitVal, 'result')}
+            <button class="alu-cell-bit-btn ${bitVal ? 'is-on' : ''}" style="${bitVal ? 'background: #22c55e; border-color: #4ade80; color: #022c22;' : ''}">${bitVal}</button>
+          `;
+          gridRes.appendChild(cell);
+        });
+
+        if (decResEl) {
+          if (state.sub.submode === 'demo') {
+            decResEl.textContent = state.sub.stepFinished ? `Dezimal: ${decResExpected}` : `In Berechnung...`;
+          } else {
+            const userDec = aluBitsToDec(state.sub.userResult);
+            decResEl.textContent = `Dezimal: ${userDec}`;
+          }
+        }
+      }
+    }
+
+    function subNextStep() {
+      if (state.sub.stepFinished) {
+        subResetSteps();
+        return;
+      }
+
+      const col = state.sub.stepIndex; // 7 (val 1) down to 0 (val 128)
+      const val = BIT_VALUES[col];
+      const a = state.sub.operandA[col];
+      const b = state.sub.operandB[col];
+      const borrowIn = state.sub.stepBorrows[col];
+
+      playBitTone(col, true);
+
+      const diff = a - b - borrowIn;
+      let res = diff;
+      let borrowOut = 0;
+      if (diff < 0) {
+        res = diff + 2;
+        borrowOut = 1;
+      }
+
+      state.sub.stepResult[col] = res;
+      if (borrowOut > 0 && col > 0) {
+        state.sub.stepBorrows[col - 1] = 1;
+      }
+
+      const leftNeighborVal = col > 0 ? BIT_VALUES[col - 1] : 256;
+      let stepText = `<strong>Spalte [${val}er-Bit]:</strong> ${a} − ${b} ${borrowIn ? '− 1 (Geborgt)' : ''}.<br>` +
+        (borrowOut 
+          ? `Da ${a} kleiner ist als ${b + borrowIn}: <strong>1 wird vom linken Nachbarn (${leftNeighborVal}er-Bit) geborgt!</strong> Das Ergebnis-Männchen zeigt <strong>${res}</strong>. 🔴 Das Borg-Männchen links wacht auf (B=1)!` 
+          : `Das Ergebnis-Männchen zeigt <strong>${res}</strong> (kein Borgen nötig).`);
+
+      const stepTextEl = document.getElementById('sub-step-text');
+      if (stepTextEl) stepTextEl.innerHTML = stepText;
+
+      if (col === 0) {
+        state.sub.stepFinished = true;
+        playSuccessSound();
+        if (state.sub.autoPlayTimer) {
+          clearInterval(state.sub.autoPlayTimer);
+          state.sub.autoPlayTimer = null;
+          const autoBtn = document.getElementById('btn-sub-autoplay');
+          if (autoBtn) autoBtn.innerHTML = `<span>▶️</span> Auto-Play`;
+        }
+
+        const btnNext = document.getElementById('btn-sub-next-step');
+        if (btnNext) btnNext.innerHTML = `<span>🎉 Fertig! Nochmal ansehen 🔄</span>`;
+
+        const { expectedResult } = calculateSubExpected(state.sub.operandA, state.sub.operandB);
+        const decRes = aluBitsToDec(expectedResult);
+        const binRes = expectedResult.join('');
+        if (stepTextEl) {
+          stepTextEl.innerHTML = `${stepText}<br><span style="color: #4ade80; font-weight: 700; margin-top: 4px; display: inline-block;">🎉 Alle 8 Spalten berechnet! Gesamtergebnis: ${decRes} (${binRes})</span>`;
+        }
+      } else {
+        state.sub.stepIndex--;
+      }
+
+      renderSubStage();
+    }
+
+    function subResetSteps() {
+      if (state.sub.autoPlayTimer) {
+        clearInterval(state.sub.autoPlayTimer);
+        state.sub.autoPlayTimer = null;
+        const autoBtn = document.getElementById('btn-sub-autoplay');
+        if (autoBtn) autoBtn.innerHTML = `<span>▶️</span> Auto-Play`;
+      }
+
+      state.sub.stepIndex = 7;
+      state.sub.stepBorrows = [0, 0, 0, 0, 0, 0, 0, 0];
+      state.sub.stepResult = [0, 0, 0, 0, 0, 0, 0, 0];
+      state.sub.stepFinished = false;
+
+      const btnNext = document.getElementById('btn-sub-next-step');
+      if (btnNext) btnNext.innerHTML = `<span>Nächster Schritt (Bit für Bit) ➔</span>`;
+
+      const stepTextEl = document.getElementById('sub-step-text');
+      if (stepTextEl) {
+        stepTextEl.innerHTML = `Klicke auf <strong>„Nächster Schritt (Bit für Bit)“</strong>, um die Subtraktion Spalte für Spalte von rechts (1er-Bit) nach links (128er-Bit) anzusehen!`;
+      }
+
+      renderSubStage();
+    }
+
+    function subToggleAutoPlay() {
+      const autoBtn = document.getElementById('btn-sub-autoplay');
+      if (state.sub.autoPlayTimer) {
+        clearInterval(state.sub.autoPlayTimer);
+        state.sub.autoPlayTimer = null;
+        if (autoBtn) autoBtn.innerHTML = `<span>▶️</span> Auto-Play`;
+      } else {
+        if (state.sub.stepFinished) subResetSteps();
+        if (autoBtn) autoBtn.innerHTML = `<span>⏸️</span> Pause`;
+        subNextStep();
+        state.sub.autoPlayTimer = setInterval(() => {
+          if (state.sub.stepFinished) {
+            clearInterval(state.sub.autoPlayTimer);
+            state.sub.autoPlayTimer = null;
+            if (autoBtn) autoBtn.innerHTML = `<span>▶️</span> Auto-Play`;
+          } else {
+            subNextStep();
+          }
+        }, 1350);
+      }
+    }
+
+    function subCheckPractice() {
+      const { expectedResult, expectedBorrows } = calculateSubExpected(state.sub.operandA, state.sub.operandB);
+
+      let isCorrect = true;
+      for (let i = 0; i < 8; i++) {
+        if (state.sub.userResult[i] !== expectedResult[i]) {
+          isCorrect = false;
+          break;
+        }
+        // Check borrows for stages 2 to 4
+        if (state.sub.currentStage > 1 && i < 7 && state.sub.userBorrows[i] !== expectedBorrows[i]) {
+          isCorrect = false;
+          break;
+        }
+      }
+
+      const fb = document.getElementById('sub-practice-feedback');
+      const tipp = document.getElementById('sub-tipp-box');
+
+      if (isCorrect) {
+        playSuccessSound();
+        triggerConfetti();
+
+        // Mark completed
+        const stageNum = state.sub.currentStage;
+        if (stageNum >= 1 && stageNum <= 3) {
+          const stage = state.sub.stages[stageNum];
+          stage.completed[stage.currentTaskIdx] = true;
+          renderSubStageHeader(stageNum);
+        } else if (stageNum === 4) {
+          const stage = state.sub.stages[4];
+          if (stage.currentLevelIdx >= 0) {
+            stage.completed[stage.currentLevelIdx] = true;
+            renderSubStageHeader(4);
+          }
+        }
+
+        if (fb) {
+          fb.style.display = 'flex';
+          const icon = document.getElementById('sub-feedback-icon');
+          const text = document.getElementById('sub-feedback-text');
+          if (icon) icon.textContent = '🎉';
+          if (text) text.textContent = 'Perfekt gerechnet! Alle Differenz-Bits und Borge-Werte stimmen haargenau!';
+        }
+        if (tipp) tipp.style.display = 'none';
+        clearSubErrorHighlights();
+        showToast('🌟 Großartig! Die Subtraktion ist 100% richtig!');
+      } else {
+        playHintSound();
+        if (fb) fb.style.display = 'none';
+        subShowTipp();
+      }
+    }
+
+    function subShowTipp() {
+      const { expectedResult, expectedBorrows } = calculateSubExpected(state.sub.operandA, state.sub.operandB);
+      clearSubErrorHighlights();
+
+      let errCol = -1;
+      let errType = '';
+
+      for (let i = 7; i >= 0; i--) {
+        if (state.sub.currentStage > 1 && state.sub.userBorrows[i] !== expectedBorrows[i]) {
+          errCol = i;
+          errType = 'borrow';
+          break;
+        }
+        if (state.sub.userResult[i] !== expectedResult[i]) {
+          errCol = i;
+          errType = 'result';
+          break;
+        }
+      }
+
+      if (errCol === -1) {
+        showToast('Bisher sieht alles gut aus!');
+        return;
+      }
+
+      const val = BIT_VALUES[errCol];
+      const a = state.sub.operandA[errCol];
+      const b = state.sub.operandB[errCol];
+      const bIn = expectedBorrows[errCol];
+      const diff = a - b - bIn;
+      const res = diff < 0 ? diff + 2 : diff;
+      const borrowOut = diff < 0 ? 1 : 0;
+
+      const cellRes = document.getElementById(`sub-cell-res-${errCol}`);
+      const cellBorrow = document.getElementById(`sub-cell-borrow-${errCol}`);
+      if (cellRes) cellRes.classList.add('error-hint');
+      if (cellBorrow) cellBorrow.classList.add('error-hint');
+
+      const tippBox = document.getElementById('sub-tipp-box');
+      const tippContent = document.getElementById('sub-tipp-content');
+
+      let msg = '';
+      if (errType === 'borrow') {
+        msg = `Schau auf die <strong>${val}er-Spalte</strong>: Von dieser Spalte wurde von der rechten Nachbarstelle 1 geborgt! Prüfe dein rotes Borg-Männchen (sollte auf <strong>${expectedBorrows[errCol]}</strong> stehen).`;
+      } else {
+        msg = `Schau auf die <strong>${val}er-Spalte</strong>: ${a} − ${b} ${bIn ? '− 1 (Geborgt)' : ''}. ${borrowOut ? 'Da ' + a + ' kleiner ist als ' + (b + bIn) + ', muss 1 von der linken Nachbarspalte geborgt werden! Das Differenz-Bit ist <strong>' + res + '</strong>.' : 'Das Differenz-Bit muss hier <strong>' + res + '</strong> sein.'}`;
+      }
+
+      if (tippBox && tippContent) {
+        tippContent.innerHTML = msg;
+        tippBox.style.display = 'block';
+      }
+      showToast(`💡 Tipp für die ${val}er-Spalte angezeigt.`);
+    }
+
+    function subResetPracticeInputs() {
+      state.sub.userBorrows = [0, 0, 0, 0, 0, 0, 0, 0];
+      state.sub.userResult = [0, 0, 0, 0, 0, 0, 0, 0];
+      const fb = document.getElementById('sub-practice-feedback');
+      const tipp = document.getElementById('sub-tipp-box');
+      if (fb) fb.style.display = 'none';
+      if (tipp) tipp.style.display = 'none';
+      clearSubErrorHighlights();
+      renderSubStage();
+    }
+
+    /* ==========================================================================
+       MULTIPLE-CHOICE QUIZ (STUFE 5 - SUBTRAKTION)
+       ========================================================================== */
+    function renderSubQuiz() {
+      const container = document.getElementById('sub-quiz-container');
+      if (!container) return;
+
+      const answeredCount = state.sub.quiz.answered.filter(x => x !== null).length;
+      const allDone = answeredCount === SUB_QUIZ_QUESTIONS.length;
+
+      let html = `
+        <div class="alu-quiz-header">
+          <div>
+            <h3 style="color: var(--cyber-cyan); font-size: 1.2rem; display: flex; align-items: center; gap: 8px; margin: 0 0 4px 0;">
+              <span>📝</span> Multiple-Choice-Test: Binäre Subtraktion
+            </h3>
+            <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">
+              Beantworte die 5 Fragen, um dein Wissen über Grundregeln, Borgen und Ketten-Borgen zu testen!
+            </p>
+          </div>
+          <div class="alu-quiz-score-badge">
+            <span>⭐ Punkte:</span> <strong>${state.sub.quiz.score} / ${SUB_QUIZ_QUESTIONS.length}</strong>
+          </div>
+        </div>
+      `;
+
+      SUB_QUIZ_QUESTIONS.forEach((q, qIdx) => {
+        const userChoice = state.sub.quiz.answered[qIdx];
+        const isAnswered = userChoice !== null;
+
+        html += `
+          <div class="alu-quiz-card" id="sub-quiz-card-${qIdx}">
+            <div class="alu-quiz-q-title">
+              <span class="alu-quiz-q-num">${qIdx + 1}</span>
+              <div>${q.question}</div>
+            </div>
+            <div class="alu-quiz-options">
+              ${q.options.map((opt, optIdx) => {
+                const optLetter = String.fromCharCode(65 + optIdx);
+                let btnClass = 'alu-quiz-opt-btn';
+                if (isAnswered) {
+                  if (optIdx === q.correct) btnClass += ' correct';
+                  else if (optIdx === userChoice) btnClass += ' incorrect';
+                }
+                return `
+                  <button class="${btnClass}" ${isAnswered ? 'disabled' : ''} onclick="selectSubQuizOption(${qIdx}, ${optIdx})">
+                    <span class="opt-letter">${optLetter}</span>
+                    <span>${opt}</span>
+                  </button>
+                `;
+              }).join('')}
+            </div>
+            <div class="alu-quiz-feedback-box ${isAnswered ? (userChoice === q.correct ? 'correct' : 'incorrect') : ''}" style="${isAnswered ? 'display: flex;' : 'display: none;'}">
+              <span>${userChoice === q.correct ? '✔' : 'ℹ️'}</span>
+              <div>${q.explanation}</div>
+            </div>
+          </div>
+        `;
+      });
+
+      if (allDone) {
+        html += `
+          <div class="alu-quiz-summary-card">
+            <div style="font-size: 2.8rem;">🎓</div>
+            <h3 style="color: var(--accent-gold); font-size: 1.4rem; margin: 0;">
+              Subtraktions-Meister! Du hast ${state.sub.quiz.score} von ${SUB_QUIZ_QUESTIONS.length} Punkten erreicht!
+            </h3>
+            <p style="color: #e2e8f0; max-width: 600px; font-size: 0.95rem; margin: 0;">
+              ${state.sub.quiz.score === 5 
+                ? 'Hervorragend! Du beherrschst alle Regeln der binären Subtraktion und das Borgen perfekt wie ein echter Prozessor!' 
+                : 'Sehr gut gemeistert! Schau dir die Erklärungen zu den Fragen an oder wiederhole den Test für alle 5 Punkte!'}
+            </p>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 10px;">
+              <button class="btn-glow" onclick="resetSubQuiz()">
+                <span>🔄 Test wiederholen</span>
+              </button>
+              <button class="btn-action" onclick="switchChapter(1)">
+                <span>🏠 Zurück zum Bit-Labor</span>
+              </button>
+            </div>
+          </div>
+        `;
+      }
+
+      container.innerHTML = html;
+    }
+
+    function selectSubQuizOption(qIdx, optIdx) {
+      if (state.sub.quiz.answered[qIdx] !== null) return;
+
+      const q = SUB_QUIZ_QUESTIONS[qIdx];
+      state.sub.quiz.answered[qIdx] = optIdx;
+
+      if (optIdx === q.correct) {
+        state.sub.quiz.score++;
+        playSuccessSound();
+      } else {
+        playHintSound();
+      }
+
+      const answeredCount = state.sub.quiz.answered.filter(x => x !== null).length;
+      if (answeredCount === SUB_QUIZ_QUESTIONS.length) {
+        state.sub.quiz.finished = true;
+        setTimeout(() => {
+          triggerConfetti();
+          playSuccessSound();
+        }, 300);
+      }
+
+      renderSubQuiz();
+    }
+
+    function resetSubQuiz() {
+      state.sub.quiz = {
+        answered: [null, null, null, null, null],
+        score: 0,
+        finished: false
+      };
+      renderSubQuiz();
+    }
+
 
     /* ==========================================================================
        11. LEHRERMODUS & PERSISTENZ
@@ -5233,6 +7442,8 @@
         btn.classList.add('active');
         state.unlockedChapters = [1, 2, 3, 4];
         for (let i = 1; i <= 4; i++) {
+        state.unlockedChapters = [1, 2, 3, 4, 5];
+        for (let i = 1; i <= 5; i++) {
           const tab = document.getElementById(`tab-chap${i}`);
           const status = document.getElementById(`tab-chap${i}-status`);
           if (tab) tab.classList.remove('locked');
