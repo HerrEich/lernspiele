@@ -1,2 +1,0 @@
-- Chapter 5: 'Schließen' button might be hardcoded and missing i18n.
-- Chapter 3: 'Reset' button might be hardcoded and missing i18n.
