@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trennverfahren auf Teilchenebene</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        h1, h2 { color: #1a4b6b; }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 850px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        canvas {
+            border: 2px solid #ccc;
+            background-color: #fff;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+        .controls {
+            margin: 15px 0;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        button, select {
+            padding: 10px 15px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #2173a3;
+            color: white;
+            transition: background 0.3s;
+        }
+        button:hover, select:hover { background-color: #1a4b6b; }
+        .description {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #e8f4f8;
+            border-left: 5px solid #2173a3;
+            text-align: left;
+            width: 100%;
+            box-sizing: border-box;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        .legend {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+        }
+        .dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        /* Styles für das Quiz */
+        .quiz-section {
+            text-align: left;
+            width: 100%;
+            margin-top: 20px;
+            border-top: 2px dashed #ccc;
+            padding-top: 20px;
+        }
+        .quiz-category {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .quiz-category h3 {
+            margin-top: 0;
+            color: #2173a3;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
+        }
+        .question-block {
+            margin-bottom: 20px;
+        }
+        .question-text {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .option-btn {
+            background-color: #e0ebf0;
+            color: #333;
+            text-align: left;
+            padding: 10px;
+            font-size: 15px;
+            border: 1px solid #b3d4e6;
+            transition: all 0.2s;
+        }
+        .option-btn:hover:not(:disabled) {
+            background-color: #b3d4e6;
+        }
+        .option-btn:disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+        .correct {
+            background-color: #d4edda !important;
+            border-color: #c3e6cb !important;
+            color: #155724 !important;
+            font-weight: bold;
+        }
+        .wrong {
+            background-color: #f8d7da !important;
+            border-color: #f5c6cb !important;
+            color: #721c24 !important;
+            text-decoration: line-through;
+        }
+        .feedback {
+            margin-top: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Trennverfahren auf Teilchenebene</h1>
+        
+        <div class="controls">
+            <select id="methodSelect" onchange="changeMethod()">
+                <option value="filtrieren">Filtrieren / Sieben</option>
+                <option value="sedimentieren">Sedimentieren</option>
+                <option value="destillation">Destillation / Eindampfen</option>
+                <option value="magnet">Magnettrennung</option>
+                <option value="chromatografie">Chromatografie</option>
+            </select>
+            <button onclick="startSimulation()">Simulation Starten / Neustart</button>
+        </div>
+
+        <div class="legend" id="legend"></div>
+
+        <canvas id="simCanvas" width="600" height="400"></canvas>
+
+        <div class="description" id="description"></div>
+
+        <!-- Das Abschlussquiz -->
+        <div class="quiz-section">
+            <h2>Abschlussquiz: Teste dein Wissen!</h2>
+            <p style="text-align: left; margin-bottom: 20px;">Hast du die Animationen genau beobachtet? Klicke auf die richtige Antwort, um zu sehen, ob du alles verstanden hast.</p>
+            <div id="quiz-content"></div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('simCanvas');
+        const ctx = canvas.getContext('2d');
+        const descEl = document.getElementById('description');
+        const legendEl = document.getElementById('legend');
+        
+        let particles = [];
+        let animationId;
+        let currentMethod = 'filtrieren';
+        let isSimulating = false;
+        let simTimer = 0;
+
+        const descriptions = {
+            filtrieren: "<b>Warum funktioniert das?</b> Weil die Teilchen unterschiedlich <b>groß</b> sind.<br><br><b>Stell dir vor:</b> Es ist wie beim Nudeln abgießen! Das Filterpapier hat winzig kleine Löcher (Poren). Die blauen Wasserteilchen sind so klein, dass sie problemlos durch diese Löcher hindurchrutschen. Die braunen Sandteilchen sind aber viel zu groß. Sie passen nicht durch die Löcher und bleiben oben im Filterpapier hängen. So trennt man die Stoffe voneinander.",
+            sedimentieren: "<b>Warum funktioniert das?</b> Weil die Stoffe eine unterschiedliche <b>Dichte</b> haben (oft sagt man im Alltag 'sie sind unterschiedlich schwer').<br><br><b>Was passiert hier?</b> Hast du schon mal einen Stein ins Wasser geworfen? Er geht unter. Wenn du das Gemisch stehen lässt, zieht die Erdanziehungskraft die Teilchen mit der höheren Dichte (den Sand) stärker nach unten. Der braune Sand sinkt also langsam auf den Boden. Das blaue Wasser hat eine geringere Dichte (ist 'leichter') und wird vom Sand einfach nach oben weggedrückt.",
+            destillation: "<b>Warum funktioniert das?</b> Weil die Stoffe bei einer unterschiedlichen <b>Temperatur sieden</b> (anfangen zu kochen).<br><br><b>Was passiert hier?</b> Wir machen das Gemisch heiß. Wasser kocht schon bei 100 °C. Die blauen Wasserteilchen bekommen durch die Hitze so viel Energie, dass sie zu unsichtbarem Gas werden (Wasserdampf) und nach oben wegfliegen. Das graue Salz braucht viel, viel mehr Hitze zum Schmelzen oder Kochen. Deshalb bleiben die Salzteilchen einfach ruhig am Boden liegen. Das Wasser ist weg, das Salz bleibt zurück!",
+            magnet: "<b>Warum funktioniert das?</b> Weil Eisen <b>magnetisch</b> ist, Sand aber nicht.<br><br><b>Was passiert hier?</b> Ein Magnet ist wie ein unsichtbarer Staubsauger, der aber nur ganz bestimmte Stoffe anzieht. Die schwarzen Eisenteilchen spüren die magnetische Kraft und fliegen sofort an den Magneten. Die braunen Sandteilchen spüren diese Kraft überhaupt nicht und bleiben einfach gemütlich am Boden liegen. So kann man sie ganz leicht und sauber trennen.",
+            chromatografie: "<b>Warum funktioniert das?</b> Wegen der <b>Löslichkeit</b> (wie gut löst sich ein Stoff im Wasser?) und der <b>Haftfähigkeit</b> (wie stark klebt der Stoff am Papier?).<br><br><b>Was passiert hier?</b> Das Wasser zieht im Papier nach oben und nimmt die Farbe mit. Es ist wie ein Wettrennen! Die hellblauen Teilchen lösen sich super im Wasser und kleben kaum am Papier – sie flitzen schnell mit dem Wasser nach oben. Die dunkelblauen Teilchen kleben lieber am Papier fest und sind deshalb viel langsamer. So trennt sich der Fleck in verschiedene Farben auf."
+        };
+
+        const legends = {
+            filtrieren: [{c: '#8B4513', t: 'Sandteilchen (groß)'}, {c: '#4FA1D8', t: 'Wasserteilchen (klein)'}],
+            sedimentieren: [{c: '#8B4513', t: 'Sandteilchen (hohe Dichte)'}, {c: '#4FA1D8', t: 'Wasserteilchen (geringe Dichte)'}],
+            destillation: [{c: '#A0A0A0', t: 'Salzteilchen (hohe Siedetemperatur)'}, {c: '#4FA1D8', t: 'Wasserteilchen (niedrige Siedetemperatur)'}],
+            magnet: [{c: '#333333', t: 'Eisenteilchen (magnetisch)'}, {c: '#D2B48C', t: 'Sandteilchen (nicht magnetisch)'}],
+            chromatografie: [{c: '#00008B', t: 'Farbstoff 1 (haftet stark am Papier)'}, {c: '#00BFFF', t: 'Farbstoff 2 (löst sich gut im Wasser)'}]
+        };
+
+        class Particle {
+            constructor(x, y, radius, color, type) {
+                this.x = x;
+                this.y = y;
+                this.radius = radius;
+                this.color = color;
+                this.type = type;
+                this.yOffset = Math.random(); 
+                this.xOffset = Math.random();
+                this.vx = (Math.random() - 0.5) * 2;
+                this.vy = (Math.random() - 0.5) * 2;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                ctx.closePath();
+            }
+
+            updateFiltrieren() {
+                this.x += this.vx * 0.5;
+                if (!isSimulating) {
+                    let targetY = 120 - (this.yOffset * 90);
+                    this.y += (targetY - this.y) * 0.1;
+                    this.x += (Math.random() - 0.5) * 0.5;
+                } else {
+                    this.y += 2 + Math.abs(this.vy);
+                }
+
+                if (this.x < this.radius) { this.x = this.radius; this.vx *= -1; }
+                if (this.x > canvas.width - this.radius) { this.x = canvas.width - this.radius; this.vx *= -1; }
+                
+                if (this.type === 'big' && this.y + this.radius > 200 - (this.yOffset * 20)) {
+                    this.y = 200 - this.radius - (this.yOffset * 20); 
+                    this.x += (Math.random() - 0.5) * 0.2; 
+                }
+                
+                if (this.y > canvas.height - 5 - (this.yOffset * 100)) {
+                    this.y = canvas.height - 5 - (this.yOffset * 100);
+                    this.x += (Math.random() - 0.5) * 0.5;
+                }
+            }
+
+            updateSedimentieren() {
+                let targetY;
+                if (isSimulating) {
+                    if (this.type === 'heavy') {
+                        targetY = canvas.height - 5 - (this.yOffset * 40); 
+                    } else {
+                        targetY = canvas.height - 45 - (this.yOffset * 105); 
+                    }
+                } else {
+                    targetY = canvas.height - 5 - (this.yOffset * 150);
+                }
+
+                this.y += (targetY - this.y) * 0.075;
+
+                if (this.type === 'light') {
+                    this.x += this.vx * 0.5 + (Math.random() - 0.5) * 1.5;
+                    this.y += (Math.random() - 0.5) * 1.5;
+                } else {
+                    this.x += this.vx * 0.2 + (Math.random() - 0.5) * 0.5;
+                    this.y += (Math.random() - 0.5) * 0.5;
+                }
+
+                if (this.x < this.radius) { this.x = this.radius; this.vx *= -1; }
+                if (this.x > canvas.width - this.radius) { this.x = canvas.width - this.radius; this.vx *= -1; }
+            }
+
+            updateDestillation() {
+                let tempSpeed = isSimulating ? (simTimer / 100) : 1;
+                if (tempSpeed > 5) tempSpeed = 5;
+
+                if (this.type === 'salt') {
+                    this.x += this.vx * 0.05;
+                    let targetY = canvas.height - 5 - (this.yOffset * 20);
+                    this.y += (targetY - this.y) * 0.1;
+                } else {
+                    if (isSimulating && tempSpeed >= 3) {
+                        this.x += this.vx * tempSpeed;
+                        this.y += this.vy * tempSpeed;
+                        this.vy -= 0.02; 
+
+                        if (this.y < this.radius) { this.y = this.radius; this.vy *= -1; }
+                        if (this.y > canvas.height - this.radius) { this.y = canvas.height - this.radius; this.vy *= -1; }
+                    } else {
+                        this.x += this.vx * 0.5;
+                        let targetY = canvas.height - 5 - (this.yOffset * 130);
+                        this.y += (targetY - this.y) * 0.1;
+
+                        this.x += (Math.random() - 0.5) * tempSpeed;
+                        this.y += (Math.random() - 0.5) * tempSpeed;
+                    }
+                }
+
+                if (this.x < this.radius) { this.x = this.radius; this.vx *= -1; }
+                if (this.x > canvas.width - this.radius) { this.x = canvas.width - this.radius; this.vx *= -1; }
+            }
+
+            updateMagnet() {
+                this.x += this.vx * 0.1;
+                let targetY = canvas.height - 5 - (this.yOffset * 40);
+
+                if (isSimulating && this.type === 'iron') {
+                    let magnetX = canvas.width / 2;
+                    let magnetY = 70; 
+                    let dx = magnetX - this.x;
+                    let dy = magnetY - this.y;
+                    
+                    this.x += dx * 0.05;
+                    this.y += dy * 0.05;
+                    
+                    this.x += (Math.random() - 0.5);
+                    this.y += (Math.random() - 0.5);
+                } else {
+                    this.y += (targetY - this.y) * 0.1;
+                }
+
+                if (this.x < this.radius) { this.x = this.radius; this.vx *= -1; }
+                if (this.x > canvas.width - this.radius) { this.x = canvas.width - this.radius; this.vx *= -1; }
+            }
+
+            updateChromatografie() {
+                this.x += this.vx * 0.1;
+                
+                if (isSimulating) {
+                    if (this.type === 'fast') this.y -= 1.5;
+                    if (this.type === 'slow') this.y -= 0.5;
+                } else {
+                    let targetY = canvas.height - 55 + (this.yOffset * 20 - 10);
+                    let targetX = 300 + (this.xOffset * 20 - 10);
+                    this.y += (targetY - this.y) * 0.1;
+                    this.x += (targetX - this.x) * 0.1;
+                }
+                
+                if (this.x < 240) this.x = 240;
+                if (this.x > 360) this.x = 360;
+                
+                if (this.y < 50) {
+                    this.y = 50 + Math.random()*2;
+                }
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            simTimer = 0;
+            const w = canvas.width;
+            const h = canvas.height;
+
+            if (currentMethod === 'filtrieren') {
+                for (let i = 0; i < 210; i++) particles.push(new Particle(Math.random() * w, 50, 4, '#4FA1D8', 'small'));
+                for (let i = 0; i < 90; i++) particles.push(new Particle(Math.random() * w, 50, 12, '#8B4513', 'big'));
+            } 
+            else if (currentMethod === 'sedimentieren') {
+                for (let i = 0; i < 300; i++) particles.push(new Particle(Math.random() * w, h - 50, 6, '#4FA1D8', 'light'));
+                for (let i = 0; i < 120; i++) particles.push(new Particle(Math.random() * w, h - 50, 8, '#8B4513', 'heavy'));
+            }
+            else if (currentMethod === 'destillation') {
+                for (let i = 0; i < 270; i++) particles.push(new Particle(Math.random() * w, h - 50, 6, '#4FA1D8', 'water'));
+                for (let i = 0; i < 75; i++) particles.push(new Particle(Math.random() * w, h - 50, 7, '#A0A0A0', 'salt'));
+            }
+            else if (currentMethod === 'magnet') {
+                for (let i = 0; i < 180; i++) particles.push(new Particle(Math.random() * w, h - 30, 6, '#D2B48C', 'sand'));
+                for (let i = 0; i < 150; i++) particles.push(new Particle(Math.random() * w, h - 30, 6, '#333333', 'iron'));
+            }
+            else if (currentMethod === 'chromatografie') {
+                for (let i = 0; i < 120; i++) particles.push(new Particle(300, h - 55, 5, '#00BFFF', 'fast'));
+                for (let i = 0; i < 120; i++) particles.push(new Particle(300, h - 55, 5, '#00008B', 'slow'));
+            }
+        }
+
+        function drawEnvironment() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            if (currentMethod === 'filtrieren') {
+                ctx.beginPath();
+                ctx.setLineDash([10, 15]);
+                ctx.moveTo(0, 200);
+                ctx.lineTo(canvas.width, 200);
+                ctx.lineWidth = 4;
+                ctx.strokeStyle = '#555';
+                ctx.stroke();
+                ctx.setLineDash([]);
+                ctx.fillStyle = '#000';
+                ctx.font = '16px Arial';
+                ctx.fillText('Filterpapier / Sieb (Poren)', 10, 190);
+            }
+            else if (currentMethod === 'destillation' && isSimulating) {
+                let intensity = Math.min(simTimer / 50, 1);
+                ctx.fillStyle = `rgba(255, 69, 0, ${intensity * 0.4})`;
+                ctx.fillRect(0, canvas.height - 15, canvas.width, 15);
+                ctx.fillStyle = '#cc0000';
+                ctx.font = 'bold 16px Arial';
+                if(simTimer > 100) ctx.fillText('Wasser kocht und verdampft! Salz bleibt liegen.', 10, 30);
+            }
+            else if (currentMethod === 'magnet' && isSimulating) {
+                ctx.fillStyle = '#cc0000';
+                ctx.fillRect(canvas.width/2 - 40, 20, 30, 60); 
+                ctx.fillStyle = '#0000cc';
+                ctx.fillRect(canvas.width/2 + 10, 20, 30, 60); 
+                ctx.fillStyle = '#555';
+                ctx.fillRect(canvas.width/2 - 40, 20, 80, 20); 
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 16px Arial';
+                ctx.fillText('N', canvas.width/2 - 30, 60);
+                ctx.fillText('S', canvas.width/2 + 20, 60);
+            }
+            else if (currentMethod === 'chromatografie') {
+                ctx.fillStyle = '#f0f0f0';
+                ctx.fillRect(230, 20, 140, canvas.height);
+                if (isSimulating) {
+                    let y = canvas.height - 50 - (simTimer * 1.6);
+                    if (y < 40) y = 40;
+                    ctx.fillStyle = 'rgba(173, 216, 230, 0.4)';
+                    ctx.fillRect(230, y, 140, canvas.height - y);
+                }
+            }
+        }
+
+        function animate() {
+            drawEnvironment();
+            if (isSimulating) simTimer++;
+            particles.forEach(p => {
+                if (currentMethod === 'filtrieren') p.updateFiltrieren();
+                if (currentMethod === 'sedimentieren') p.updateSedimentieren();
+                if (currentMethod === 'destillation') p.updateDestillation();
+                if (currentMethod === 'magnet') p.updateMagnet();
+                if (currentMethod === 'chromatografie') p.updateChromatografie();
+                p.draw();
+            });
+            animationId = requestAnimationFrame(animate);
+        }
+
+        function updateUI() {
+            descEl.innerHTML = descriptions[currentMethod];
+            legendEl.innerHTML = '';
+            legends[currentMethod].forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'legend-item';
+                div.innerHTML = `<span class="dot" style="background-color: ${item.c}"></span> ${item.t}`;
+                legendEl.appendChild(div);
+            });
+        }
+
+        function changeMethod() {
+            currentMethod = document.getElementById('methodSelect').value;
+            isSimulating = false;
+            cancelAnimationFrame(animationId);
+            updateUI();
+            initParticles();
+            animate();
+        }
+
+        function startSimulation() {
+            if (isSimulating) {
+                isSimulating = false;
+                initParticles();
+            } else {
+                isSimulating = true;
+            }
+        }
+
+        /* --- QUIZ BEREICH --- */
+        const quizData = [
+            {
+                category: "1. Filtrieren / Sieben",
+                questions: [
+                    {
+                        q: "Warum bleiben die Sandteilchen im Filterpapier hängen?",
+                        options: [
+                            "Sie sind zu schwer und sinken deshalb ab.", 
+                            "Sie sind zu groß für die winzigen Poren (Löcher).", 
+                            "Sie haften am Filterpapier fest."
+                        ],
+                        correct: 1
+                    },
+                    {
+                        q: "Was passiert mit den Wasserteilchen beim Filtrieren?",
+                        options: [
+                            "Sie rutschen einfach durch die Poren hindurch, weil sie klein genug sind.", 
+                            "Sie werden vom Filterpapier aufgesaugt und festgehalten.", 
+                            "Sie verdunsten, weil sie an die Luft kommen."
+                        ],
+                        correct: 0
+                    },
+                    {
+                        q: "Welche Stoffeigenschaft trennt hier das Gemisch?",
+                        options: [
+                            "Löslichkeit", 
+                            "Dichte", 
+                            "Teilchengröße"
+                        ],
+                        correct: 2
+                    }
+                ]
+            },
+            {
+                category: "2. Sedimentieren",
+                questions: [
+                    {
+                        q: "Warum sinkt der Sand im Becherglas nach unten?",
+                        options: [
+                            "Weil er eine größere Dichte hat (also umgangssprachlich 'schwerer' ist).", 
+                            "Weil er eine geringere Dichte hat als das Wasser.", 
+                            "Weil die Sandteilchen größer sind als die Wasserteilchen."
+                        ],
+                        correct: 0
+                    },
+                    {
+                        q: "Was passiert mit dem Wasser, wenn der Sand auf den Boden sinkt?",
+                        options: [
+                            "Das Wasser sinkt zusammen mit dem Sand nach unten.", 
+                            "Es wird vom herabsinkenden Sand einfach nach oben verdrängt.", 
+                            "Das Wasser löst den Sand langsam auf."
+                        ],
+                        correct: 1
+                    },
+                    {
+                        q: "Welche Stoffeigenschaft wird beim Sedimentieren genutzt?",
+                        options: [
+                            "Siedetemperatur", 
+                            "Dichte", 
+                            "Teilchengröße"
+                        ],
+                        correct: 1
+                    }
+                ]
+            },
+            {
+                category: "3. Destillation / Eindampfen",
+                questions: [
+                    {
+                        q: "Was passiert mit den blauen Wasserteilchen, wenn wir sie erhitzen?",
+                        options: [
+                            "Sie verbinden sich mit dem Salz zu einem neuen Stoff.", 
+                            "Sie werden zu unsichtbarem Gas und steigen nach oben auf.", 
+                            "Sie werden schwerer und sinken auf den Boden."
+                        ],
+                        correct: 1
+                    },
+                    {
+                        q: "Warum bleibt das Salz am Boden liegen?",
+                        options: [
+                            "Weil die Salzteilchen zu groß und zu schwer zum Aufsteigen sind.", 
+                            "Weil es eine viel höhere Siedetemperatur hat als das Wasser.", 
+                            "Weil Salz sich im Wasser niemals auflösen kann."
+                        ],
+                        correct: 1
+                    },
+                    {
+                        q: "Welche Eigenschaft ist hier entscheidend, um die Stoffe zu trennen?",
+                        options: [
+                            "Löslichkeit", 
+                            "Dichte", 
+                            "Siedetemperatur"
+                        ],
+                        correct: 2
+                    }
+                ]
+            },
+            {
+                category: "4. Magnettrennung",
+                questions: [
+                    {
+                        q: "Welche Teilchen fliegen in der Animation sofort zum Magneten hoch?",
+                        options: [
+                            "Die größeren Sandteilchen.", 
+                            "Alle Teilchen, die leicht genug sind.", 
+                            "Die schwarzen Eisenteilchen."
+                        ],
+                        correct: 2
+                    },
+                    {
+                        q: "Warum bleibt der Sand einfach gemütlich am Boden liegen?",
+                        options: [
+                            "Weil die Sandteilchen zu schwer für den Magneten sind.", 
+                            "Weil Sand nicht magnetisch ist und die Kraft nicht spürt.", 
+                            "Weil der Sand eine zu hohe Dichte hat."
+                        ],
+                        correct: 1
+                    },
+                    {
+                        q: "Welche Stoffeigenschaft wird hier ausgenutzt?",
+                        options: [
+                            "Magnetismus", 
+                            "Siedetemperatur", 
+                            "Teilchengröße"
+                        ],
+                        correct: 0
+                    }
+                ]
+            },
+            {
+                category: "5. Chromatografie",
+                questions: [
+                    {
+                        q: "Warum flitzen die hellblauen Teilchen so schnell mit dem Wasser nach oben?",
+                        options: [
+                            "Weil sie eine geringere Dichte haben und im Wasser aufsteigen.", 
+                            "Weil sie sich gut im Wasser lösen und kaum am Papier haften.", 
+                            "Weil sie viel kleiner sind als die dunkelblauen Teilchen."
+                        ],
+                        correct: 1
+                    },
+                    {
+                        q: "Warum sind die dunkelblauen Teilchen viel langsamer?",
+                        options: [
+                            "Weil sie schwerer sind und das Wasser sie nicht so gut tragen kann.", 
+                            "Weil sie viel stärker am Papier haften (kleben).", 
+                            "Weil sie nicht durch die winzigen Poren des Papiers passen."
+                        ],
+                        correct: 1
+                    },
+                    {
+                        q: "Welche Eigenschaften trennen die Farben voneinander?",
+                        options: [
+                            "Dichte und Magnetismus", 
+                            "Teilchengröße und Siedetemperatur", 
+                            "Löslichkeit und Haftfähigkeit"
+                        ],
+                        correct: 2
+                    }
+                ]
+            }
+        ];
+
+        function renderQuiz() {
+            const quizContainer = document.getElementById('quiz-content');
+            let html = '';
+
+            quizData.forEach((section, sIndex) => {
+                html += `<div class="quiz-category"><h3>${section.category}</h3>`;
+                
+                section.questions.forEach((qObj, qIndex) => {
+                    const uniqueId = `q_${sIndex}_${qIndex}`;
+                    html += `<div class="question-block" id="${uniqueId}">
+                        <div class="question-text">${qIndex + 1}. ${qObj.q}</div>
+                        <div class="options">`;
+                    
+                    qObj.options.forEach((optText, optIndex) => {
+                        html += `<button class="option-btn" onclick="checkAnswer(${sIndex}, ${qIndex}, ${optIndex}, this)">${optText}</button>`;
+                    });
+
+                    html += `</div>
+                        <div class="feedback" id="feedback_${uniqueId}"></div>
+                    </div>`;
+                });
+                
+                html += `</div>`;
+            });
+
+            quizContainer.innerHTML = html;
+        }
+
+        function checkAnswer(sIndex, qIndex, selectedOptIndex, btnElement) {
+            const blockId = `q_${sIndex}_${qIndex}`;
+            const block = document.getElementById(blockId);
+            const buttons = block.querySelectorAll('.option-btn');
+            const feedbackBox = document.getElementById(`feedback_${blockId}`);
+            
+            const correctAnswerIndex = quizData[sIndex].questions[qIndex].correct;
+
+            // Alle Buttons deaktivieren, damit man nicht mehrmals klicken kann
+            buttons.forEach(btn => btn.disabled = true);
+
+            if (selectedOptIndex === correctAnswerIndex) {
+                // Richtig!
+                btnElement.classList.add('correct');
+                feedbackBox.innerHTML = "✅ Richtig! Super mitgedacht.";
+                feedbackBox.style.color = "#155724";
+            } else {
+                // Falsch!
+                btnElement.classList.add('wrong');
+                // Zeige den richtigen Button zur Hilfestellung an
+                buttons[correctAnswerIndex].classList.add('correct');
+                feedbackBox.innerHTML = "❌ Leider falsch. Die grün markierte Antwort ist richtig.";
+                feedbackBox.style.color = "#721c24";
+            }
+            
+            feedbackBox.style.display = "block";
+        }
+
+        // Init
+        updateUI();
+        initParticles();
+        animate();
+        renderQuiz();
+
+    </script>
+</body>
+</html>

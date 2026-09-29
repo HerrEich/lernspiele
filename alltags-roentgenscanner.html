@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Der Alltags-Röntgenscanner – Das EVA-Prinzip im Haushalt</title>
+    <style>
+        :root {
+            --eingabe-color: #2563eb;
+            --verarbeitung-color: #d97706;
+            --ausgabe-color: #059669;
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: #1e293b;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            text-align: center;
+            max-width: 900px;
+            margin-bottom: 25px;
+            background: white;
+            padding: 20px 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        h1 {
+            color: #0f172a;
+            margin: 0 0 8px 0;
+            font-size: 1.8rem;
+        }
+
+        .subtitle {
+            color: #64748b;
+            font-size: 1.05rem;
+            font-weight: 500;
+        }
+
+        /* Gerätewahl-Buttons */
+        .device-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .device-btn {
+            background: white;
+            border: 3px solid #cbd5e1;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .device-btn:hover {
+            border-color: #94a3b8;
+            transform: translateY(-2px);
+        }
+
+        .device-btn.active {
+            border-color: #2563eb;
+            background-color: #eff6ff;
+            color: #1e40af;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+        }
+
+        /* Haupt-Scanner Bereich */
+        .scanner-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            max-width: 1000px;
+            width: 100%;
+            margin-bottom: 25px;
+        }
+
+        @media (max-width: 800px) {
+            .scanner-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+        }
+
+        .device-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+        }
+
+        .device-icon {
+            font-size: 6rem;
+            margin: 10px 0;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+            transition: transform 0.3s ease;
+        }
+
+        .eva-buttons {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .eva-btn {
+            flex: 1;
+            padding: 12px 8px;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+
+        .eva-btn:hover {
+            opacity: 0.9;
+            transform: scale(1.02);
+        }
+
+        .btn-e { background-color: var(--eingabe-color); }
+        .btn-v { background-color: var(--verarbeitung-color); }
+        .btn-a { background-color: var(--ausgabe-color); }
+
+        /* Erklärungstext-Anzeige */
+        .explanation-box {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-left: 6px solid #cbd5e1;
+            transition: border-color 0.3s ease;
+        }
+
+        .phase-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+            align-self: flex-start;
+        }
+
+        .explanation-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin: 0 0 10px 0;
+        }
+
+        .explanation-text {
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: #334155;
+        }
+
+        /* Satz-Puzzler / Assistent */
+        .puzzler-card {
+            max-width: 1000px;
+            width: 100%;
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+            box-sizing: border-box;
+        }
+
+        .puzzler-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #0f172a;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sentence-builder {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            font-size: 1.05rem;
+            line-height: 1.8;
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px dashed #cbd5e1;
+        }
+
+        select {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 2px solid #94a3b8;
+            font-size: 1rem;
+            background: white;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        .check-btn {
+            margin-top: 15px;
+            padding: 12px 20px;
+            background: #0f172a;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+            align-self: flex-start;
+        }
+
+        .check-btn:hover {
+            background: #1e293b;
+        }
+
+        .feedback-message {
+            margin-top: 12px;
+            font-weight: bold;
+            font-size: 1.05rem;
+            padding: 10px 15px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .feedback-success {
+            background-color: #d1fae5;
+            color: #065f46;
+            display: block;
+        }
+
+        .feedback-error {
+            background-color: #fee2e2;
+            color: #991b1b;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🔍 Der Alltags-Röntgenscanner</h1>
+        <div class="subtitle">Entdecke das EVA-Prinzip in unseren Haushaltsgeräten!</div>
+    </header>
+
+    <!-- Geräteauswahl -->
+    <div class="device-selector">
+        <button class="device-btn active" onclick="selectDevice('roboter')">
+            <span>🤖</span> Saugroboter
+        </button>
+        <button class="device-btn" onclick="selectDevice('waschmaschine')">
+            <span>🧺</span> Waschmaschine
+        </button>
+        <button class="device-btn" onclick="selectDevice('mikrowelle')">
+            <span>🍿</span> Mikrowelle
+        </button>
+    </div>
+
+    <div class="scanner-container">
+        <!-- Display-Karte -->
+        <div class="card device-display">
+            <h2 id="deviceTitle">Saugroboter</h2>
+            <div class="device-icon" id="deviceIcon">🤖</div>
+            <p style="color: #64748b; font-size: 0.95rem;">Klicke auf eine Phase, um das Innere zu röntgen:</p>
+            <div class="eva-buttons">
+                <button class="eva-btn btn-e" onclick="scanPhase('E')">1. Eingabe (E)</button>
+                <button class="eva-btn btn-v" onclick="scanPhase('V')">2. Verarbeitung (V)</button>
+                <button class="eva-btn btn-a" onclick="scanPhase('A')">3. Ausgabe (A)</button>
+            </div>
+        </div>
+
+        <!-- Erklärungskarte -->
+        <div class="card explanation-box" id="explanationCard">
+            <span class="phase-badge" id="phaseBadge" style="background-color: #64748b;">Bereit</span>
+            <div class="explanation-title" id="explanationTitle">Wähle eine Phase aus!</div>
+            <div class="explanation-text" id="explanationText">
+                Klicke oben auf einen der drei Knöpfe (Eingabe, Verarbeitung oder Ausgabe), um das Alltagsgerät mit dem Röntgenscanner zu durchleuchten.
+            </div>
+        </div>
+    </div>
+
+    <!-- Satz-Puzzler Assistent -->
+    <div class="puzzler-card">
+        <div class="puzzler-title">
+            <span>✍️</span> Satzbau-Assistent: Baue den richtigen Erklärsatz!
+        </div>
+        <div class="sentence-builder">
+            <div>
+                <strong>Wenn</strong>
+                <select id="selectEingabe">
+                    <option value="">-- Wähle die Eingabe (E) --</option>
+                </select>
+            </div>
+            <div>
+                <strong>dann</strong>
+                <select id="selectVerarbeitung">
+                    <option value="">-- Wähle die Verarbeitung (V) --</option>
+                </select>
+            </div>
+            <div>
+                <strong>und als Ergebnis</strong>
+                <select id="selectAusgabe">
+                    <option value="">-- Wähle die Ausgabe (A) --</option>
+                </select>
+            </div>
+        </div>
+        <button class="check-btn" onclick="checkSentence()">Satz überprüfen ➔</button>
+        <div class="feedback-message" id="feedbackBox"></div>
+    </div>
+
+    <script>
+        // Datenbank der Alltagsgeräte
+        const deviceData = {
+            roboter: {
+                name: "Saugroboter",
+                icon: "🤖",
+                phases: {
+                    E: {
+                        title: "Eingabe (Sensoren)",
+                        badge: "Eingabe (E)",
+                        color: "var(--eingabe-color)",
+                        text: "Der Saugroboter besitzt vorne einen <strong>Stoß-Sensor</strong> und unten einen <strong>Absturz-Sensor</strong>. Wenn er gegen eine Wand fährt oder eine Treppe erreicht, misst der Sensor diesen Druck oder Abstand."
+                    },
+                    V: {
+                        title: "Verarbeitung (Mikroprozessor)",
+                        badge: "Verarbeitung (V)",
+                        color: "var(--verarbeitung-color)",
+                        text: "Im Gehäuse sitzt ein kleiner <strong>Computer-Chip (Prozessor)</strong>. Er verarbeitet das Signal des Sensors und rechnet blitzschnell aus: <em>'Hindernis erkannt! Ich muss wenden!'</em>"
+                    },
+                    A: {
+                        title: "Ausgabe (Motoren)",
+                        badge: "Ausgabe (A)",
+                        color: "var(--ausgabe-color)",
+                        text: "Der Computer gibt den Befehl an die <strong>Räder-Motoren (Aktoren)</strong> weiter. Der Saugroboter dreht sich um und fährt in eine andere Richtung weiter."
+                    }
+                },
+                options: {
+                    E: ["der Stoß-Sensor ein Hindernis spürt,", "der Roboter Musik abspielt,", "der Akku geladen wird,"],
+                    V: ["berechnet der Computer-Chip den Ausweichweg,", "wird das Essen erwärmt,", "reinigt sich das Wasser,"],
+                    A: ["drehen die Motoren die Räder in eine neue Richtung.", "wird der Raum beleuchtet.", "ertönt ein langer Pfeifton."]
+                },
+                correctIndex: { E: 0, V: 0, A: 0 }
+            },
+            waschmaschine: {
+                name: "Waschmaschine",
+                icon: "🧺",
+                phases: {
+                    E: {
+                        title: "Eingabe (Bedienfeld & Sensoren)",
+                        badge: "Eingabe (E)",
+                        color: "var(--eingabe-color)",
+                        text: "Der Mensch drückt am <strong>Touchscreen/Drehknopf</strong> das Programm 'Kochwäsche 60°C' und drückt auf Start. Zusätzlich misst ein <strong>Wasserstand-Sensor</strong> die Wassermenge."
+                    },
+                    V: {
+                        title: "Verarbeitung (Steuerungs-Chip)",
+                        badge: "Verarbeitung (V)",
+                        color: "var(--verarbeitung-color)",
+                        text: "Die elektronische <strong>Steuerung</strong> vergleicht die Solltemperatur mit dem Wasserstand und berechnet genau, wie lange der Heizstab heizen und wie schnell die Trommel drehen muss."
+                    },
+                    A: {
+                        title: "Ausgabe (Motor & Heizstab)",
+                        badge: "Ausgabe (A)",
+                        color: "var(--ausgabe-color)",
+                        text: "Die Maschinenteile reagieren: Der <strong>Heizstab</strong> macht das Wasser heiß, die <strong>Pumpe</strong> lässt Wasser ein und der <strong>Trommel-Motor</strong> beginnt zu drehen."
+                    }
+                },
+                options: {
+                    E: ["der Mensch das Waschprogramm wählt und Start drückt,", "der Roboter losfährt,", "der Raum dunkel wird,"],
+                    V: ["berechnet die elektronische Steuerung die Waschzeit und Temperatur,", "rechnet die Grafikkarte ein 3D-Bild,", "wird der Staubsauger eingeschaltet,"],
+                    A: ["dreht der Motor die Trommel und der Heizstab erwärmt das Wasser.", "fährt der Roboter um die Kurve.", "wird ein Foto ausgedruckt."]
+                },
+                correctIndex: { E: 0, V: 0, A: 0 }
+            },
+            mikrowelle: {
+                name: "Mikrowelle",
+                icon: "🍿",
+                phases: {
+                    E: {
+                        title: "Eingabe (Tastenfeld)",
+                        badge: "Eingabe (E)",
+                        color: "var(--eingabe-color)",
+                        text: "Der Mensch tippt auf dem <strong>Tastenfeld</strong> '2:00 Minuten' ein und schließt die Tür. Ein <strong>Tür-Kontaktschalter</strong> prüft, ob die Tür sicher geschlossen ist."
+                    },
+                    V: {
+                        title: "Verarbeitung (Countdown-Timer)",
+                        badge: "Verarbeitung (V)",
+                        color: "var(--verarbeitung-color)",
+                        text: "Der interne <strong>Mikrocontroller</strong> zählt die eingestellten 120 Sekunden rückwärts herunter und prüft kontinuierlich, ob die Tür geschlossen bleibt."
+                    },
+                    A: {
+                        title: "Ausgabe (Magnetron & Teller)",
+                        badge: "Ausgabe (A)",
+                        color: "var(--ausgabe-color)",
+                        text: "Das <strong>Magnetron</strong> erzeugt Mikrowellen zum Erwärmen, der <strong>Tellermotor</strong> dreht die Speise und am Ende ertönt ein lautes <strong>'PIEP'</strong>."
+                    }
+                },
+                options: {
+                    E: ["der Mensch am Tastenfeld 2 Minuten wählt,", "die Kleidung gewaschen wird,", "das Licht ausgeschaltet wird,"],
+                    V: ["zählt der Timer-Chip die Sekunden rückwärts herunter,", "wird die Wäsche geschleudert,", "fährt das Rad nach links,"],
+                    A: ["wird das Essen erhitzt und am Ende ertönt ein Piepton.", "wird das Zimmer gesaugt.", "wird Wasser abgepumpt."]
+                },
+                correctIndex: { E: 0, V: 0, A: 0 }
+            }
+        };
+
+        let currentDeviceKey = 'roboter';
+
+        // Sound-Synthesizer
+        function playSound(type) {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                if (type === 'scan') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(400, ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.15);
+                    gain.gain.setValueAtTime(0.05, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.15);
+                } else if (type === 'success') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
+                    osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1); // E5
+                    osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.2); // G5
+                    gain.gain.setValueAtTime(0.08, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.35);
+                } else if (type === 'error') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(200, ctx.currentTime);
+                    gain.gain.setValueAtTime(0.08, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.25);
+                }
+            } catch (e) { }
+        }
+
+        function selectDevice(key) {
+            currentDeviceKey = key;
+            const data = deviceData[key];
+
+            // Buttons aktualisieren
+            document.querySelectorAll('.device-btn').forEach(btn => btn.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            // Display aktualisieren
+            document.getElementById('deviceTitle').textContent = data.name;
+            document.getElementById('deviceIcon').textContent = data.icon;
+
+            // Erklärung zurücksetzen
+            document.getElementById('phaseBadge').textContent = "Bereit";
+            document.getElementById('phaseBadge').style.backgroundColor = "#64748b";
+            document.getElementById('explanationTitle').textContent = "Wähle eine Phase aus!";
+            document.getElementById('explanationText').textContent = `Klicke auf 1. Eingabe, 2. Verarbeitung oder 3. Ausgabe, um den ${data.name} zu röntgen.`;
+            document.getElementById('explanationCard').style.borderColor = "#cbd5e1";
+
+            // Satz-Puzzler Dropdowns füllen
+            populateDropdowns();
+            document.getElementById('feedbackBox').className = "feedback-message";
+            document.getElementById('feedbackBox').style.display = "none";
+        }
+
+        function scanPhase(phaseKey) {
+            const data = deviceData[currentDeviceKey].phases[phaseKey];
+            playSound('scan');
+
+            const badge = document.getElementById('phaseBadge');
+            badge.textContent = data.badge;
+            badge.style.backgroundColor = data.color;
+
+            document.getElementById('explanationTitle').textContent = data.title;
+            document.getElementById('explanationText').innerHTML = data.text;
+            document.getElementById('explanationCard').style.borderColor = data.color;
+        }
+
+        function populateDropdowns() {
+            const data = deviceData[currentDeviceKey];
+
+            const selE = document.getElementById('selectEingabe');
+            const selV = document.getElementById('selectVerarbeitung');
+            const selA = document.getElementById('selectAusgabe');
+
+            selE.innerHTML = '<option value="">-- Wähle die Eingabe (E) --</option>';
+            selV.innerHTML = '<option value="">-- Wähle die Verarbeitung (V) --</option>';
+            selA.innerHTML = '<option value="">-- Wähle die Ausgabe (A) --</option>';
+
+            data.options.E.forEach((opt, idx) => {
+                selE.innerHTML += `<option value="${idx}">${opt}</option>`;
+            });
+            data.options.V.forEach((opt, idx) => {
+                selV.innerHTML += `<option value="${idx}">${opt}</option>`;
+            });
+            data.options.A.forEach((opt, idx) => {
+                selA.innerHTML += `<option value="${idx}">${opt}</option>`;
+            });
+        }
+
+        function checkSentence() {
+            const selE = document.getElementById('selectEingabe').value;
+            const selV = document.getElementById('selectVerarbeitung').value;
+            const selA = document.getElementById('selectAusgabe').value;
+            const feedback = document.getElementById('feedbackBox');
+
+            if (selE === "" || selV === "" || selA === "") {
+                playSound('error');
+                feedback.textContent = "⚠️ Bitte wähle für alle drei Teile (E, V und A) eine Antwort aus!";
+                feedback.className = "feedback-message feedback-error";
+                return;
+            }
+
+            const correct = deviceData[currentDeviceKey].correctIndex;
+
+            if (parseInt(selE) === correct.E && parseInt(selV) === correct.V && parseInt(selA) === correct.A) {
+                playSound('success');
+                feedback.innerHTML = "🎉 Super gemacht! Der Satz ist absolut richtig aufgebaut und beschreibt das EVA-Prinzip perfekt!";
+                feedback.className = "feedback-message feedback-success";
+            } else {
+                playSound('error');
+                feedback.textContent = "❌ Fast richtig! Überprüfe noch einmal deine Auswahl für Eingabe, Verarbeitung oder Ausgabe.";
+                feedback.className = "feedback-message feedback-error";
+            }
+        }
+
+        // Initialisierung
+        populateDropdowns();
+    </script>
+</body>
+</html>

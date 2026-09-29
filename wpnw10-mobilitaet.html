@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geschichte der Mobilität - WP Naturwissenschaften</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #18bc9c;
+            --bg-color: #ecf0f1;
+            --text-color: #34495e;
+            --wrong-color: #e74c3c;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        #app-container {
+            background-color: white;
+            max-width: 800px;
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin-bottom: 40px;
+        }
+
+        h1, h2 {
+            color: var(--primary-color);
+            text-align: center;
+        }
+
+        .screen {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        button {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 10px 0;
+            transition: background-color 0.3s;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #128f76;
+        }
+
+        button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        /* --- Level 1: Spiel-Ansicht --- */
+        .timeline-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .timeline-item {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            margin: 8px 0;
+            padding: 15px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 18px;
+        }
+
+        .move-btn {
+            background-color: var(--primary-color);
+            padding: 5px 15px;
+            margin: 0 5px;
+        }
+
+        /* --- Level 1: Auswertungs-Ansicht --- */
+        .timeline-result {
+            position: relative;
+            padding-left: 30px;
+            margin-top: 20px;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .timeline-result::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background-color: var(--secondary-color);
+            border-radius: 2px;
+        }
+
+        .timeline-result-item {
+            position: relative;
+            margin-bottom: 20px;
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .timeline-result-item::before {
+            content: '';
+            position: absolute;
+            left: -27px;
+            top: 18px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            border: 3px solid white;
+            box-shadow: 0 0 0 2px var(--secondary-color);
+        }
+
+        .timeline-result-year {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .timeline-result-text {
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        /* --- Level 2 & 3: Styles --- */
+        .quiz-option {
+            display: block;
+            width: 100%;
+            text-align: left;
+            background-color: #f9f9f9;
+            color: var(--text-color);
+            border: 2px solid #ddd;
+            margin: 10px 0;
+        }
+
+        .quiz-option:hover {
+            background-color: #e2e2e2;
+        }
+
+        .quiz-option.correct {
+            background-color: var(--secondary-color);
+            color: white;
+            border-color: var(--secondary-color);
+        }
+
+        .quiz-option.wrong {
+            background-color: var(--wrong-color);
+            color: white;
+            border-color: var(--wrong-color);
+        }
+
+        .match-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-left: 5px solid var(--secondary-color);
+            border-radius: 4px;
+        }
+
+        .match-item p {
+            font-weight: bold;
+            margin-top: 0;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .feedback {
+            font-weight: bold;
+            margin-top: 15px;
+            text-align: center;
+            font-size: 18px;
+            min-height: 24px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .progress-text {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+
+        <!-- Startbildschirm -->
+        <div id="screen-start" class="screen active">
+            <h1>Die Geschichte der Mobilität 🚲🚂🚗✈️</h1>
+            <p>Willkommen im WP-Kurs Naturwissenschaften! Mobilität hat die Menschheit schon immer geprägt. Bevor wir tiefer in Motoren, Technik und Physik eintauchen, wollen wir schauen, was du bereits weißt.</p>
+            <p>Dich erwarten drei kleine Herausforderungen:</p>
+            <ol>
+                <li><strong>Ordnung ins Chaos:</strong> Ein Zeitstrahl der Erfindungen</li>
+                <li><strong>Fun Facts:</strong> Skurriles aus der Geschichte</li>
+                <li><strong>Big Impact:</strong> Welche Erfindung brachte welchen Vorteil?</li>
+            </ol>
+            <div class="controls">
+                <button onclick="showScreen('screen-timeline'); renderTimeline();">Spiel starten!</button>
+            </div>
+        </div>
+
+        <!-- Level 1: Zeitstrahl -->
+        <div id="screen-timeline" class="screen">
+            <h2>Level 1: Der Zeitstrahl</h2>
+            <p id="timeline-instructions">Bringe die folgenden Erfindungen in die richtige chronologische Reihenfolge (das Älteste ganz oben). Nutze die ⬆️ und ⬇️ Buttons.</p>
+
+            <div id="timeline-container">
+                <ul id="timeline-list" class="timeline-list">
+                    <!-- Wird per JS befüllt -->
+                </ul>
+            </div>
+
+            <div id="timeline-feedback" class="feedback"></div>
+
+            <div class="controls">
+                <button id="btn-check-timeline" onclick="checkTimeline()">Reihenfolge überprüfen</button>
+                <button id="btn-next-1" style="display:none; margin-top: 10px;" onclick="showScreen('screen-quiz'); renderQuiz();">Weiter zu Level 2</button>
+            </div>
+        </div>
+
+        <!-- Level 2: Fun Facts Quiz -->
+        <div id="screen-quiz" class="screen">
+            <h2>Level 2: Fun Facts der Mobilität</h2>
+            <p class="progress-text" id="quiz-progress"></p>
+            <p id="quiz-question-text" style="font-size: 18px; font-weight: bold;"></p>
+            <div id="quiz-options">
+                <!-- Wird per JS befüllt -->
+            </div>
+            <div id="quiz-feedback" class="feedback"></div>
+            <div class="controls">
+                <button id="btn-next-quiz" style="display:none;" onclick="nextQuiz()">Nächste Frage</button>
+            </div>
+        </div>
+
+        <!-- Level 3: Bedeutung & Vorteile -->
+        <div id="screen-match" class="screen">
+            <h2>Level 3: Bedeutung für die Menschheit</h2>
+            <p>Jedes Verkehrsmittel hatte massive Auswirkungen auf unsere Gesellschaft. Ordne die historische Bedeutung dem richtigen Verkehrsmittel zu.</p>
+
+            <div id="match-container">
+                <!-- Wird per JS befüllt -->
+            </div>
+
+            <div id="match-feedback" class="feedback"></div>
+            <div class="controls">
+                <button onclick="checkMatch()">Antworten auswerten</button>
+                <button id="btn-next-3" style="display:none; margin-top: 10px;" onclick="showScreen('screen-end'); window.scrollTo(0, 0);">Zum Abschluss</button>
+            </div>
+        </div>
+
+        <!-- Abschlussbildschirm -->
+        <div id="screen-end" class="screen">
+            <h1>Herzlichen Glückwunsch! 🎉</h1>
+            <p>Du hast die Geschichte der Mobilität erfolgreich gemeistert.</p>
+            <p><strong>Zusammenfassung:</strong><br>
+            Du hast am Zeitstrahl gesehen: Nach Tausenden von Jahren (Pferd, Rad, Segelschiff) passierte in nur etwa 200 Jahren plötzlich extrem viel (Dampflok, Fahrrad, Auto, Flugzeug, Rakete) – das nennt man industrielle und technologische Revolution.</p>
+            <p>Im WP-Unterricht werden wir uns nun genauer ansehen, <strong>WIE</strong> genau diese Dinge funktionieren (Antriebe, Kräfte, Energie, Auswirkungen auf die Umwelt). Bleib neugierig!</p>
+            <div class="controls">
+                <button onclick="location.reload()">Spiel neu starten</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+// --- LEVEL 1: DATEN ---
+        let timelineItems = [
+            { id: 4, text: "Fahrrad (Laufmaschine)", year: "1817" },
+            { id: 1, text: "Domestizierung des Pferdes", year: "ca. 4000 v. Chr." }, // Leicht angepasst für klarere Reihenfolge
+            { id: 6, text: "Erstes Motorflugzeug", year: "1903" },
+            { id: 3, text: "Erste Dampflokomotive", year: "1804" },
+            { id: 2, text: "Erfindung des Rads", year: "ca. 3500 v. Chr." }, // Historisch genauer
+            { id: 5, text: "Erstes Automobil (Benz)", year: "1886" }
+        ];
+
+        // --- LEVEL 2: DATEN (Jetzt 11 Fragen) ---
+        let quizQuestions = [
+            {
+                question: "Wer unternahm 1888 die allererste Fernfahrt mit einem Automobil (ohne dass ihr Mann davon wusste)?",
+                options: ["Marie Curie", "Bertha Benz", "Amelia Earhart"],
+                correct: 1,
+                explanation: "Bertha Benz fuhr mit ihren Söhnen heimlich 106 km von Mannheim nach Pforzheim und bewies so, dass das Auto praxistauglich war."
+            },
+            {
+                question: "Warum hieß das erste Fahrrad (die Draisine von 1817) 'Laufmaschine'?",
+                options: ["Weil es noch keine Pedale hatte und man sich mit den Füßen abstoßen musste.", "Weil es einen kleinen Motor hatte, der wie Beine aussah.", "Weil es nur zum Transport von Laufschuhen gedacht war."],
+                correct: 0,
+                explanation: "Genau! Pedale und Kettenantrieb wurden erst viele Jahrzehnte später erfunden."
+            },
+            {
+                question: "Welches kuriose Gesetz galt in England im 19. Jahrhundert für die ersten Autos?",
+                options: ["Sie durften nur nachts fahren.", "Sie mussten mit Pferdemist betrieben werden.", "Ein Mensch mit einer roten Fahne musste zu Fuß vor dem Auto herlaufen."],
+                correct: 2,
+                explanation: "Der 'Red Flag Act' sollte Fußgänger warnen und bremste Autos auf Schrittgeschwindigkeit ab. Ein großer Nachteil für die frühe Autoindustrie in England!"
+            },
+            {
+                question: "Was befürchteten einige Ärzte im 19. Jahrhundert, als die ersten Eisenbahnen schneller als 30 km/h fuhren?",
+                options: ["Dass die Passagiere ersticken würden.", "Dass die Schienen durch die Reibung schmelzen.", "Dass die Zeit im Zug stehen bleibt."],
+                correct: 0,
+                explanation: "Sie glaubten an die 'Eisenbahnkrankheit' (Delirium furiosum) und dachten, der Fahrtwind würde das Atmen bei dieser 'Wahnsinns-Geschwindigkeit' unmöglich machen."
+            },
+            {
+                question: "Welcher Antrieb war um 1900 in den USA bei Autos besonders beliebt, bevor sich der Benzinmotor durchsetzte?",
+                options: ["Holzgas-Antrieb", "Elektroantrieb", "Atomkraft"],
+                correct: 1,
+                explanation: "Rund ein Drittel der Autos in den USA waren um 1900 elektrisch, z. B. auch das erste Fahrzeug von Ferdinand Porsche (1898). Benzin setzte sich erst später durch billiges Öl und den Anlasser durch."
+            },
+            {
+                question: "Warum hatte das berühmte 'Hochrad' im 19. Jahrhundert ein so gigantisches Vorderrad?",
+                options: ["Um über Flüsse und Bäche fahren zu können.", "Weil es noch keine Gangschaltung/Kette gab und man so schneller wurde.", "Um vor wilden Tieren wie Hunden sicher zu sein."],
+                correct: 1,
+                explanation: "Da die Pedale direkt an der Vorderrad-Achse montiert waren, kam man nur mit einem riesigen Rad auf hohe Geschwindigkeiten – was allerdings sehr gefährlich bei Stürzen war."
+            },
+            {
+                question: "Welche große Veränderung in unserem Alltag verdanken wir der Erfindung der Eisenbahn?",
+                options: ["Die Einführung von einheitlichen Zeitzonen.", "Die Erfindung des Wochenendes.", "Die Einführung von Straßenschildern."],
+                correct: 0,
+                explanation: "Vor der Eisenbahn hatte jede Stadt ihre eigene Ortszeit (nach der Sonne). Mit überregionalen Fahrplänen führte das zu Chaos, weshalb einheitliche Zeitzonen eingeführt werden mussten."
+            },
+            {
+                question: "Wie lange dauerte der erste erfolgreiche Motorflug der Gebrüder Wright im Jahr 1903?",
+                options: ["12 Sekunden", "30 Minuten", "2 Stunden"],
+                correct: 0,
+                explanation: "Der allererste Flug dauerte nur 12 Sekunden und überwand knapp 36 Meter – doch er leitete das Zeitalter der Luftfahrt ein."
+            },
+            {
+                question: "Wie wurden die Züge der ersten U-Bahn der Welt (London 1863) angetrieben?",
+                options: ["Sie wurden von Pferden durch die Tunnel gezogen.", "Elektrisch, mit Batterien.", "Mit Dampfmaschinen."],
+                correct: 2,
+                explanation: "Es fuhren tatsächlich dampfbetriebene Lokomotiven unter der Erde! Die Tunnel und Schächte waren extrem verqualmt, weshalb offene Lüftungsschächte nötig waren."
+            },
+            {
+                question: "Was passierte mit dem allerersten bemannten Auto auf dem Mond (Lunar Rover, 1971)?", // "bemannten" hinzugefügt
+                options: ["Es steht noch heute dort oben.", "Es wurde zur Erde zurückgebracht und steht im Museum.", "Es fiel in einen tiefen Krater und ging verloren."],
+                correct: 0,
+                explanation: "Aus Platz- und Gewichtsgründen bei der Rückreise wurden alle drei bisherigen Mondautos der Apollo-Missionen einfach auf dem Mond stehen gelassen. Sie sind noch immer dort."
+            },
+            {
+                question: "Warum verschwanden die riesigen, majestätischen Luftschiffe (Zeppeline) in den 1930er Jahren plötzlich als Verkehrsmittel?",
+                options: ["Sie waren viel zu langsam.", "Wasserstoff-Explosionen machten sie zu gefährlich.", "Sie waren zu schwer und konnten nicht gut abheben."],
+                correct: 1,
+                explanation: "Das katastrophale Unglück der 'Hindenburg' 1937, bei dem sich die hochentzündliche Wasserstoff-Füllung entzündete, besiegelte das Ende der Passagier-Luftschiffe. Heute nutzt man ungefährliches Helium."
+            }
+        ];
+        let currentQuizIndex = 0;
+
+        // --- LEVEL 3: DATEN (Jetzt 12 Zuordnungen) ---
+        let matchItems = [
+            {
+                desc: "Es trieb die Industrielle Revolution voran. Plötzlich konnten schwere Massengüter (z.B. Kohle, Stahl) unabhängig von Flüssen schnell über Land transportiert werden.",
+                options: ["Fahrrad", "Dampflokomotive", "Automobil", "Flugzeug"],
+                correct: "Dampflokomotive"
+            },
+            {
+                desc: "Sorgte im 20. Jahrhundert für die massenhafte 'individuelle' Mobilität. Es prägte unseren Städtebau (breite Straßen, Parkplätze, Zersiedelung).",
+                options: ["Pferd", "Automobil", "Flugzeug", "Magnetschwebebahn"],
+                correct: "Automobil"
+            },
+            {
+                desc: "Es ermöglichte die globale Vernetzung. Interkontinentale Reisen dauerten plötzlich nicht mehr Wochen auf einem Schiff, sondern nur noch Stunden.",
+                options: ["Flugzeug", "Fahrrad", "Dampflokomotive", "Automobil"],
+                correct: "Flugzeug"
+            },
+            {
+                desc: "Es bot erstmals der einfachen Arbeiterschaft eine günstige, schnelle und umweltfreundliche Möglichkeit, den Weg zur Fabrik zurückzulegen.",
+                options: ["Pferd", "Automobil", "Dampflokomotive", "Fahrrad"],
+                correct: "Fahrrad"
+            },
+            {
+                desc: "Es ist der Motor der modernen Globalisierung. Über 90% des weltweiten Handels werden hiermit abgewickelt, was Produkte aus Fernost extrem billig macht.",
+                options: ["Flugzeug", "Containerschiff", "LKW", "Güterzug"],
+                correct: "Containerschiff"
+            },
+            {
+                desc: "Die erste wirkliche Revolution im Landtransport. Es ermöglichte antiken Reichen, Nachrichten schnell zu überbringen und riesige Gebiete zu kontrollieren.",
+                options: ["Pferd", "Kamel", "Fahrrad", "Straßenbahn"],
+                correct: "Pferd"
+            },
+            {
+                desc: "Es ermöglichte die Entdeckung neuer Kontinente und den Aufbau der ersten weltweiten Handelsrouten (oftmals leider auch für den Sklavenhandel).",
+                options: ["U-Boot", "Ruderboot", "Segelschiff", "Dampfschiff"],
+                correct: "Segelschiff"
+            },
+            {
+                desc: "Es löste im 19./20. Jahrhundert das Problem der massiven Verkehrsstaus und des Smogs auf den Straßen von rasant wachsenden Metropolen, indem es den Verkehr unter die Erde verlegte.",
+                options: ["Seilbahn", "Straßenbahn", "Omnibus", "U-Bahn"],
+                correct: "U-Bahn"
+            },
+            {
+                desc: "Es verschob die physikalischen Grenzen der Menschheit über unseren Planeten hinaus und ermöglichte uns wichtige Satellitentechnik (z.B. für GPS und Wetterberichte).",
+                options: ["Flugzeug", "Rakete", "Zeppelin", "Kampfjet"],
+                correct: "Rakete"
+            },
+            {
+                desc: "Macht heute auf Kurz- und Mittelstrecken zwischen Großstädten dem Flugzeug Konkurrenz, da es elektrisch, extrem schnell und deutlich umweltfreundlicher ist.", // "und Mittelstrecken" hinzugefügt
+                options: ["Dampflokomotive", "U-Bahn", "Hochgeschwindigkeitszug (z.B. ICE)", "Magnetschwebebahn"],
+                correct: "Hochgeschwindigkeitszug (z.B. ICE)"
+            },
+            {
+                desc: "Eines der ersten öffentlichen Massenverkehrsmittel in Städten. Zuerst von Tieren gezogen, später elektrifiziert. Es prägt noch heute viele Innenstädte.",
+                options: ["Taxi", "Helikopter", "U-Bahn", "Straßenbahn"],
+                correct: "Straßenbahn"
+            },
+            {
+                desc: "Es steht für den modernen Wandel weg von fossilen Brennstoffen. Es soll helfen, lokale Abgase zu vermeiden und den Klimawandel zu bekämpfen.",
+                options: ["Elektroauto", "Wasserstoffauto", "Diesel", "Dampfwagen"],
+                correct: "Elektroauto"
+            }
+        ];
+
+
+        // --- ALLGEMEINE FUNKTIONEN ---
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        // --- LEVEL 1: LOGIK ---
+        function renderTimeline() {
+            const list = document.getElementById('timeline-list');
+            list.innerHTML = '';
+            timelineItems.forEach((item, index) => {
+                let li = document.createElement('li');
+                li.className = 'timeline-item';
+
+                let textSpan = document.createElement('span');
+                textSpan.innerText = item.text;
+
+                let btnDiv = document.createElement('div');
+
+                let btnUp = document.createElement('button');
+                btnUp.innerText = "⬆️";
+                btnUp.className = "move-btn";
+                btnUp.onclick = () => moveItem(index, -1);
+                if(index === 0) btnUp.disabled = true;
+
+                let btnDown = document.createElement('button');
+                btnDown.innerText = "⬇️";
+                btnDown.className = "move-btn";
+                btnDown.onclick = () => moveItem(index, 1);
+                if(index === timelineItems.length - 1) btnDown.disabled = true;
+
+                btnDiv.appendChild(btnUp);
+                btnDiv.appendChild(btnDown);
+
+                li.appendChild(textSpan);
+                li.appendChild(btnDiv);
+                list.appendChild(li);
+            });
+        }
+
+        function moveItem(index, direction) {
+            let temp = timelineItems[index];
+            timelineItems[index] = timelineItems[index + direction];
+            timelineItems[index + direction] = temp;
+            renderTimeline();
+        }
+
+        function checkTimeline() {
+            let isCorrect = true;
+            for(let i = 0; i < timelineItems.length; i++) {
+                if(timelineItems[i].id !== i + 1) {
+                    isCorrect = false;
+                    break;
+                }
+            }
+
+            const feedback = document.getElementById('timeline-feedback');
+            if(isCorrect) {
+                feedback.innerText = "Perfekt gelöst! Schau dir den Zeitstrahl an – achte auf die riesige Pause zwischen dem Rad und der Dampflokomotive!";
+                feedback.style.color = "var(--secondary-color)";
+
+                document.getElementById('btn-next-1').style.display = "inline-block";
+                document.getElementById('btn-check-timeline').style.display = "none";
+                document.getElementById('timeline-instructions').style.display = "none";
+
+                renderFinalTimeline();
+
+            } else {
+                feedback.innerText = "Noch nicht ganz richtig. Überprüfe die Reihenfolge noch einmal!";
+                feedback.style.color = "var(--wrong-color)";
+            }
+        }
+
+        function renderFinalTimeline() {
+            const container = document.getElementById('timeline-container');
+            container.innerHTML = '';
+
+            let resultDiv = document.createElement('div');
+            resultDiv.className = 'timeline-result';
+
+            timelineItems.forEach(item => {
+                let div = document.createElement('div');
+                div.className = 'timeline-result-item';
+
+                let yearSpan = document.createElement('span');
+                yearSpan.className = 'timeline-result-year';
+                yearSpan.innerText = item.year;
+
+                let textSpan = document.createElement('span');
+                textSpan.className = 'timeline-result-text';
+                textSpan.innerText = item.text;
+
+                div.appendChild(yearSpan);
+                div.appendChild(textSpan);
+                resultDiv.appendChild(div);
+            });
+
+            container.appendChild(resultDiv);
+        }
+
+        // --- LEVEL 2: LOGIK ---
+        function renderQuiz() {
+            const q = quizQuestions[currentQuizIndex];
+            document.getElementById('quiz-progress').innerText = `Frage ${currentQuizIndex + 1} von ${quizQuestions.length}`;
+            document.getElementById('quiz-question-text').innerText = q.question;
+            const optionsContainer = document.getElementById('quiz-options');
+            optionsContainer.innerHTML = '';
+            document.getElementById('quiz-feedback').innerText = '';
+            document.getElementById('btn-next-quiz').style.display = 'none';
+
+            q.options.forEach((opt, index) => {
+                let btn = document.createElement('button');
+                btn.className = 'quiz-option';
+                btn.innerText = opt;
+                btn.onclick = () => checkQuizAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function checkQuizAnswer(selectedIndex, btnElement) {
+            const q = quizQuestions[currentQuizIndex];
+            const allBtns = document.querySelectorAll('.quiz-option');
+            allBtns.forEach(b => b.disabled = true);
+
+            const feedback = document.getElementById('quiz-feedback');
+
+            if(selectedIndex === q.correct) {
+                btnElement.classList.add('correct');
+                feedback.innerText = "Richtig! " + q.explanation;
+                feedback.style.color = "var(--secondary-color)";
+            } else {
+                btnElement.classList.add('wrong');
+                allBtns[q.correct].classList.add('correct');
+                feedback.innerText = "Falsch! Richtig wäre: " + q.options[q.correct] + ". " + q.explanation;
+                feedback.style.color = "var(--wrong-color)";
+            }
+
+            document.getElementById('btn-next-quiz').style.display = 'inline-block';
+            if(currentQuizIndex === quizQuestions.length - 1) {
+                document.getElementById('btn-next-quiz').innerText = "Weiter zu Level 3";
+                document.getElementById('btn-next-quiz').onclick = () => {
+                    showScreen('screen-match');
+                    renderMatch();
+                    window.scrollTo(0, 0);
+                };
+            }
+        }
+
+        function nextQuiz() {
+            currentQuizIndex++;
+            renderQuiz();
+        }
+
+        // --- LEVEL 3: LOGIK ---
+        function renderMatch() {
+            const container = document.getElementById('match-container');
+            container.innerHTML = '';
+
+            matchItems.forEach((item, index) => {
+                let div = document.createElement('div');
+                div.className = 'match-item';
+
+                let p = document.createElement('p');
+                p.innerText = `${index + 1}. ` + item.desc;
+
+                let select = document.createElement('select');
+                select.id = 'match-select-' + index;
+
+                let defaultOpt = document.createElement('option');
+                defaultOpt.value = "";
+                defaultOpt.innerText = "-- Bitte wählen --";
+                select.appendChild(defaultOpt);
+
+                item.options.forEach(opt => {
+                    let option = document.createElement('option');
+                    option.value = opt;
+                    option.innerText = opt;
+                    select.appendChild(option);
+                });
+
+                div.appendChild(p);
+                div.appendChild(select);
+                container.appendChild(div);
+            });
+        }
+
+        function checkMatch() {
+            let allCorrect = true;
+            matchItems.forEach((item, index) => {
+                let select = document.getElementById('match-select-' + index);
+                if(select.value === item.correct) {
+                    select.style.borderColor = "var(--secondary-color)";
+                    select.style.borderWidth = "3px";
+                } else {
+                    select.style.borderColor = "var(--wrong-color)";
+                    select.style.borderWidth = "3px";
+                    allCorrect = false;
+                }
+            });
+
+            const feedback = document.getElementById('match-feedback');
+            if(allCorrect) {
+                feedback.innerText = "Klasse! Du hast alle historischen Auswirkungen richtig zugeordnet.";
+                feedback.style.color = "var(--secondary-color)";
+                document.getElementById('btn-next-3').style.display = "inline-block";
+            } else {
+                feedback.innerText = "Da stimmt noch nicht alles. Die falschen Antworten sind rot markiert. Versuche es nochmal!";
+                feedback.style.color = "var(--wrong-color)";
+            }
+        }
+    </script>
+</body>
+</html>

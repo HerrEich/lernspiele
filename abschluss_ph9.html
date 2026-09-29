@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Klassen-Abschluss-Spiel</title>
+    <style>
+        :root {
+            --primary: #4A90E2;
+            --secondary: #50E3C2;
+            --danger: #E94A4A;
+            --warning: #F5A623;
+            --dark: #333;
+            --light: #F5F7FA;
+            --purple: #9b59b6;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            color: white;
+        }
+        button:hover {
+            transform: scale(1.05);
+        }
+        .btn-blue { background-color: var(--primary); }
+        .btn-green { background-color: var(--secondary); color: var(--dark); font-weight: bold; }
+        .btn-red { background-color: var(--danger); }
+        .btn-dark { background-color: var(--dark); }
+        .btn-purple { background-color: var(--purple); font-weight: bold; }
+        .btn-warning { background-color: var(--warning); color: var(--dark); font-weight: bold; }
+
+        /* Setup Bereich */
+        #setup-section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--light);
+        }
+        
+        .start-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .start-buttons button {
+            padding: 15px 25px;
+            font-size: 18px;
+        }
+
+        /* Spiel Bereich */
+        #game-section {
+            display: none;
+        }
+
+        /* SMARTBOARD BEREICH (OBEN) */
+        .public-view {
+            background-color: var(--light);
+            border: 2px solid var(--primary);
+            padding: 30px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .action-type {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--danger);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+        }
+        .hint-box {
+            display: none;
+            background-color: #FFF3CD;
+            color: #856404;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: left;
+        }
+        .hint-box p {
+            margin: 5px 0;
+            padding: 5px;
+            border-bottom: 1px dashed #ffe69c;
+        }
+        .hint-box p:last-child {
+            border-bottom: none;
+        }
+
+        /* ABSTANDSHALTER */
+        .spacer {
+            height: 70vh; /* Macht eine riesige Lücke, damit man scrollen muss */
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 20px;
+            color: #aaa;
+            font-style: italic;
+            border-bottom: 2px dashed #ddd;
+            margin-bottom: 40px;
+        }
+
+        /* ERKLÄRER BEREICH (UNTEN) */
+        .secret-view {
+            background-color: #ffebee;
+            padding: 30px;
+            border-radius: 10px;
+            border: 3px dashed var(--danger);
+            margin-top: 20px;
+        }
+        .secret-view h3 {
+            color: var(--danger);
+            margin-top: 0;
+        }
+        .actual-word {
+            font-size: 48px;
+            margin: 20px 0;
+            font-weight: bold;
+            color: var(--dark);
+        }
+
+        /* Timer Bereich */
+        .timer-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #E8F0FE;
+            border-radius: 10px;
+        }
+        .timer-display {
+            font-size: 60px;
+            font-weight: bold;
+            font-family: monospace;
+            margin: 10px 0;
+        }
+        .timer-blink {
+            color: var(--danger);
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        /* Scoreboard */
+        .scoreboard {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid var(--light);
+        }
+        .team-score {
+            background: white;
+            padding: 15px;
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            min-width: 150px;
+            margin: 10px;
+        }
+        .team-score h3 { margin: 0 0 10px 0; }
+        .score-number { font-size: 30px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 id="top">🎉 Klassen-Abschluss-Spiel 🎉</h1>
+    <p style="color: #666; font-size: 18px; margin-top: -10px;">Thema: Physik oder Allgemeines</p>
+
+    <!-- EINSTELLUNGEN -->
+    <div id="setup-section">
+        <h2>Einstellungen</h2>
+        <label for="team-count" style="font-size: 18px;">Anzahl der Teams: </label>
+        <input type="number" id="team-count" value="2" min="2" max="6" style="font-size: 18px; width: 50px; text-align: center;">
+        
+        <div class="start-buttons">
+            <button class="btn-blue" onclick="startGame('physik')">⚛️ Start: Physik-Begriffe</button>
+            <button class="btn-purple" onclick="startGame('allgemein')">🌍 Start: Allgemeine Begriffe</button>
+        </div>
+    </div>
+
+    <!-- SPIELBEREICH -->
+    <div id="game-section">
+
+        <!-- ========================================== -->
+        <!-- BEREICH 1: FÜR DAS SMARTBOARD (GANZ OBEN)  -->
+        <!-- ========================================== -->
+
+        <div class="public-view">
+            <h3 style="margin-top: 0; color: #888;">Ansicht für die Klasse</h3>
+            <div id="action-type-top" class="action-type">Warte auf erstes Wort...</div>
+
+            <button class="btn-dark" onclick="showNextHint()" id="hint-btn" style="display: none;">💡 Tipp 1 anzeigen</button>
+            <div id="hint-box" class="hint-box"></div>
+        </div>
+
+        <!-- Timer -->
+        <div class="timer-section">
+            <h3>Timer</h3>
+            <button class="btn-green" onclick="setTimer(60)">1 Min</button>
+            <button class="btn-green" onclick="setTimer(120)">2 Min</button>
+            <button class="btn-green" onclick="setTimer(180)">3 Min</button>
+
+            <div id="timer-display" class="timer-display">00:00</div>
+
+            <button class="btn-blue" onclick="startTimer()">▶️ Start</button>
+            <button class="btn-dark" onclick="pauseTimer()">⏸️ Pause</button>
+            <button class="btn-red" onclick="resetTimer()">⏹️ Reset</button>
+        </div>
+
+        <!-- Punktestand -->
+        <div id="scoreboard" class="scoreboard">
+            <!-- Wird dynamisch generiert -->
+        </div>
+
+
+        <!-- ========================================== -->
+        <!-- RIESIGER ABSTANDSHALTER ZUM SCROLLEN       -->
+        <!-- ========================================== -->
+        <div class="spacer">
+            ⬇️ Lehrer-Bereich: Scrolle weiter nach unten für das geheime Wort ⬇️
+        </div>
+
+
+        <!-- ========================================== -->
+        <!-- BEREICH 2: ERKLÄRER-ANSICHT (GANZ UNTEN)   -->
+        <!-- ========================================== -->
+
+        <div class="secret-view">
+            <h3>🤫 Erklärer-Ansicht (Geheim)</h3>
+            <p>Lass den Schüler hier das Wort ablesen, ohne dass es am Smartboard auftaucht.</p>
+
+            <button class="btn-blue" onclick="generateWord()" style="font-size: 20px; padding: 15px 30px;">🎁 Neues Wort ziehen</button>
+
+            <!-- Hier taucht das Wort auf -->
+            <div id="action-type-bottom" class="action-type" style="margin-top: 20px; font-size: 20px;"></div>
+            <div id="actual-word" class="actual-word">???</div>
+
+            <!-- Bequemer Button, um sofort wieder nach oben zum Timer zu springen -->
+            <button class="btn-dark" onclick="window.scrollTo(0, 0)" style="margin-top: 20px;">⬆️ Wieder ganz nach oben scrollen</button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // --- WORTLISTE 1: PHYSIK (ELEKTRIZITÄT & MAGNETISMUS - 25 BEGRIFFE) ---
+    const physikWordList = [
+        { word: "Elektronen", hints: ["Winzige Teilchen, die den elektrischen Strom bilden.", "Sie fließen durch das Kabel wie Murmeln durch ein Rohr.", "Sie bewegen sich geordnet vom Minuspol zum Pluspol."] },
+        { word: "Stromkreis", hints: ["Er muss komplett geschlossen sein, damit etwas funktioniert.", "Besteht meist aus Quelle, Leiter und Verbraucher.", "Wenn man einen Schalter umlegt, wird er unterbrochen."] },
+        { word: "Leiter (elektrischer Leiter)", hints: ["Ein Material, durch das Strom sehr gut fließen kann.", "Metalle wie Kupfer oder Aluminium sind hervorragende Beispiele dafür.", "Er ist quasi die 'Fahrbahn' für die Elektronen."] },
+        { word: "Energiewandler (Verbraucher)", hints: ["Ein Gerät, das umgangssprachlich Strom 'verbraucht'.", "Wandelt die elektrische Energie z.B. in Licht, Wärme oder Bewegung um.", "Eine Glühlampe oder ein Toaster sind bekannte Beispiele dafür."] },
+        { word: "Stromquelle", hints: ["Das Herzstück des Stromkreises, das den Antrieb liefert.", "Sie 'schubst' die Elektronen an.", "Beispiele sind Batterien, Akkus oder die Steckdose."] },
+        { word: "Magnetkraft", hints: ["Eine Kraft, die unsichtbar durch bestimmte Materialien hindurch wirkt.", "Sorgt für Anziehung oder Abstoßung.", "Wirkt besonders auf Eisen, Nickel und Kobalt."] },
+        { word: "Eisen", hints: ["Ein magnetisches Metall.", "Wird von normalen Magneten stark angezogen.", "Wird oft als Kern (z.B. als Nagel) in einem Elektromagneten verwendet."] },
+        { word: "Magnetpole (Nord & Süd)", hints: ["Jeder normale Magnet hat genau zwei davon.", "Gleiche stoßen sich ab, unterschiedliche ziehen sich an.", "Kompasse richten sich nach ihnen aus."] },
+        { word: "Erde", hints: ["Ein riesiger Himmelskörper, auf dem wir leben.", "Hat ein gigantisches Magnetfeld, das uns vor Sonnenwind schützt.", "Hat einen geografischen und einen magnetischen Nordpol."] },
+        { word: "Elektromagnet", hints: ["Ein Magnet, der nur funktioniert, wenn Strom eingeschaltet ist.", "Besteht meist aus einer Spule und einem Eisenkern.", "Wird auf Schrottplätzen, in Türklingeln oder im MRT im Krankenhaus genutzt."] },
+        { word: "Spule", hints: ["Ein aufgewickelter elektrischer Draht.", "Erzeugt ein Magnetfeld, sobald Strom hindurchfließt.", "Wird oft in Kombination mit einem Eisennagel verwendet, um das Feld zu verstärken."] },
+        { word: "Lorentzkraft", hints: ["Eine unsichtbare Kraft in der Physik, benannt nach einem Wissenschaftler.", "Tritt auf, wenn Strom durch ein Magnetfeld fließt und bewegte Elektronen ablenkt.", "Ist dafür verantwortlich, dass unser Motor-Experiment sich gedreht hat."] },
+        { word: "Drei-Finger-Regel", hints: ["Ein Trick, um die Richtung der Lorentzkraft vorherzusagen.", "Daumen, Zeige- und Mittelfinger müssen wie die Ecken eines Raumes aufgestellt werden.", "Der Daumen steht dabei für die Stromrichtung."] },
+        { word: "Polarlichter (Auroras)", hints: ["Ein wunderschönes Leuchten hoch oben am Himmel.", "Entsteht, wenn geladene Teilchen der Sonne (Sonnenwind) auf unser Magnetfeld treffen.", "Die Lorentzkraft zwingt die Teilchen in Richtung Nord- und Südpol."] },
+        { word: "Lautsprecher", hints: ["Ein alltägliches Gerät, das Töne erzeugt.", "Nutzt die Lorentzkraft, um eine Membran wackeln zu lassen.", "Steckt in jedem Smartphone oder Kopfhörer."] },
+        { word: "Generator", hints: ["Eine Maschine zur Stromerzeugung.", "Wandelt Bewegungsenergie in elektrische Energie um.", "Man findet ihn in Windrädern, Kraftwerken oder als Dynamo am Fahrrad."] },
+        { word: "Elektromotor", hints: ["Eine Maschine, die elektrische Energie in Bewegung umwandelt.", "Nutzt die Kraft von Magnetfeldern auf stromdurchflossene Leiter.", "Steckt in Waschmaschinen, Staubsaugern und E-Autos."] },
+        { word: "Elektromagnetische Induktion", hints: ["Die Erzeugung von elektrischer Spannung durch ein sich änderndes Magnetfeld.", "Wurde 1831 durch ein Experiment mit Spulen und Magneten entdeckt.", "Ist der Grund, warum wir Strom aus der Steckdose haben."] },
+        { word: "Michael Faraday", hints: ["Ein sehr berühmter Physiker und Forscher.", "Er entdeckte 1831 die elektromagnetische Induktion.", "Er bewies als Erster, dass man aus reiner Bewegung Strom erzeugen kann."] },
+        { word: "Transformator", hints: ["Ein Gerät zur Umwandlung von elektrischen Spannungen.", "Besteht aus einer Primärspule und einer Sekundärspule.", "Wird benötigt, damit dein Handy am Ladekabel nicht kaputt geht."] },
+        { word: "Induktionsherd", hints: ["Ein modernes Haushaltsgerät zum Kochen.", "Erzeugt ein hochfrequentes Magnetfeld, das Wirbelströme direkt im Topfboden erzeugt.", "Die Kochfläche selbst bleibt relativ kühl, nur der Topf wird heiß."] },
+        { word: "Elektrisches Feld", hints: ["Es umgibt einen geladenen Körper wie eine unsichtbare Wolke.", "Sorgt dafür, dass dir die Haare zu Berge stehen.", "Kann zum Beispiel einen dünnen Wasserstrahl ablenken."] },
+        { word: "Galvanometer", hints: ["Ein hochpräzises physikalisches Instrument.", "Es kann selbst allerkleinste elektrische Ströme anzeigen.", "Michael Faraday nutzte es, um seine Theorie zu beweisen."] },
+        { word: "Batterie", hints: ["Ein mobiler Energiespeicher.", "Dient oft als Stromquelle in kleinen Experimenten oder Fernbedienungen.", "Liefert meist eine Spannung von 1,5 Volt und kann leer gehen."] },
+        { word: "Kupfer", hints: ["Ein rötlich schimmerndes Metall.", "Es wird fast immer im Inneren von Stromkabeln verwendet.", "Ein hervorragender elektrischer Leiter, der nicht magnetisch ist."] }
+    ];
+
+    // --- WORTLISTE 2: ALLGEMEINES (TIERE, ALLTAGSGEGENSTÄNDE ETC. - 25 BEGRIFFE) ---
+    const allgemeinWordList = [
+        { word: "Hund", hints: ["Ein beliebtes Haustier.", "Wedelt mit dem Schwanz, wenn es sich freut.", "Sagt oft 'Wau' oder bellt laut."] },
+        { word: "Auto", hints: ["Ein motorisiertes Fortbewegungsmittel.", "Hat meistens vier Räder.", "Man braucht einen Führerschein, um es lenken zu dürfen."] },
+        { word: "Baum", hints: ["Wächst in der Natur draußen.", "Hat einen dicken Stamm aus Holz.", "Verliert im Herbst meistens sein Laub."] },
+        { word: "Flugzeug", hints: ["Ein Verkehrsmittel.", "Bewegt sich hoch oben in der Luft fort.", "Startet und landet auf einem Flughafen."] },
+        { word: "Katze", hints: ["Ein oft eigenwilliges Haustier.", "Fängt sehr gerne Mäuse.", "Schnurrt genüsslich, wenn man sie streichelt."] },
+        { word: "Schokolade", hints: ["Eine sehr beliebte Süßigkeit.", "Wird aus Kakao hergestellt.", "Schmilzt und macht klebrige Finger, wenn es zu warm wird."] },
+        { word: "Uhr", hints: ["Ein nützlicher Alltagsgegenstand.", "Zeigt dir die genaue Zeit an.", "Man trägt sie oft am Handgelenk oder hängt sie an die Wand."] },
+        { word: "Brille", hints: ["Wird mitten im Gesicht getragen.", "Besteht oft aus einem Gestell und zwei Gläsern.", "Hilft Menschen, die schlecht sehen können."] },
+        { word: "Regenschirm", hints: ["Sehr nützlich bei schlechtem Wetter.", "Wird über dem Kopf aufgespannt.", "Schützt dich davor, draußen nass zu werden."] },
+        { word: "Fahrrad", hints: ["Ein umweltfreundliches Fahrzeug ohne Motor.", "Man muss in die Pedale treten, um vorwärts zu kommen.", "Hat genau zwei Räder und oft eine Klingel."] },
+        { word: "Pinguin", hints: ["Ein Vogel, der erstaunlicherweise nicht fliegen kann.", "Lebt oft in der eiskalten Antarktis am Südpol.", "Sieht aus, als würde er einen schwarz-weißen Frack tragen."] },
+        { word: "Kaffeemaschine", hints: ["Ein sehr wichtiges Haushaltsgerät.", "Macht morgens viele Erwachsene wach.", "Brüht ein dunkles, koffeinhaltiges Heißgetränk."] },
+        { word: "Banane", hints: ["Ein sehr gesundes Obst.", "Wächst in warmen Ländern an riesigen Stauden.", "Ist meistens leuchtend gelb und krumm."] },
+        { word: "Gitarre", hints: ["Ein sehr bekanntes Musikinstrument.", "Hat normalerweise sechs Saiten, die man zupft.", "Wird oft abends gemütlich am Lagerfeuer gespielt."] },
+        { word: "Elefant", hints: ["Ein extrem großes und schweres Wildtier.", "Hat riesige Ohren, die wie Fächer wirken.", "Besitzt einen langen Rüssel."] },
+        { word: "Buch", hints: ["Besteht aus sehr viel bedrucktem Papier.", "Man kann darin spannende Dinge lesen.", "Hat ein Cover und viele einzelne Seiten."] },
+        { word: "Geist (Gespenst)", hints: ["Eine bekannte Gruselfigur.", "Spukt angeblich nachts in alten Schlössern herum.", "Wird meistens als schwebendes, weißes Laken mit Augen dargestellt."] },
+        { word: "Schlüssel", hints: ["Ein kleiner, zackiger Gegenstand meist aus Metall.", "Man hat ihn oft an einem Bund in der Hosentasche.", "Wird benutzt, um eine verschlossene Tür aufzusperren."] },
+        { word: "Zahnbürste", hints: ["Man benutzt sie täglich im Badezimmer.", "Hilft dabei, Karies zu verhindern.", "Wird zusammen mit einer speziellen Paste verwendet."] },
+        { word: "Sonne", hints: ["Ein extrem heller Himmelskörper.", "Ist unvorstellbar heiß und riesengroß.", "Spendet uns tagsüber angenehmes Licht und Wärme."] },
+        { word: "Schlange", hints: ["Ein Reptil komplett ohne Beine.", "Kriecht oft fast lautlos über den Boden.", "Zischt und hat sehr oft eine gespaltene Zunge."] },
+        { word: "Schneemann", hints: ["Besteht aus drei Kugeln aus gefrorenem Wasser.", "Wird im Winter liebend gern von Kindern gebaut.", "Hat oft eine orange Karotte als Nase."] },
+        { word: "Kamera (Fotoapparat)", hints: ["Ein technisches Gerät.", "Braucht man im Urlaub oder auf Partys besonders oft.", "Man macht damit Schnappschüsse oder dreht Videos."] },
+        { word: "Pizza", hints: ["Ein extrem beliebtes Fast-Food-Gericht.", "Stammt ursprünglich aus dem Land Italien.", "Ist rund, flach belegt und fast immer mit Käse überbacken."] },
+        { word: "Fußball", hints: ["Das wohl beliebteste Sportgerät der Welt.", "Ist rund und ganz klassisch schwarz-weiß gemustert.", "Darf von den Spielern auf dem Platz nicht mit der Hand berührt werden."] }
+    ];
+
+    let currentWordList = [];
+    const actionTypes = ["Mündlich erklären", "Pantomimisch darstellen", "Zeichnerisch darstellen"];
+
+    // Spiel-Status
+    let teamScores = [];
+    let currentSelectedWord = null;
+    let currentHintIndex = 0;
+
+    // --- SPIEL LOGIK ---
+    function startGame(category) {
+        let teamCount = document.getElementById("team-count").value;
+        if (teamCount < 2) teamCount = 2;
+
+        teamScores = Array(parseInt(teamCount)).fill(0);
+        updateScoreboard();
+
+        // Hier wird entschieden, welche Liste geladen wird
+        if (category === 'physik') {
+            currentWordList = [...physikWordList];
+        } else if (category === 'allgemein') {
+            currentWordList = [...allgemeinWordList];
+        }
+
+        document.getElementById("setup-section").style.display = "none";
+        document.getElementById("game-section").style.display = "block";
+    }
+
+    function generateWord() {
+        if (currentWordList.length === 0) {
+            alert("Alle Wörter wurden gespielt! Lade die Seite neu, um von vorne zu beginnen.");
+            return;
+        }
+
+        let randomWordIndex = Math.floor(Math.random() * currentWordList.length);
+        currentSelectedWord = currentWordList[randomWordIndex];
+        currentWordList.splice(randomWordIndex, 1);
+
+        let randomActionIndex = Math.floor(Math.random() * actionTypes.length);
+        let selectedAction = actionTypes[randomActionIndex];
+
+        // Action-Typ oben (für alle) und unten (für Erklärer) anzeigen
+        document.getElementById("action-type-top").innerText = selectedAction;
+        document.getElementById("action-type-bottom").innerText = selectedAction;
+
+        // Wort NUR ganz unten beim Erklärer anzeigen
+        document.getElementById("actual-word").innerText = currentSelectedWord.word;
+
+        // Hilfe / Tipps oben zurücksetzen
+        currentHintIndex = 0;
+        let hintBox = document.getElementById("hint-box");
+        let hintBtn = document.getElementById("hint-btn");
+
+        hintBox.innerHTML = "";
+        hintBox.style.display = "none";
+
+        hintBtn.style.display = "inline-block";
+        hintBtn.innerText = "💡 Tipp 1 anzeigen";
+    }
+
+    function showNextHint() {
+        if (!currentSelectedWord) return;
+
+        let hintBox = document.getElementById("hint-box");
+        let hintBtn = document.getElementById("hint-btn");
+
+        hintBox.style.display = "block";
+
+        let newHint = document.createElement("p");
+        newHint.innerText = "Tipp " + (currentHintIndex + 1) + ": " + currentSelectedWord.hints[currentHintIndex];
+        hintBox.appendChild(newHint);
+
+        currentHintIndex++;
+
+        if (currentHintIndex < currentSelectedWord.hints.length) {
+            hintBtn.innerText = "💡 Tipp " + (currentHintIndex + 1) + " anzeigen";
+        } else {
+            hintBtn.style.display = "none";
+        }
+    }
+
+    // --- SCOREBOARD LOGIK ---
+    function updateScoreboard() {
+        let scoreboard = document.getElementById("scoreboard");
+        scoreboard.innerHTML = "";
+
+        for (let i = 0; i < teamScores.length; i++) {
+            let teamDiv = document.createElement("div");
+            teamDiv.className = "team-score";
+
+            let title = document.createElement("h3");
+            title.innerText = "Team " + (i + 1);
+
+            let score = document.createElement("div");
+            score.className = "score-number";
+            score.innerText = teamScores[i];
+
+            let addBtn = document.createElement("button");
+            addBtn.className = "btn-blue";
+            addBtn.innerText = "+1 Punkt";
+            addBtn.onclick = function() { addPoint(i); };
+
+            let subBtn = document.createElement("button");
+            subBtn.className = "btn-red";
+            subBtn.innerText = "-1";
+            subBtn.style.padding = "10px";
+            subBtn.onclick = function() { removePoint(i); };
+
+            teamDiv.appendChild(title);
+            teamDiv.appendChild(score);
+            teamDiv.appendChild(addBtn);
+            teamDiv.appendChild(subBtn);
+            scoreboard.appendChild(teamDiv);
+        }
+    }
+
+    function addPoint(teamIndex) {
+        teamScores[teamIndex]++;
+        updateScoreboard();
+    }
+
+    function removePoint(teamIndex) {
+        if(teamScores[teamIndex] > 0) {
+            teamScores[teamIndex]--;
+            updateScoreboard();
+        }
+    }
+
+    // --- TIMER LOGIK ---
+    let timerInterval;
+    let timeLeft = 0;
+    let isRunning = false;
+
+    function setTimer(seconds) {
+        pauseTimer();
+        timeLeft = seconds;
+        updateTimerDisplay();
+        document.getElementById("timer-display").classList.remove("timer-blink");
+    }
+
+    function startTimer() {
+        if (isRunning || timeLeft <= 0) return;
+        isRunning = true;
+
+        document.getElementById("timer-display").classList.remove("timer-blink");
+
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            updateTimerDisplay();
+
+            if (timeLeft <= 0) {
+                pauseTimer();
+                document.getElementById("timer-display").classList.add("timer-blink");
+            }
+        }, 1000);
+    }
+
+    function pauseTimer() {
+        isRunning = false;
+        clearInterval(timerInterval);
+    }
+
+    function resetTimer() {
+        pauseTimer();
+        timeLeft = 0;
+        updateTimerDisplay();
+        document.getElementById("timer-display").classList.remove("timer-blink");
+    }
+
+    function updateTimerDisplay() {
+        let minutes = Math.floor(timeLeft / 60);
+        let seconds = timeLeft % 60;
+
+        if (minutes < 10) minutes = "0" + minutes;
+        if (seconds < 10) seconds = "0" + seconds;
+
+        document.getElementById("timer-display").innerText = minutes + ":" + seconds;
+    }
+
+</script>
+</body>
+</html>

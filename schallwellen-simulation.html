@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schallwellen-Simulation</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f8;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        p.subtitle {
+            color: #7f8c8d;
+            margin-bottom: 20px;
+        }
+
+        .canvas-container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        canvas {
+            background-color: #fafafa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 30px;
+            background: white;
+            padding: 20px 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #34495e;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        button.playing {
+            background-color: #e74c3c;
+        }
+
+        button.playing:hover {
+            background-color: #c0392b;
+        }
+
+        input[type=range] {
+            width: 150px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Schallwellen in der Luft</h1>
+    <p class="subtitle">Beobachte die Longitudinalwelle und die Druckverteilung</p>
+
+    <div class="canvas-container">
+        <canvas id="particleCanvas" width="800" height="250" title="Teilchenmodell der Luft"></canvas>
+        <canvas id="graphCanvas" width="800" height="150" title="Druckverteilung"></canvas>
+    </div>
+
+    <div class="controls">
+        <button id="playBtn">Start</button>
+
+        <div class="control-group">
+            <label for="freqSlider">Frequenz (Tonhöhe)</label>
+            <input type="range" id="freqSlider" min="1" max="10" value="4" step="0.1">
+        </div>
+
+        <div class="control-group">
+            <label for="ampSlider">Amplitude (Lautstärke)</label>
+            <input type="range" id="ampSlider" min="2" max="25" value="12" step="1">
+        </div>
+    </div>
+
+    <script>
+        const particleCanvas = document.getElementById('particleCanvas');
+        const pCtx = particleCanvas.getContext('2d');
+        const graphCanvas = document.getElementById('graphCanvas');
+        const gCtx = graphCanvas.getContext('2d');
+
+        const width = particleCanvas.width;
+        const pHeight = particleCanvas.height;
+        const gHeight = graphCanvas.height;
+
+        let isPlaying = false;
+        let time = 0;
+
+        // Teilchen initialisieren
+        const particles = [];
+        const cols = 70; // Anzahl der Teilchenspalten
+        const rows = 12; // Anzahl der Teilchenreihen
+        const startX = 60; // Abstand der Teilchen vom linken Rand
+        const spacingX = (width - startX - 20) / cols;
+        const spacingY = pHeight / rows;
+
+        for (let i = 0; i < cols; i++) {
+            for (let j = 0; j < rows; j++) {
+                // x0 ist die Ruheposition auf der X-Achse
+                let x0 = startX + i * spacingX;
+                // Leichte zufällige Y-Verschiebung für eine natürlichere "Gas-Optik"
+                let y0 = (spacingY / 2) + j * spacingY + (Math.random() - 0.5) * 15;
+                particles.push({ x0, y0 });
+            }
+        }
+
+        // Haupt-Zeichenfunktion (Animations-Schleife)
+        function draw() {
+            // Canvases leeren
+            pCtx.clearRect(0, 0, width, pHeight);
+            gCtx.clearRect(0, 0, width, gHeight);
+
+            // Aktuelle Werte aus den Schiebereglern auslesen
+            const frequency = parseFloat(document.getElementById('freqSlider').value) * 0.01;
+            const amplitude = parseFloat(document.getElementById('ampSlider').value);
+
+            // Konstante Ausbreitungsgeschwindigkeit der Welle
+            const waveSpeed = 2.5;
+            // Die Wellenzahl k bestimmt, wie eng die Wellenberge beieinander liegen
+            const k = frequency / waveSpeed;
+
+            if (isPlaying) {
+                time += 1;
+            }
+
+            // 1. Membran (Lautsprecher) zeichnen
+            // Die Membran schwingt als Sinusfunktion hin und her
+            const membraneX = 30 + amplitude * Math.sin(time * frequency * Math.PI * 2);
+            pCtx.fillStyle = '#2c3e50';
+            pCtx.fillRect(membraneX - 5, 20, 10, pHeight - 40);
+
+            // 2. Luftteilchen zeichnen
+            pCtx.fillStyle = 'rgba(52, 152, 219, 0.7)';
+            for (let p of particles) {
+                // Die Phase berechnet, wie weit die Welle an der Position x0 schon fortgeschritten ist
+                let phase = p.x0 * k * Math.PI * 2;
+
+                // Berechnung der horizontalen Auslenkung aus der Ruheposition
+                let displacement = amplitude * Math.sin(time * frequency * Math.PI * 2 - phase);
+
+                pCtx.beginPath();
+                pCtx.arc(p.x0 + displacement, p.y0, 3.5, 0, Math.PI * 2);
+                pCtx.fill();
+            }
+
+            // 3. Diagramm (Druckverteilung) zeichnen
+            gCtx.beginPath();
+            gCtx.strokeStyle = '#e74c3c';
+            gCtx.lineWidth = 2.5;
+
+            // Nulllinie (Normaldruck) zeichnen
+            gCtx.fillStyle = '#ecf0f1';
+            gCtx.fillRect(0, 0, width, gHeight);
+            gCtx.beginPath();
+            gCtx.strokeStyle = '#bdc3c7';
+            gCtx.setLineDash([5, 5]);
+            gCtx.moveTo(startX, gHeight / 2);
+            gCtx.lineTo(width, gHeight / 2);
+            gCtx.stroke();
+
+            // Sinuskurve für den Druck zeichnen
+            gCtx.beginPath();
+            gCtx.strokeStyle = '#e74c3c';
+            gCtx.setLineDash([]);
+
+            for (let x = startX; x < width; x++) {
+                let phase = x * k * Math.PI * 2;
+
+                // Physikalischer Hintergrund: Der Druck ist am höchsten,
+                // wo sich die Teilchen aufeinander zu bewegen (Verdichtung).
+                // Mathematisch ist das die negative Ableitung der Auslenkung (Cosinus statt Sinus).
+                let pressure = amplitude * 1.5 * Math.cos(time * frequency * Math.PI * 2 - phase);
+
+                let graphY = (gHeight / 2) - pressure;
+
+                if (x === startX) {
+                    gCtx.moveTo(x, graphY);
+                } else {
+                    gCtx.lineTo(x, graphY);
+                }
+            }
+            gCtx.stroke();
+
+            // Nächsten Frame anfordern
+            requestAnimationFrame(draw);
+        }
+
+        // Button-Logik
+        const playBtn = document.getElementById('playBtn');
+        playBtn.addEventListener('click', () => {
+            isPlaying = !isPlaying;
+            if (isPlaying) {
+                playBtn.textContent = 'Stopp';
+                playBtn.classList.add('playing');
+            } else {
+                playBtn.textContent = 'Start';
+                playBtn.classList.remove('playing');
+            }
+        });
+
+        // Start der Animation beim Laden der Seite
+        draw();
+    </script>
+</body>
+</html>

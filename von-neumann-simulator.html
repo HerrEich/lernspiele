@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Der Von-Neumann-Explorer (Schülergerecht)</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f8;
+            color: #2c3e50;
+            margin: 0;
+            padding: 20px;
+        }
+        h1, h2, h3 {
+            text-align: center;
+        }
+        .intro {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 20px auto;
+            font-size: 1.1em;
+        }
+
+        /* Hauptcontainer für die Simulation */
+        .simulator-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+
+        .explorer-container {
+            position: relative;
+            width: 800px;
+            height: 480px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        /* SVG für die Busse (Datenstraßen) */
+        svg.buses {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none; 
+        }
+        
+        .bus-line {
+            fill: none;
+            stroke: #e0e0e0;
+            stroke-width: 8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            transition: all 0.3s ease;
+        }
+
+        /* Animations-Klassen für aktive Bahnen */
+        .active-blue {
+            stroke: #3498db;
+            stroke-dasharray: 12, 12;
+            animation: flow 1s linear infinite;
+        }
+        .active-green {
+            stroke: #2ecc71;
+            stroke-dasharray: 12, 12;
+            animation: flow 1s linear infinite;
+        }
+        .active-red {
+            stroke: #e74c3c;
+            stroke-dasharray: 12, 12;
+            animation: flow 1s linear infinite;
+        }
+
+        @keyframes flow {
+            from { stroke-dashoffset: 24; }
+            to { stroke-dashoffset: 0; }
+        }
+
+        /* Die 5 Boxen */
+        .box {
+            position: absolute;
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+            border: 3px solid #bdc3c7;
+            z-index: 2;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .box h4 {
+            margin: 0 0 5px 0;
+            font-size: 1.1em;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 5px;
+        }
+        
+        .nickname {
+            font-size: 0.85em;
+            font-style: italic;
+            color: #7f8c8d;
+            margin-bottom: 8px;
+        }
+
+        .box.active {
+            border-color: #f39c12 !important;
+            box-shadow: 0 0 15px 5px rgba(243, 156, 18, 0.4);
+            transform: scale(1.05);
+        }
+
+        /* Box-Inhalte & Eingabefelder */
+        .data-slot {
+            background: #f8f9fa;
+            border: 1px dashed #ccc;
+            padding: 5px;
+            margin: 5px 0;
+            font-family: monospace;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        
+        .cmd-slot {
+            background: #fff3cd;
+            border: 1px dashed #f1c40f;
+            color: #d35400;
+            font-size: 0.9em !important;
+        }
+
+        .input-number {
+            width: 40px;
+            font-size: 1em;
+            text-align: center;
+            font-weight: bold;
+            border: 2px solid #3498db;
+            border-radius: 4px;
+            margin: 2px;
+        }
+        
+        .input-select {
+            font-size: 1em;
+            font-weight: bold;
+            border: 2px solid #9b59b6;
+            border-radius: 4px;
+            margin-top: 5px;
+            width: 90%;
+            cursor: pointer;
+        }
+
+        /* Steuerung & Legende */
+        .controls {
+            text-align: center;
+            margin: 20px auto;
+            max-width: 800px;
+        }
+        .btn-action {
+            background-color: #9b59b6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1.2em;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            transition: background 0.2s;
+        }
+        .btn-action:hover { background-color: #8e44ad; }
+
+        .btn-start { background-color: #27ae60; }
+        .btn-start:hover { background-color: #2ecc71; }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        .legend span { display: flex; align-items: center; gap: 5px; }
+        .dot { width: 15px; height: 15px; border-radius: 50%; display: inline-block; }
+        .dot-blue { background: #3498db; }
+        .dot-green { background: #2ecc71; }
+        .dot-red { background: #e74c3c; }
+
+        /* Satzbau-Assistent */
+        .satzbau-assistent {
+            background-color: #fff9c4;
+            border: 3px dashed #f1c40f;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 0 auto 40px auto;
+            max-width: 800px;
+            box-shadow: 3px 3px 10px rgba(0,0,0,0.05);
+        }
+        .satzbau-assistent h3 {
+            margin-top: 0;
+            color: #d35400;
+            font-size: 1.3em;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .satzbau-text {
+            font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif;
+            font-size: 1.2em;
+            color: #333;
+            line-height: 1.5;
+            min-height: 60px;
+        }
+        
+        .highlight-text {
+            background-color: #e74c3c;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🖥️ Der Von-Neumann-Explorer</h1>
+    <div class="intro">
+        Gib links zwei Zahlen ein, wähle eine Rechenart und beobachte das Innere des Computers.<br>
+        Achte genau auf Schritt 1: Wie kommuniziert die Tastatur mit dem "Boss"?
+    </div>
+
+    <!-- Steuerung -->
+    <div class="controls">
+        <button id="btn-start" class="btn-action btn-start" onclick="startSimulation()">▶️ Start: Rechnung absenden</button>
+        <button id="btn-next" class="btn-action" style="display: none;" onclick="nextStep()">▶️ Nächster Schritt</button>
+        <button id="btn-reset" class="btn-action" style="background-color: #7f8c8d; display: none;" onclick="resetSim()">🔄 Neue Rechnung</button>
+        
+        <div class="legend">
+            <span><div class="dot dot-blue"></div> Adressbahn (Ort finden)</span>
+            <span><div class="dot dot-green"></div> Datenbahn (Zahlen transportieren)</span>
+            <span><div class="dot dot-red"></div> Steuerbahn (Befehle geben)</span>
+        </div>
+    </div>
+
+    <!-- Simulation -->
+    <div class="simulator-wrapper">
+        <div class="explorer-container">
+            
+            <!-- Bahnen (SVG Linien) -->
+            <svg class="buses">
+                <polyline id="bus-ctrl-in-cu" class="bus-line" points="170,75 300,75" />
+                <polyline id="bus-data-in-ram" class="bus-line" points="170,140 250,140 250,240 600,240" />
+                <polyline id="bus-addr-cu-ram" class="bus-line" points="460,80 540,80 540,170 600,170" />
+                <polyline id="bus-ctrl-cu-ram" class="bus-line" points="460,110 510,110 510,200 600,200" />
+                <polyline id="bus-ctrl-cu-rechenwerk" class="bus-line" points="380,180 380,310" />
+                <polyline id="bus-data-ram-rechenwerk" class="bus-line" points="600,280 540,280 540,380 460,380" />
+                <polyline id="bus-data-rechenwerk-out" class="bus-line" points="300,380 160,380" />
+            </svg>
+
+            <!-- 1. Eingabe (Links Oben) -->
+            <div class="box" id="box-in" style="left: 20px; top: 20px; width: 150px; height: 170px; border-color: #95a5a6;">
+                <h4>⌨️ Eingabe</h4>
+                <div style="font-size: 0.9em; text-align: left; padding-left: 5px;">
+                    Zahl 1: <input type="number" id="input-n1" class="input-number" min="0" max="9" value="8"><br>
+                    Zahl 2: <input type="number" id="input-n2" class="input-number" min="0" max="9" value="2"><br>
+                    <select id="input-op" class="input-select">
+                        <option value="+">Plus (+)</option>
+                        <option value="-">Minus (-)</option>
+                        <option value="*">Mal (*)</option>
+                        <option value="/">Geteilt (/)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 5. Ausgabe (Links Unten) -->
+            <div class="box" id="box-out" style="left: 20px; top: 310px; width: 150px; height: 130px; border-color: #e67e22; background-color: #fdf2e9;">
+                <h4>🖥️ Ausgabe</h4>
+                <div class="nickname">Der Monitor</div>
+                <div class="data-slot" id="out-state" style="font-size: 1.5em; color: #d35400;">-</div>
+            </div>
+
+            <!-- 2. Steuerwerk (Mitte Oben) -->
+            <div class="box" id="box-cu" style="left: 300px; top: 20px; width: 160px; height: 160px; border-color: #3498db; background-color: #ebf5fb;">
+                <h4>⚙️ Steuerwerk</h4>
+                <div class="nickname">Der Boss / Leiter</div>
+                <div class="data-slot cmd-slot" id="cu-cmd">Befehl: ?</div>
+                <div class="data-slot" id="cu-state" style="font-size: 0.8em;">Wartet auf Auftrag</div>
+            </div>
+
+            <!-- 3. Rechenwerk (Mitte Unten) -->
+            <div class="box" id="box-rechenwerk" style="left: 300px; top: 310px; width: 160px; height: 140px; border-color: #3498db; background-color: #ebf5fb;">
+                <h4>🧮 Rechenwerk</h4>
+                <div class="nickname">Der Taschenrechner</div>
+                <div class="data-slot" id="rechenwerk-state">_ ? _ = _</div>
+            </div>
+
+            <!-- 4. Speicher / RAM (Rechts, über die Mitte) -->
+            <div class="box" id="box-ram" style="left: 600px; top: 140px; width: 160px; height: 200px; border-color: #2ecc71; background-color: #eafaf1;">
+                <h4>💾 Speicher</h4>
+                <div class="nickname">Das Notizbuch</div>
+                <div style="font-size: 0.9em; text-align: left;">
+                    Zelle 1: <span class="data-slot" id="ram-cell-1">_</span><br><br>
+                    Zelle 2: <span class="data-slot" id="ram-cell-2">_</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Integrierter Satzbau-Assistent -->
+    <div class="satzbau-assistent">
+        <h3>📝 Satzbau-Assistent</h3>
+        <div class="satzbau-text" id="satzbau-text">
+            <em>Wähle oben links zwei Zahlen, suche dir eine Rechenart aus und klicke auf "Start"!</em>
+        </div>
+    </div>
+
+    <script>
+        let steps = [];
+        let currentStep = 0;
+
+        function startSimulation() {
+            let n1 = parseInt(document.getElementById('input-n1').value);
+            let n2 = parseInt(document.getElementById('input-n2').value);
+            let op = document.getElementById('input-op').value;
+
+            if(isNaN(n1) || isNaN(n2) || n1 < 0 || n1 > 9 || n2 < 0 || n2 > 9) {
+                alert("Bitte gib für dieses Experiment nur einstellige Zahlen (0 bis 9) ein.");
+                return;
+            }
+            if(op === '/' && n2 === 0) {
+                alert("Achtung! Man darf in der Mathematik nicht durch 0 teilen. Wähle eine andere Zahl.");
+                return;
+            }
+
+            let result, opText, cuOpText;
+            switch(op) {
+                case '+': result = n1 + n2; opText = "Addieren"; cuOpText = "Rechne PLUS"; break;
+                case '-': result = n1 - n2; opText = "Subtrahieren"; cuOpText = "Rechne MINUS"; break;
+                case '*': result = n1 * n2; opText = "Multiplizieren"; cuOpText = "Rechne MAL"; break;
+                case '/': result = Math.round((n1 / n2) * 100) / 100; opText = "Dividieren"; cuOpText = "Rechne GETEILT"; break;
+            }
+
+            document.getElementById('input-n1').disabled = true;
+            document.getElementById('input-n2').disabled = true;
+            document.getElementById('input-op').disabled = true;
+            
+            document.getElementById('btn-start').style.display = 'none';
+            document.getElementById('btn-next').style.display = 'inline-block';
+
+            let cmdRegisterText = `Befehl: ${opText}`;
+
+            steps = [
+                {
+                    buses: [{id: "bus-ctrl-in-cu", class: "active-red"}],
+                    boxes: ["box-in", "box-cu"],
+                    btnText: "▶️ Schritt 2: Zahlen in den Speicher",
+                    ram1: "_", ram2: "_", cuCmd: cmdRegisterText, cuState: "Auftrag verstanden!", rechenwerkState: `_ ? _ = _`, outState: "-",
+                    sentence: `Woher weiß der Boss, was zu tun ist? Die Eingabe funkt dem Steuerwerk über eine <strong style='color:#c0392b'>rote Steuerbahn</strong> den Befehl (<strong>${opText}</strong>) zu. Der Boss merkt sich das in seinem Befehlsregister!`
+                },
+                {
+                    buses: [{id: "bus-data-in-ram", class: "active-green"}],
+                    boxes: ["box-in", "box-ram"],
+                    btnText: "▶️ Schritt 3: Erste Zahl ins Rechenwerk leiten",
+                    ram1: n1, ram2: n2, cuCmd: cmdRegisterText, cuState: "Wartet auf Daten", rechenwerkState: `_ ${op} _ = _`, outState: "-",
+                    sentence: `Gleichzeitig wandern die dazugehörigen Zahlen <strong>${n1}</strong> und <strong>${n2}</strong> über die <strong style='color:#27ae60'>grüne Datenbahn</strong> von der Eingabe direkt in den Speicher ("Das Notizbuch").`
+                },
+                {
+                    buses: [{id: "bus-addr-cu-ram", class: "active-blue"}, {id: "bus-ctrl-cu-ram", class: "active-red"}],
+                    boxes: ["box-cu", "box-ram"],
+                    btnText: "▶️ Schritt 4: Erste Zahl ins Rechenwerk leiten",
+                    ram1: n1, ram2: n2, cuCmd: cmdRegisterText, cuState: "Lese Zelle 1", rechenwerkState: `_ ${op} _ = _`, outState: "-",
+                    sentence: `Der Boss legt los: Er teilt dem Speicher über die <strong style='color:#2980b9'>blaue Adressbahn</strong> mit: "Ich brauche Zelle 1!". Über die rote Steuerbahn sagt er: "Vorlesen!".`
+                },
+                {
+                    buses: [{id: "bus-data-ram-rechenwerk", class: "active-green"}, {id: "bus-ctrl-cu-rechenwerk", class: "active-red"}],
+                    boxes: ["box-cu", "box-ram", "box-rechenwerk"],
+                    btnText: "▶️ Schritt 5: Zweite Zahl anfordern",
+                    ram1: n1, ram2: n2, cuCmd: cmdRegisterText, cuState: "Zahl aufnehmen!", rechenwerkState: `${n1} ${op} _ = _`, outState: "-",
+                    sentence: `Das Rechenwerk holt sich die Zahl nicht selbst! Das Steuerwerk funkt über die <strong style='color:#c0392b'>rote Steuerbahn</strong> dazwischen: "Zahl aufnehmen!". Erst jetzt darf die <strong>${n1}</strong> über die Datenbahn in den Taschenrechner wandern.`
+                },
+                {
+                    buses: [{id: "bus-addr-cu-ram", class: "active-blue"}, {id: "bus-ctrl-cu-ram", class: "active-red"}],
+                    boxes: ["box-cu", "box-ram"],
+                    btnText: "▶️ Schritt 6: Zweite Zahl ins Rechenwerk leiten",
+                    ram1: n1, ram2: n2, cuCmd: cmdRegisterText, cuState: "Lese Zelle 2", rechenwerkState: `${n1} ${op} _ = _`, outState: "-",
+                    sentence: `Der Boss wiederholt das Ganze für die zweite Zahl: Er fordert über die <strong style='color:#2980b9'>Adressbahn</strong> und <strong style='color:#c0392b'>Steuerbahn</strong> die Speicherzelle 2 an.`
+                },
+                {
+                    buses: [{id: "bus-data-ram-rechenwerk", class: "active-green"}, {id: "bus-ctrl-cu-rechenwerk", class: "active-red"}],
+                    boxes: ["box-cu", "box-ram", "box-rechenwerk"],
+                    btnText: "▶️ Schritt 7: Befehl zum Rechnen",
+                    ram1: n1, ram2: n2, cuCmd: cmdRegisterText, cuState: "Zahl aufnehmen!", rechenwerkState: `${n1} ${op} ${n2} = _`, outState: "-",
+                    sentence: `Wieder befiehlt der Boss dem Rechenwerk über die <strong style='color:#c0392b'>rote Steuerbahn</strong> die Aufnahme. Die Zahl <strong>${n2}</strong> wandert gefügig über die grüne Datenbahn in den Taschenrechner.`
+                },
+                {
+                    buses: [{id: "bus-ctrl-cu-rechenwerk", class: "active-red"}],
+                    boxes: ["box-cu", "box-rechenwerk"],
+                    btnText: "▶️ Schritt 8: Ergebnis ausgeben",
+                    ram1: n1, ram2: n2, cuCmd: cmdRegisterText, cuState: cuOpText, rechenwerkState: `${n1} ${op} ${n2} = ${result}`, outState: "-",
+                    sentence: `Jetzt schaut der Boss auf sein <strong>Befehlsregister</strong> von vorhin. Er schickt den Rechenbefehl (<strong>${opText}</strong>) über die <strong style='color:#c0392b'>rote Steuerbahn</strong> an das Rechenwerk. Endlich darf der Taschenrechner rechnen: <strong>${n1} ${op} ${n2} = ${result}</strong>.`
+                },
+                {
+                    buses: [{id: "bus-data-rechenwerk-out", class: "active-green"}],
+                    boxes: ["box-rechenwerk", "box-out"],
+                    btnText: "🎉 Fertig!",
+                    ram1: n1, ram2: n2, cuCmd: cmdRegisterText, cuState: "Fertig", rechenwerkState: `${n1} ${op} ${n2} = ${result}`, outState: `${result}`,
+                    sentence: `Das fertige Ergebnis (<strong>${result}</strong>) wandert über die <strong style='color:#27ae60'>grüne Datenbahn</strong> zur Ausgabeeinheit (Monitor).`
+                }
+            ];
+
+            currentStep = 0;
+            updateSimulation();
+        }
+
+        function updateSimulation() {
+            const stepData = steps[currentStep];
+
+            document.querySelectorAll('.bus-line').forEach(line => {
+                line.classList.remove('active-blue', 'active-green', 'active-red');
+            });
+            stepData.buses.forEach(bus => {
+                document.getElementById(bus.id).classList.add(bus.class);
+            });
+
+            document.querySelectorAll('.box').forEach(box => {
+                box.classList.remove('active');
+            });
+            stepData.boxes.forEach(boxId => {
+                document.getElementById(boxId).classList.add('active');
+            });
+
+            document.getElementById('ram-cell-1').innerText = stepData.ram1;
+            document.getElementById('ram-cell-2').innerText = stepData.ram2;
+            document.getElementById('cu-cmd').innerText = stepData.cuCmd;
+            document.getElementById('cu-state').innerText = stepData.cuState;
+            document.getElementById('rechenwerk-state').innerText = stepData.rechenwerkState;
+            document.getElementById('out-state').innerText = stepData.outState;
+
+            document.getElementById('satzbau-text').innerHTML = stepData.sentence;
+
+            const btn = document.getElementById('btn-next');
+            btn.innerHTML = stepData.btnText;
+
+            if (currentStep === steps.length - 1) {
+                btn.style.display = 'none';
+                document.getElementById('btn-reset').style.display = 'inline-block';
+            }
+        }
+
+        function nextStep() {
+            if (currentStep < steps.length - 1) {
+                currentStep++;
+                updateSimulation();
+            }
+        }
+
+        function resetSim() {
+            document.getElementById('input-n1').disabled = false;
+            document.getElementById('input-n2').disabled = false;
+            document.getElementById('input-op').disabled = false;
+            
+            document.getElementById('btn-start').style.display = 'inline-block';
+            document.getElementById('btn-next').style.display = 'none';
+            document.getElementById('btn-reset').style.display = 'none';
+
+            document.querySelectorAll('.bus-line').forEach(l => l.classList.remove('active-blue', 'active-green', 'active-red'));
+            document.querySelectorAll('.box').forEach(b => b.classList.remove('active'));
+
+            document.getElementById('ram-cell-1').innerText = "_";
+            document.getElementById('ram-cell-2').innerText = "_";
+            document.getElementById('cu-cmd').innerText = "Befehl: ?";
+            document.getElementById('cu-state').innerText = "Wartet auf Auftrag";
+            document.getElementById('rechenwerk-state').innerText = "_ ? _ = _";
+            document.getElementById('out-state').innerText = "-";
+            
+            document.getElementById('satzbau-text').innerHTML = "<em>Wähle oben links zwei Zahlen, suche dir eine Rechenart aus und klicke auf 'Start'!</em>";
+        }
+    </script>
+</body>
+</html>

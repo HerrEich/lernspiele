@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>WP-NW Labor: Analog vs. Digital</title>
+    <style>
+        :root { --analog: #3498db; --digital: #e74c3c; --bg: #121212; --card: #1e1e1e; --text: #eee; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
+        .container { max-width: 900px; width: 95%; }
+        header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 20px; }
+        h1 { color: var(--analog); margin-bottom: 5px; }
+        
+        .info-box { background: #2c3e50; padding: 15px; border-left: 5px solid var(--analog); border-radius: 5px; margin-bottom: 30px; line-height: 1.6; }
+        
+        .example-card { background: var(--card); border-radius: 12px; padding: 25px; margin-bottom: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .example-header { border-bottom: 1px solid #333; margin-bottom: 20px; padding-bottom: 10px; }
+        
+        .split-view { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        @media (max-width: 700px) { .split-view { grid-template-columns: 1fr; } }
+
+        .vis-area { height: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #000; border-radius: 8px; position: relative; overflow: hidden; border: 1px solid #333; }
+        
+        /* Beispiel 1: Sonne */
+        .sun { width: 60px; height: 60px; border-radius: 50%; background: #f1c40f; transition: transform 0.1s; box-shadow: 0 0 20px #f1c40f; }
+        
+        /* Beispiel 2: Thermometer */
+        .thermometer-body { width: 30px; height: 150px; background: #333; border-radius: 15px 15px 5px 5px; position: relative; border: 3px solid #555; overflow: hidden; }
+        .mercury { position: absolute; bottom: 0; width: 100%; background: #c0392b; transition: height 0.05s linear; }
+        .mercury-digital { background: #e74c3c; transition: height 0.1s steps(1); }
+
+        input[type="range"] { width: 100%; cursor: pointer; accent-color: var(--analog); margin: 15px 0; }
+        .label-row { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 5px; }
+        .analog-text { color: var(--analog); }
+        .digital-text { color: var(--digital); }
+        .explanation { font-size: 0.85em; color: #aaa; margin-top: 10px; line-height: 1.4; min-height: 3em; }
+
+        /* QUIZ */
+        #quiz-container { background: #2c3e50; padding: 30px; border-radius: 12px; border-top: 5px solid #27ae60; }
+        .question { font-size: 1.1em; margin-bottom: 20px; }
+        .options { display: grid; gap: 10px; }
+        button.option-btn { background: #34495e; border: 1px solid #555; color: white; padding: 12px; border-radius: 6px; cursor: pointer; text-align: left; transition: 0.2s; }
+        button.option-btn:hover { background: #4e6a85; }
+        #quiz-feedback { margin-top: 20px; font-weight: bold; padding: 10px; border-radius: 5px; display: none; text-align: center; }
+        .correct { background: #27ae60; }
+        .wrong { background: #c0392b; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>WP-NW: Analog-Digital-Labor</h1>
+        <p>Simulation zur Informationsverarbeitung (Inhaltsfeld 6)</p>
+    </header>
+
+    <div class="info-box">
+        <strong>Was du hier lernst:</strong> Die Natur arbeitet stufenlos (Analog). Technik muss diese Werte erst in ein Raster aus Schritten (Digital) übersetzen, um sie speichern zu können.
+    </div>
+
+    <div class="example-card">
+        <div class="example-header"><h2>1. Sonnenuntergang (Bittiefe)</h2></div>
+        <div class="split-view">
+            <div>
+                <div class="label-row analog-text"><span>Analog (Echte Sonne)</span></div>
+                <div class="vis-area"><div id="analogSun" class="sun"></div></div>
+                <input type="range" id="sunSlider" min="0" max="100" step="0.1" value="70">
+                <p class="explanation">Bewege die Sonne. Sie gleitet stufenlos am Horizont entlang – wie in der echten Natur.</p>
+            </div>
+            <div>
+                <div class="label-row digital-text"><span>Digital (<span id="bitLabel">2-Bit</span>)</span></div>
+                <div class="vis-area"><div id="digitalSun" class="sun"></div></div>
+                <input type="range" id="bitSlider" min="1" max="6" step="1" value="2">
+                <p class="explanation">Die "Bittiefe" bestimmt, wie viele Stufen dem Computer zur Verfügung stehen. Bei wenig Bit "springt" die Sonne.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="example-card">
+        <div class="example-header"><h2>2. Wärme-Messung (Abtastrate)</h2></div>
+        <div class="split-view">
+            <div>
+                <div class="label-row analog-text"><span>Flüssigkeitsthermometer</span></div>
+                <div class="vis-area">
+                    <div class="thermometer-body"><div id="analogMer" class="mercury" style="height: 50%"></div></div>
+                </div>
+                <input type="range" id="tempSlider" min="0" max="100" step="0.1" value="50">
+                <p class="explanation">Die Flüssigkeit reagiert <strong>sofort und stufenlos</strong> auf Wärmeänderungen.</p>
+            </div>
+            <div>
+                <div class="label-row digital-text"><span>Digitaler Sensor (<span id="rateLabel">Mittel</span>)</span></div>
+                <div class="vis-area">
+                    <div class="thermometer-body"><div id="digitalMer" class="mercury mercury-digital" style="height: 50%"></div></div>
+                    <div id="tempDisplay" style="position:absolute; bottom:10px; font-family: monospace; font-size: 1.4em; font-weight: bold; background: rgba(0,0,0,0.7); padding: 5px; border-radius: 4px;">25.0 °C</div>
+                </div>
+                <input type="range" id="rateSlider" min="1" max="30" step="1" value="5">
+                <p class="explanation">Der Sensor misst nur in festen Zeitabständen. Er "verpasst" schnelle Änderungen dazwischen.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="quiz-container" class="example-card">
+        <div class="example-header"><h2>🏁 Wissens-Check</h2></div>
+        <div id="quiz-content">
+            <div class="question" id="q-text">Frage lädt...</div>
+            <div class="options" id="q-options"></div>
+            <div id="quiz-feedback"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- Logik Beispiel 1: Sonne (Bittiefe) ---
+    const sunS = document.getElementById('sunSlider'), bitS = document.getElementById('bitSlider');
+    const aSun = document.getElementById('analogSun'), dSun = document.getElementById('digitalSun');
+    
+    function updateSun() {
+        let v = parseFloat(sunS.value);
+        let b = parseInt(bitS.value);
+        let levels = Math.pow(2, b);
+        
+        // Analog: Sofortige Bewegung
+        aSun.style.transform = `translateY(${80 - v}px)`;
+        
+        // Digital: In Stufen unterteilt
+        let qV = Math.round((v/100)*(levels-1))/(levels-1)*100;
+        dSun.style.transform = `translateY(${80 - qV}px)`;
+        
+        document.getElementById('bitLabel').innerText = b + "-Bit (" + levels + " Stufen)";
+    }
+
+    // --- Logik Beispiel 2: Temperatur (Abtastung) ---
+    const tempS = document.getElementById('tempSlider'), rateS = document.getElementById('rateSlider');
+    const aMer = document.getElementById('analogMer'), dMer = document.getElementById('digitalMer');
+    const tDisp = document.getElementById('tempDisplay'), rLabel = document.getElementById('rateLabel');
+
+    // Analog: Reagiert SOFORT auf den Slider (input event)
+    tempS.addEventListener('input', () => {
+        aMer.style.height = tempS.value + '%';
+    });
+
+    // Digital: Wird über ein dynamisches Intervall gesteuert
+    let samplingInterval;
+    function startSampling() {
+        if(samplingInterval) clearInterval(samplingInterval);
+        
+        let ms = 2000 / parseInt(rateS.value);
+        samplingInterval = setInterval(() => {
+            let currentVal = parseFloat(tempS.value);
+            // Digitaler Sprung
+            dMer.style.height = currentVal + '%';
+            tDisp.innerText = (10 + currentVal * 0.4).toFixed(1) + " °C";
+        }, ms);
+        
+        let rate = parseInt(rateS.value);
+        rLabel.innerText = rate < 8 ? "Niedrig" : (rate < 20 ? "Mittel" : "Hoch");
+    }
+
+    // --- QUIZ LOGIK ---
+    const quizData = [
+        { q: "Was passiert mit einem analogen Signal in der Natur?", a: ["Es springt zwischen festen Werten", "Es verändert sich stufenlos und ohne Pausen", "Es besteht immer aus Dualzahlen"], c: 1 },
+        { q: "Was bedeutet eine Bittiefe von '1-Bit' für die digitale Sonne?", a: ["Sie hat 100 verschiedene Helligkeitsstufen", "Sie kennt nur zwei Zustände (z.B. Oben oder Unten)", "Sie bewegt sich flüssiger als analog"], c: 1 },
+        { q: "Warum reagiert das digitale Thermometer bei niedriger Abtastrate so langsam?", a: ["Weil der Sensor zu oft misst", "Weil der Computer nur in großen Zeitabständen 'nachschaut'", "Weil digitale Signale keine Wärme mögen"], c: 1 },
+        { q: "Welcher Vorteil hat eine hohe Bittiefe?", a: ["Die Datei wird kleiner", "Die Genauigkeit zum Original wird besser", "Die Batterie hält länger"], c: 1 }
+    ];
+    let curQ = 0;
+    function loadQuiz() {
+        const q = quizData[curQ];
+        document.getElementById('q-text').innerText = q.q;
+        const opt = document.getElementById('q-options');
+        opt.innerHTML = "";
+        q.a.forEach((text, i) => {
+            const btn = document.createElement('button');
+            btn.className = "option-btn";
+            btn.innerText = text;
+            btn.onclick = () => {
+                const feed = document.getElementById('quiz-feedback');
+                feed.style.display = "block";
+                if(i === q.c) {
+                    feed.innerText = "Richtig! ✓"; feed.className = "correct";
+                    setTimeout(() => { curQ = (curQ+1)%quizData.length; feed.style.display="none"; loadQuiz(); }, 1500);
+                } else {
+                    feed.innerText = "Versuch es nochmal! ✗"; feed.className = "wrong";
+                }
+            };
+            opt.appendChild(btn);
+        });
+    }
+
+    // Initialisierung
+    sunS.oninput = updateSun;
+    bitS.oninput = updateSun;
+    rateS.oninput = startSampling;
+    
+    window.onload = () => { 
+        updateSun(); 
+        startSampling(); 
+        loadQuiz(); 
+    };
+</script>
+
+</body>
+</html>

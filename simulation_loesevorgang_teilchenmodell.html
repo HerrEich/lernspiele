@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulation: Lösevorgang im Teilchenmodell II</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+
+        h1 { text-align: center; }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        #simulationCanvas {
+            background-color: #eef6fc; /* Helles Wasserblau */
+            border: 4px solid #555;
+            border-top: none; /* Oben offen */
+            border-radius: 0 0 20px 20px; /* Becherglas-Boden */
+            box-shadow: inset 0 -5px 10px rgba(0,0,0,0.05);
+            margin-bottom: 15px;
+            /* Damit Teilchen nicht am Rand kleben, kleiner Padding-Effekt */
+            display: block;
+        }
+
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        button {
+            padding: 10px 25px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            font-family: inherit;
+            font-weight: 500;
+        }
+
+        button:active { transform: scale(0.98); }
+
+        #startBtn { background-color: #28a745; color: white; }
+        #startBtn:hover { background-color: #218838; }
+        #startBtn:disabled { background-color: #94d3a2; cursor: not-allowed; }
+        
+        #resetBtn { background-color: #dc3545; color: white; }
+        #resetBtn:hover { background-color: #c82333; }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-bottom: 20px;
+            font-size: 15px;
+        }
+        .legend-item { display: flex; align-items: center; }
+        .dot { height: 16px; width: 16px; border-radius: 50%; margin-right: 10px; box-shadow: 1px 1px 3px rgba(0,0,0,0.2);}
+        .water-dot { background-color: #3498db; border: 1px solid #2980b9; }
+        .sugar-dot { background-color: #ffffff; border: 2px solid #bdc3c7; }
+
+        .status-box {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #dee2e6;
+            min-height: 1.4em;
+            font-weight: 600;
+            color: #495057;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Versuch: Der Lösevorgang (Interaktives Teilchenmodell)</h1>
+
+    <div class="container">
+        <div class="legend">
+            <div class="legend-item"><div class="dot water-dot"></div>Wasserteilchen (schnell, stoßen an)</div>
+            <div class="legend-item"><div class="dot sugar-dot"></div>Zuckerteilchen (schwerer, werden gelöst)</div>
+        </div>
+
+        <canvas id="simulationCanvas" width="500" height="350"></canvas>
+        
+        <div class="status-box" id="status">Bereit. Drücke "Start", damit sich das Wasser bewegt.</div>
+
+        <div class="controls">
+            <button id="startBtn">Simulation starten</button>
+            <button id="resetBtn">Zurücksetzen</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('simulationCanvas');
+        const ctx = canvas.getContext('2d');
+        const statusText = document.getElementById('status');
+        const startBtn = document.getElementById('startBtn');
+        const resetBtn = document.getElementById('resetBtn');
+
+        // --- Konfiguration ---
+        const WATER_COUNT = 200;   // Anzahl Wasserteilchen
+        const SUGAR_ROWS = 6;      // Zuckerwürfel Reihen
+        const SUGAR_COLS = 6;      // Zuckerwürfel Spalten
+        const WATER_SPEED = 3.5;   // Grundgeschwindigkeit Wasser
+        // Wahrscheinlichkeit, dass ein Stoß ein Zuckerteilchen löst (0.0 bis 1.0)
+        // Je höher, desto schneller löst sich der Würfel auf.
+        const DISSOLVE_CHANCE = 0.15; 
+
+        let particles = [];
+        let animationId;
+        let isRunning = false;
+        // Grenzen des Zuckerwürfels für die Initialisierung
+        let cubeBounds = { xMin: 0, xMax: 0, yMin: 0, yMax: 0 };
+
+        // --- Teilchen Klasse ---
+        class Particle {
+            constructor(x, y, type, isSolid = false) {
+                this.x = x;
+                this.y = y;
+                this.type = type;
+                this.isSolid = isSolid; // true = fest im Gitter, false = gelöst/flüssig
+
+                if (type === 'water') {
+                    this.radius = 7;
+                    this.mass = 1; // Leicht
+                    // Zufällige Startgeschwindigkeit
+                    this.vx = (Math.random() - 0.5) * WATER_SPEED;
+                    this.vy = (Math.random() - 0.5) * WATER_SPEED;
+                    this.color = '#3498db';
+                    this.borderColor = '#2980b9';
+                } else {
+                    this.radius = 9;
+                    this.mass = 4; // Schwerer
+                    this.vx = 0; // Am Anfang unbeweglich
+                    this.vy = 0;
+                    this.color = '#ffffff';
+                    this.borderColor = '#bdc3c7';
+                }
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                ctx.lineWidth = this.type === 'sugar' ? 2 : 1;
+                ctx.strokeStyle = this.borderColor;
+                ctx.stroke();
+                ctx.closePath();
+                
+                // Optional: Kleiner Glanzpunkt für 3D-Effekt
+                 ctx.beginPath();
+                 ctx.arc(this.x - this.radius/3, this.y - this.radius/3, this.radius/4, 0, Math.PI*2);
+                 ctx.fillStyle = 'rgba(255,255,255,0.4)';
+                 ctx.fill();
+            }
+
+            updatePosition() {
+                if (this.isSolid || !isRunning) return;
+
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Wandkollisionen (Abprallen)
+                if (this.x - this.radius < 0) { this.x = this.radius; this.vx *= -0.9; }
+                if (this.x + this.radius > canvas.width) { this.x = canvas.width - this.radius; this.vx *= -0.9; }
+                if (this.y + this.radius > canvas.height) { this.y = canvas.height - this.radius; this.vy *= -0.9; }
+                if (this.y - this.radius < 0) { this.y = this.radius; this.vy *= -0.9; }
+            }
+        }
+
+        // --- Physik Engine: Kollisionen & Lösen ---
+        function handleCollisions() {
+            if (!isRunning) return;
+
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    let p1 = particles[i];
+                    let p2 = particles[j];
+
+                    // Wenn beide fest sind, ignorieren (Gitter hält zusammen)
+                    if (p1.isSolid && p2.isSolid) continue;
+
+                    const dx = p2.x - p1.x;
+                    const dy = p2.y - p1.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    const minDistance = p1.radius + p2.radius;
+
+                    if (distance < minDistance) {
+                        // --- Kollision erkannt ---
+                        
+                        const nx = dx / distance; // Normalenvektor X
+                        const ny = dy / distance; // Normalenvektor Y
+
+                        // Spezialfall: Wasser trifft festen Zucker (Der Lösevorgang!)
+                        // Wir prüfen beide Richtungen (p1 trifft p2 ODER p2 trifft p1)
+                        let water = null;
+                        let solidSugar = null;
+                        let impactNX = 0, impactNY = 0;
+
+                        if (p1.type === 'water' && p2.isSolid) {
+                            water = p1; solidSugar = p2; impactNX = nx; impactNY = ny;
+                        } else if (p2.type === 'water' && p1.isSolid) {
+                            water = p2; solidSugar = p1; impactNX = -nx; impactNY = -ny;
+                        }
+
+                        if (water && solidSugar) {
+                             // 1. Wasser prallt vom "festen Hindernis" ab
+                             // (Vereinfachte Reflexion der Geschwindigkeit entlang der Normalen)
+                            let dot = water.vx * impactNX + water.vy * impactNY;
+                            water.vx = water.vx - 2 * dot * impactNX;
+                            water.vy = water.vy - 2 * dot * impactNY;
+
+                             // 2. Chance, den Zucker zu lösen
+                            if (Math.random() < DISSOLVE_CHANCE) {
+                                solidSugar.isSolid = false;
+                                // Gib dem Zucker einen "Schubs" nach außen (entlang der Normalen)
+                                // plus etwas Zufall, damit es natürlicher aussieht.
+                                solidSugar.vx = impactNX * 2 + (Math.random()-0.5);
+                                solidSugar.vy = impactNY * 2 + (Math.random()-0.5) - 0.5; // Leichter Auftrieb
+                            }
+
+                        } else if (!p1.isSolid && !p2.isSolid) {
+                            // Standard Elastischer Stoß zwischen zwei "freien" Teilchen
+                            // (Dies verhindert, dass sie sich überlagern, wenn sie gelöst sind)
+                            
+                            // Positionskorrektur gegen Überlappung
+                            const overlap = minDistance - distance;
+                            const moveX = overlap * nx * 0.5;
+                            const moveY = overlap * ny * 0.5;
+                            p1.x -= moveX; p1.y -= moveY;
+                            p2.x += moveX; p2.y += moveY;
+
+                            // Impulserhaltung (vereinfacht 2D)
+                            const tx = -ny; // Tangentenvektor
+                            const ty = nx;
+
+                            const dpTan1 = p1.vx * tx + p1.vy * ty;
+                            const dpTan2 = p2.vx * tx + p2.vy * ty;
+                            const dpNorm1 = p1.vx * nx + p1.vy * ny;
+                            const dpNorm2 = p2.vx * nx + p2.vy * ny;
+
+                            const m1 = p1.mass;
+                            const m2 = p2.mass;
+
+                            const mom1 = (dpNorm1 * (m1 - m2) + 2 * m2 * dpNorm2) / (m1 + m2);
+                            const mom2 = (dpNorm2 * (m2 - m1) + 2 * m1 * dpNorm1) / (m1 + m2);
+
+                            p1.vx = tx * dpTan1 + nx * mom1;
+                            p1.vy = ty * dpTan1 + ny * mom1;
+                            p2.vx = tx * dpTan2 + nx * mom2;
+                            p2.vy = ty * dpTan2 + ny * mom2;
+                            
+                            // Leichte Dämpfung, damit das System nicht explodiert
+                            p1.vx *= 0.99; p1.vy *= 0.99;
+                            p2.vx *= 0.99; p2.vy *= 0.99;
+                        }
+                    }
+                }
+            }
+        }
+
+        // --- Initialisierung ---
+        function init() {
+            isRunning = false;
+            cancelAnimationFrame(animationId);
+            particles = [];
+            startBtn.disabled = false;
+            startBtn.textContent = "Simulation starten";
+            statusText.textContent = "Bereit. Der Zuckerwürfel liegt am Boden, das Wasser ist verteilt.";
+            statusText.style.backgroundColor = "#f8f9fa";
+
+            const sugarSpacing = 18; // Abstand zwischen Zuckermittelpunkten
+            const cubeWidth = SUGAR_COLS * sugarSpacing;
+            const cubeHeight = SUGAR_ROWS * sugarSpacing;
+            
+            const startX = (canvas.width - cubeWidth) / 2 + sugarSpacing/2;
+            const startY = canvas.height - cubeHeight - 20; // Etwas Abstand vom Boden
+
+            // 1. Zuckerwürfel erstellen & Grenzen merken
+            cubeBounds = {
+                xMin: startX - sugarSpacing,
+                xMax: startX + cubeWidth,
+                yMin: startY - sugarSpacing,
+                yMax: startY + cubeHeight + 20 // Bis zum Boden
+            };
+
+            for (let row = 0; row < SUGAR_ROWS; row++) {
+                for (let col = 0; col < SUGAR_COLS; col++) {
+                    particles.push(new Particle(startX + col * sugarSpacing, startY + row * sugarSpacing, 'sugar', true));
+                }
+            }
+
+            // 2. Wasserteilchen überall erstellen, aber NICHT im Zuckerwürfel
+            let attempts = 0;
+            while (particles.length < WATER_COUNT + (SUGAR_ROWS*SUGAR_COLS) && attempts < 5000) {
+                attempts++;
+                const r = 7; // Wasserradius
+                let x = Math.random() * (canvas.width - 2*r) + r;
+                let y = Math.random() * (canvas.height - 2*r) + r;
+
+                // Prüfen, ob die Koordinate im Zuckerwürfel-Bereich liegt
+                const insideCube = (x > cubeBounds.xMin && x < cubeBounds.xMax && 
+                                  y > cubeBounds.yMin && y < cubeBounds.yMax);
+                
+                if (!insideCube) {
+                    particles.push(new Particle(x, y, 'water'));
+                }
+            }
+            
+            drawScene();
+        }
+
+        // --- Animations-Schleife ---
+        function animate() {
+            animationId = requestAnimationFrame(animate);
+            handleCollisions();
+            particles.forEach(p => p.updatePosition());
+            drawScene();
+
+            // Status prüfen
+            const solidCount = particles.filter(p => p.isSolid).length;
+            if (isRunning && solidCount === 0) {
+                statusText.textContent = "Vorgang beendet: Alle Zuckerteilchen wurden durch Stöße gelöst und verteilt!";
+                statusText.style.backgroundColor = "#d4edda"; // Hellgrün
+            } else if (isRunning) {
+                 statusText.textContent = `Simulation läuft... Die Wasserteilchen stoßen gegen den Zucker. (${solidCount} noch fest)`;
+            }
+        }
+
+        function drawScene() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Erst feste, dann lose Teilchen zeichnen (für korrekte Überlappung bei der Darstellung)
+            particles.filter(p => p.isSolid).forEach(p => p.draw());
+            particles.filter(p => !p.isSolid).forEach(p => p.draw());
+        }
+
+        // --- Event Listener ---
+        startBtn.addEventListener('click', () => {
+            if (!isRunning) {
+                isRunning = true;
+                startBtn.disabled = true;
+                animate();
+            }
+        });
+
+        resetBtn.addEventListener('click', init);
+
+        // Start beim Laden
+        init();
+
+    </script>
+</body>
+</html>

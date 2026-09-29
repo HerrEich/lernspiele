@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Klassen-Abschluss-Spiel: Chemie</title>
+    <style>
+        :root {
+            --primary: #4A90E2;
+            --secondary: #50E3C2;
+            --danger: #E94A4A;
+            --warning: #F5A623;
+            --dark: #333;
+            --light: #F5F7FA;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            color: white;
+        }
+        button:hover {
+            transform: scale(1.05);
+        }
+        .btn-blue { background-color: var(--primary); }
+        .btn-green { background-color: var(--secondary); color: var(--dark); }
+        .btn-red { background-color: var(--danger); }
+        .btn-dark { background-color: var(--dark); }
+        .btn-warning { background-color: var(--warning); color: var(--dark); font-weight: bold; }
+        
+        /* Setup Bereich */
+        #setup-section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--light);
+        }
+        
+        /* Spiel Bereich */
+        #game-section {
+            display: none;
+        }
+
+        /* SMARTBOARD BEREICH (OBEN) */
+        .public-view {
+            background-color: var(--light);
+            border: 2px solid var(--primary);
+            padding: 30px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .action-type {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--danger);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+        }
+        .hint-box {
+            display: none;
+            background-color: #FFF3CD;
+            color: #856404;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: left;
+        }
+        .hint-box p {
+            margin: 5px 0;
+            padding: 5px;
+            border-bottom: 1px dashed #ffe69c;
+        }
+        .hint-box p:last-child {
+            border-bottom: none;
+        }
+
+        /* ABSTANDSHALTER */
+        .spacer {
+            height: 70vh;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 20px;
+            color: #aaa;
+            font-style: italic;
+            border-bottom: 2px dashed #ddd;
+            margin-bottom: 40px;
+        }
+
+        /* ERKLÄRER BEREICH (UNTEN) */
+        .secret-view {
+            background-color: #ffebee;
+            padding: 30px;
+            border-radius: 10px;
+            border: 3px dashed var(--danger);
+            margin-top: 20px;
+        }
+        .secret-view h3 {
+            color: var(--danger);
+            margin-top: 0;
+        }
+        .actual-word {
+            font-size: 48px;
+            margin: 20px 0;
+            font-weight: bold;
+            color: var(--dark);
+        }
+
+        /* Timer Bereich */
+        .timer-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #E8F0FE;
+            border-radius: 10px;
+        }
+        .timer-display {
+            font-size: 60px;
+            font-weight: bold;
+            font-family: monospace;
+            margin: 10px 0;
+        }
+        .timer-blink {
+            color: var(--danger);
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        /* Scoreboard */
+        .scoreboard {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid var(--light);
+        }
+        .team-score {
+            background: white;
+            padding: 15px;
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            min-width: 150px;
+            margin: 10px;
+        }
+        .team-score h3 { margin: 0 0 10px 0; }
+        .score-number { font-size: 30px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 id="top">🎉 Klassen-Abschluss-Spiel: Chemie 🎉</h1>
+
+    <div id="setup-section">
+        <h2>Einstellungen</h2>
+        <label for="team-count">Anzahl der Teams: </label>
+        <input type="number" id="team-count" value="2" min="2" max="6" style="font-size: 18px; width: 50px; text-align: center;">
+        <br><br>
+        <button class="btn-blue" onclick="startGame()">Spiel Starten</button>
+    </div>
+
+    <div id="game-section">
+
+        <div class="public-view">
+            <h3 style="margin-top: 0; color: #888;">Ansicht für die Klasse</h3>
+            <div id="action-type-top" class="action-type">Warte auf erstes Wort...</div>
+            
+            <button class="btn-dark" onclick="showNextHint()" id="hint-btn" style="display: none;">💡 Tipp 1 anzeigen</button>
+            <div id="hint-box" class="hint-box"></div>
+        </div>
+
+        <div class="timer-section">
+            <h3>Timer</h3>
+            <button class="btn-green" onclick="setTimer(60)">1 Min</button>
+            <button class="btn-green" onclick="setTimer(120)">2 Min</button>
+            <button class="btn-green" onclick="setTimer(180)">3 Min</button>
+            
+            <div id="timer-display" class="timer-display">00:00</div>
+            
+            <button class="btn-blue" onclick="startTimer()">▶️ Start</button>
+            <button class="btn-dark" onclick="pauseTimer()">⏸️ Pause</button>
+            <button class="btn-red" onclick="resetTimer()">⏹️ Reset</button>
+        </div>
+
+        <div id="scoreboard" class="scoreboard">
+            </div>
+
+
+        <div class="spacer">
+            ⬇️ Lehrer-Bereich: Scrolle weiter nach unten für das geheime Wort ⬇️
+        </div>
+
+
+        <div class="secret-view">
+            <h3>🤫 Erklärer-Ansicht (Geheim)</h3>
+            <p>Lass den Schüler hier das Wort ablesen, ohne dass es am Smartboard auftaucht.</p>
+            
+            <button class="btn-blue" onclick="generateWord()" style="font-size: 20px; padding: 15px 30px;">🎁 Neues Wort ziehen</button>
+            
+            <div id="action-type-bottom" class="action-type" style="margin-top: 20px; font-size: 20px;"></div>
+            <div id="actual-word" class="actual-word">???</div>
+            
+            <button class="btn-dark" onclick="window.scrollTo(0, 0)" style="margin-top: 20px;">⬆️ Wieder ganz nach oben scrollen</button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // --- WORTLISTE MIT TIPPS (CHEMIE) ---
+    let originalWordList = [
+        // --- Themenbereich: Aggregatzustände & Teilchenmodell ---
+        { word: "Aggregatzustand", hints: ["Gibt an, ob ein Stoff fest, flüssig oder gasförmig ist.", "Ändert sich, wenn man Wasser kocht oder einfriert.", "Hängt stark von der Temperatur ab."] },
+        { word: "Teilchenmodell", hints: ["Eine Modellvorstellung in der Chemie, nach der alle Stoffe aus kleinsten Kugeln bestehen.", "Erklärt, warum sich Gase von selbst im Raum verteilen.", "Besagt: Je wärmer es ist, desto schneller bewegen sich diese winzigen Dinge."] },
+        { word: "Schmelzen", hints: ["Der Übergang von fest zu flüssig.", "Dafür muss dem Stoff Wärme zugeführt werden.", "Passiert mit Eiswürfeln in der warmen Sonne."] },
+        { word: "Verdampfen", hints: ["Der Übergang von flüssig zu gasförmig.", "Der Stoff verschwindet dabei scheinbar in die Luft.", "Passiert, wenn man Wasser sehr lange kocht."] },
+        { word: "Kondensieren", hints: ["Der Übergang von gasförmig zu flüssig.", "Passiert, wenn Wasserdampf abkühlt.", "Sorgt für beschlagene Scheiben oder Spiegel nach dem heißen Duschen."] },
+        { word: "Erstarren", hints: ["Der Übergang von flüssig zu fest.", "Passiert, wenn man flüssiges Wachs abkühlen lässt.", "Ein anderes Wort im Alltag dafür ist 'Gefrieren'."] },
+        { word: "Sublimieren", hints: ["Der direkte Übergang von fest zu gasförmig, ohne flüssig zu werden.", "Trockeneis zeigt dieses Verhalten bei Zimmertemperatur.", "Es entsteht sofort Nebel oder Gas aus einem Block, ohne dass er schmilzt."] },
+        
+        // --- Themenbereich: Stoffe und Stoffeigenschaften ---
+        { word: "Dichte", hints: ["Eine Stoffeigenschaft, die Masse und Volumen ins Verhältnis setzt.", "Gold hat hier einen sehr hohen Wert, Styropor einen sehr niedrigen.", "Bestimmt, ob ein Gegenstand in Wasser schwimmt oder sinkt."] },
+        { word: "Elektrische Leitfähigkeit", hints: ["Eine Eigenschaft, die Metalle sehr gut besitzen, Plastik aber überhaupt nicht.", "Ist der Grund, warum Kabel aus Kupfer bestehen.", "Ohne diese Eigenschaft würde kein Smartphone funktionieren."] },
+        { word: "Schmelzpunkt", hints: ["Eine ganz bestimmte Temperatur, die für jeden Reinstoff typisch ist.", "Darüber wird ein fester Block flüssig.", "Bei Wasser liegt dieser exakte Wert bei 0 Grad Celsius."] },
+        { word: "Siedepunkt", hints: ["Die Temperatur, bei der eine Flüssigkeit anfängt zu blubbern und zu Gas wird.", "Wichtig beim Kochen von Nudeln oder Kartoffeln.", "Bei Wasser sind das exakt 100 Grad Celsius."] },
+        { word: "Löslichkeit", hints: ["Beschreibt, wie gut sich ein Stoff in Wasser (oder anderen Flüssigkeiten) verteilt.", "Wird oft durch Rühren oder Erhitzen verbessert.", "Salz hat hier einen hohen Wert, Sand einen sehr geringen."] },
+        { word: "Reinstoff", hints: ["Besteht nur aus einer einzigen Teilchensorte.", "Lässt sich nicht durch einfache physikalische Methoden weiter trennen.", "Destilliertes Wasser ist ein gutes Beispiel dafür."] },
+        { word: "Stoffgemisch", hints: ["Besteht aus mindestens zwei verschiedenen Teilchensorten.", "Kann homogen (einheitlich) oder heterogen (uneinheitlich) sein.", "Müsli, Luft oder Salzwasser sind Beispiele dafür."] },
+        { word: "Lösung", hints: ["Ein homogenes (einheitliches) Gemisch aus einer Flüssigkeit und einem darin verteilten Feststoff.", "Man kann die einzelnen Bestandteile mit dem bloßen Auge nicht mehr erkennen.", "Zuckerwasser ist ein klassisches Beispiel."] },
+        { word: "Suspension", hints: ["Ein heterogenes (uneinheitliches) Gemisch aus einer Flüssigkeit und kleinen Feststoffen.", "Die Teilchen setzen sich nach einiger Zeit oft am Boden ab.", "Orangensaft mit Fruchtfleisch oder Schlammwasser sind Beispiele."] },
+        { word: "Emulsion", hints: ["Ein Gemisch aus zwei eigentlich nicht mischbaren Flüssigkeiten.", "Entsteht, wenn man Öl und Wasser kräftig schüttelt.", "Milch oder Mayonnaise gehören in diese Kategorie."] },
+        
+        // --- Themenbereich: Trennverfahren ---
+        { word: "Trennverfahren", hints: ["Der allgemeine Begriff für Methoden, um ein Gemisch wieder in seine Einzelteile zu zerlegen.", "Man nutzt dafür die unterschiedlichen Eigenschaften der Stoffe aus.", "Filtrieren oder Destillieren sind Beispiele dafür."] },
+        { word: "Filtrieren", hints: ["Eine Methode, um Feststoffe von einer Flüssigkeit zu trennen.", "Man nutzt dafür oft ein spezielles, feinporiges Papier im Trichter.", "Funktioniert vom Prinzip her genauso wie die Kaffeezubereitung am Morgen."] },
+        { word: "Destillieren", hints: ["Ein Trennverfahren, das unterschiedliche Siedepunkte der Stoffe ausnutzt.", "Man verdampft eine Flüssigkeit und lässt sie danach an einer kalten Fläche wieder kondensieren.", "Wird verwendet, um aus Salzwasser reines Trinkwasser (ohne Salz) zu machen."] },
+        { word: "Eindampfen", hints: ["Ein Verfahren, um gelöste Feststoffe aus einer Flüssigkeit zurückzugewinnen.", "Man erhitzt die Lösung, bis die Flüssigkeit komplett verschwunden ist.", "So gewinnt man zum Beispiel Salz aus Meerwasser in großen Becken."] },
+        { word: "Dekantieren", hints: ["Ein sehr einfaches, mechanisches Trennverfahren.", "Man wartet, bis sich der Schmutz abgesetzt hat, und gießt die klare Flüssigkeit vorsichtig ab.", "Wird oft im Alltag gemacht, wenn man Nudelwasser ohne Sieb abgießt."] },
+        { word: "Chromatografie", hints: ["Trennt ein Gemisch anhand der unterschiedlichen Fließgeschwindigkeiten der Stoffe.", "Zeigt, dass schwarze Farbe eigentlich aus vielen bunten Farben besteht.", "Wird oft mit Filterpapier und Filzstift-Farben im Unterricht durchgeführt."] },
+        { word: "Magnettrennung", hints: ["Trennt ein Gemisch, indem man eine bestimmte magnetische Eigenschaft ausnutzt.", "Zieht bestimmte Metalle an, lässt andere Stoffe liegen.", "Funktioniert super bei einer Mischung aus Eisen- und Schwefelpulver auf dem Schülertisch."] },
+        { word: "Zentrifugieren", hints: ["Trennt ein Gemisch durch extrem schnelles Drehen.", "Nutzt die unterschiedliche Dichte und die Fliehkraft aus.", "Wird oft in Krankenhäusern genutzt, um Blut in seine Bestandteile zu trennen."] },
+
+        // --- Themenbereich: Konkrete Stoffe und Alltagschemikalien ---
+        { word: "Wasser", hints: ["Ein durchsichtiger Stoff, der bei 0 °C gefriert und bei 100 °C siedet.", "Bedeckt etwa zwei Drittel unserer Erdoberfläche.", "Ohne diese Flüssigkeit gäbe es kein Leben auf unserem Planeten."] },
+        { word: "Eisen", hints: ["Ein graues Metall, das stark magnetisch ist.", "Wenn es nass wird und an der Luft liegt, fängt es an zu rosten.", "Viele Werkzeuge, Nägel und Stahlträger bestehen aus diesem Material."] },
+        { word: "Kupfer", hints: ["Ein rötlich glänzendes Metall.", "Es leitet elektrischen Strom besonders gut.", "Wird fast immer für die Drähte unter der Plastikhülle von Stromkabeln verwendet."] },
+        { word: "Gold", hints: ["Ein gelblich glänzendes, extrem wertvolles Edelmetall.", "Es läuft nicht an und rostet niemals.", "Wird oft für sehr teuren Schmuck oder besondere Münzen verwendet."] },
+        { word: "Aluminium", hints: ["Ein sehr leichtes, silbernes Metall.", "Flugzeuge werden oft daraus gebaut, um viel Gewicht zu sparen.", "Man findet es im Alltag oft als dünne Folie in der Küche oder als Getränkedose."] },
+        { word: "Kochsalz (Natriumchlorid)", hints: ["Ein weißer Feststoff, der aus winzigen, würfelförmigen Kristallen besteht.", "Gewinnt man aus verdunstetem Meerwasser oder aus tiefen Bergwerken.", "Ohne diesen Stoff schmecken Pommes oder Nudeln extrem langweilig."] },
+        { word: "Zucker", hints: ["Ein süßer, weißer Feststoff, der in bestimmten Rüben oder in Zuckerrohr wächst.", "Löst sich hervorragend in heißem Tee.", "Wenn man ihn in der Pfanne stark erhitzt, schmilzt er und wird zu braunem Karamell."] },
+        { word: "Sauerstoff", hints: ["Ein völlig farbloses und geruchloses Gas.", "Wir müssen es ununterbrochen einatmen, um zu überleben.", "Ohne dieses Gas in der Luft würde sofort jedes Feuer ausgehen."] },
+        { word: "Kohlendioxid", hints: ["Ein Gas, das wir Menschen beim Ausatmen an die Umgebung abgeben.", "Pflanzen brauchen es, um daraus bei der Fotosynthese wieder Sauerstoff zu machen.", "Es sorgt für das Zischen und Sprudeln in der Limonade."] },
+        { word: "Helium", hints: ["Ein Gas, das viel leichter ist als unsere normale Luft.", "Reagiert mit fast gar nichts und brennt nicht.", "Wird in Kirmes-Luftballons gefüllt oder sorgt beim Einatmen für eine lustige Micky-Maus-Stimme."] },
+        { word: "Kunststoff (Plastik)", hints: ["Ein künstlich hergestelltes Material, das meistens aus Erdöl gewonnen wird.", "Leitet überhaupt keinen Strom und umhüllt deshalb Kabel zur Sicherheit.", "Wird zu einem riesigen Umweltproblem, wenn er als Müll im Ozean landet."] },
+        
+        // --- Themenbereich: Weitere Stoffeigenschaften ---
+        { word: "Magnetismus", hints: ["Eine Eigenschaft, die bei Raumtemperatur hauptsächlich Eisen, Nickel und Cobalt besitzen.", "Zieht bestimmte Metalle unsichtbar an.", "Sorgt im Alltag dafür, dass Notizzettel am Kühlschrank hängen bleiben."] },
+        { word: "Brennbarkeit", hints: ["Eine Eigenschaft, die beschreibt, wie leicht ein Stoff Feuer fängt.", "Holz und Papier haben hier einen hohen Wert, Steine oder Wasser gar keinen.", "Bei Benzin oder Spiritus ist diese Eigenschaft so hoch, dass es extrem gefährlich ist."] },
+        { word: "Wärmeleitfähigkeit", hints: ["Beschreibt, wie gut ein Material Hitze oder Kälte von einer Seite zur anderen weitergibt.", "Metalle sind darin sehr gut, Styropor oder Holz sind darin extrem schlecht.", "Der Grund, warum eine heiße Bratpfanne aus Metall fast immer einen Griff aus Plastik hat."] },
+        { word: "Geruch", hints: ["Eine Eigenschaft, die wir überprüfen, indem wir vorsichtig Luft mit der Hand zu uns fächeln.", "Kann stechend, faulig (wie faule Eier) oder süßlich sein.", "Man darf im Chemieraum niemals seine Nase direkt über das Reagenzglas halten, um das zu prüfen."] },
+        { word: "Glanz", hints: ["Eine Eigenschaft, die beschreibt, wie die Oberfläche eines Stoffes Licht zurückwirft.", "Fast alle Metalle haben diese Eigenschaft, wenn sie frisch poliert sind.", "Ein Diamant ist berühmt dafür, wie stark er in der Sonne funkelt."] },
+        { word: "Härte", hints: ["Gibt an, wie leicht man einen Stoff zerkratzen oder einritzen kann.", "Wachs oder Blei haben hier einen sehr niedrigen Wert.", "Diamant ist der unangefochtene Spitzenreiter und kann sogar Glas schneiden."] },
+        { word: "Farbe", hints: ["Eine optische Eigenschaft, die man ganz ohne Hilfsmittel sofort erkennt.", "Bei Gasen wie Sauerstoff oder Kohlenstoffdioxid fehlt sie oft komplett (sie sind durchsichtig).", "Schwefel ist leuchtend gelb, Kupfer ist rötlich."] },
+        { word: "Geschmack", hints: ["Eine Eigenschaft, die direkt mit unseren menschlichen Sinnen zu tun hat.", "Im Chemieraum darf man diese Eigenschaft aus Sicherheitsgründen niemals testen!", "Im Alltag in der Küche unterscheidet man so am einfachsten zwischen Salz und Zucker."] },
+        { word: "Verformbarkeit", hints: ["Beschreibt, was passiert, wenn man mechanische Kraft auf einen Stoff ausübt, ohne dass er bricht.", "Metalle besitzen diese Eigenschaft, weshalb man sie gut zu dünnen Drähten ziehen oder zu Blechen walzen kann.", "Knetmasse oder ein Gummiband zeigen dieses Verhalten im Alltag sehr deutlich."] },
+        { word: "Sprödigkeit", hints: ["Das genaue Gegenteil von Verformbarkeit.", "Ein Stoff mit dieser Eigenschaft gibt bei Belastung nicht nach, sondern splittert oder reißt sofort.", "Fensterglas, Tafelkreide oder rohe Spaghetti sind klassische Beispiele dafür."] },
+        { word: "Zähflüssigkeit (Viskosität)", hints: ["Beschreibt den Fließwiderstand von Flüssigkeiten.", "Je höher der Wert, desto langsamer tropft oder fließt der Stoff aus einer Flasche.", "Honig, Ketchup oder Sirup zeigen diese Eigenschaft viel stärker als Wasser."] }
+    ];
+
+    let currentWordList = [];
+    const actionTypes = ["Mündlich erklären", "Pantomimisch darstellen", "Zeichnerisch darstellen"];
+    
+    // Spiel-Status
+    let teamScores = [];
+    let currentSelectedWord = null; 
+    let currentHintIndex = 0; 
+
+    // --- SPIEL LOGIK ---
+    function startGame() {
+        let teamCount = document.getElementById("team-count").value;
+        if (teamCount < 2) teamCount = 2;
+
+        teamScores = Array(parseInt(teamCount)).fill(0);
+        updateScoreboard();
+
+        // Array kopieren
+        currentWordList = [...originalWordList];
+
+        // FISHER-YATES SHUFFLE (Wörterliste zufällig anordnen)
+        for (let i = currentWordList.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [currentWordList[i], currentWordList[j]] = [currentWordList[j], currentWordList[i]];
+        }
+
+        document.getElementById("setup-section").style.display = "none";
+        document.getElementById("game-section").style.display = "block";
+    }
+
+    function generateWord() {
+        if (currentWordList.length === 0) {
+            alert("Alle Wörter wurden gespielt! Lade die Seite neu, um von vorne zu beginnen.");
+            return;
+        }
+
+        // Da die Liste in startGame() gemischt wurde, können wir einfach das letzte Element nehmen
+        currentSelectedWord = currentWordList.pop();
+
+        let randomActionIndex = Math.floor(Math.random() * actionTypes.length);
+        let selectedAction = actionTypes[randomActionIndex];
+
+        // Action-Typ oben (für alle) und unten (für Erklärer) anzeigen
+        document.getElementById("action-type-top").innerText = selectedAction;
+        document.getElementById("action-type-bottom").innerText = selectedAction;
+        
+        // Wort NUR ganz unten beim Erklärer anzeigen
+        document.getElementById("actual-word").innerText = currentSelectedWord.word;
+        
+        // Hilfe / Tipps oben zurücksetzen
+        currentHintIndex = 0;
+        let hintBox = document.getElementById("hint-box");
+        let hintBtn = document.getElementById("hint-btn");
+        
+        hintBox.innerHTML = ""; 
+        hintBox.style.display = "none";
+        
+        hintBtn.style.display = "inline-block";
+        hintBtn.innerText = "💡 Tipp 1 anzeigen";
+    }
+
+    function showNextHint() {
+        if (!currentSelectedWord) return;
+        
+        let hintBox = document.getElementById("hint-box");
+        let hintBtn = document.getElementById("hint-btn");
+        
+        hintBox.style.display = "block";
+        
+        let newHint = document.createElement("p");
+        newHint.innerText = "Tipp " + (currentHintIndex + 1) + ": " + currentSelectedWord.hints[currentHintIndex];
+        hintBox.appendChild(newHint);
+        
+        currentHintIndex++;
+        
+        if (currentHintIndex < currentSelectedWord.hints.length) {
+            hintBtn.innerText = "💡 Tipp " + (currentHintIndex + 1) + " anzeigen";
+        } else {
+            hintBtn.style.display = "none";
+        }
+    }
+
+    // --- SCOREBOARD LOGIK ---
+    function updateScoreboard() {
+        let scoreboard = document.getElementById("scoreboard");
+        scoreboard.innerHTML = ""; 
+
+        for (let i = 0; i < teamScores.length; i++) {
+            let teamDiv = document.createElement("div");
+            teamDiv.className = "team-score";
+            
+            let title = document.createElement("h3");
+            title.innerText = "Team " + (i + 1);
+            
+            let score = document.createElement("div");
+            score.className = "score-number";
+            score.innerText = teamScores[i];
+            
+            let addBtn = document.createElement("button");
+            addBtn.className = "btn-blue";
+            addBtn.innerText = "+1 Punkt";
+            addBtn.onclick = function() { addPoint(i); };
+
+            let subBtn = document.createElement("button");
+            subBtn.className = "btn-red";
+            subBtn.innerText = "-1";
+            subBtn.style.padding = "10px";
+            subBtn.onclick = function() { removePoint(i); };
+
+            teamDiv.appendChild(title);
+            teamDiv.appendChild(score);
+            teamDiv.appendChild(addBtn);
+            teamDiv.appendChild(subBtn);
+            scoreboard.appendChild(teamDiv);
+        }
+    }
+
+    function addPoint(teamIndex) {
+        teamScores[teamIndex]++;
+        updateScoreboard();
+    }
+
+    function removePoint(teamIndex) {
+        if(teamScores[teamIndex] > 0) {
+            teamScores[teamIndex]--;
+            updateScoreboard();
+        }
+    }
+
+    // --- TIMER LOGIK ---
+    let timerInterval;
+    let timeLeft = 0; 
+    let isRunning = false;
+
+    function setTimer(seconds) {
+        pauseTimer();
+        timeLeft = seconds;
+        updateTimerDisplay();
+        document.getElementById("timer-display").classList.remove("timer-blink");
+    }
+
+    function startTimer() {
+        if (isRunning || timeLeft <= 0) return;
+        isRunning = true;
+        
+        document.getElementById("timer-display").classList.remove("timer-blink");
+
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            updateTimerDisplay();
+
+            if (timeLeft <= 0) {
+                pauseTimer();
+                document.getElementById("timer-display").classList.add("timer-blink");
+            }
+        }, 1000);
+    }
+
+    function pauseTimer() {
+        isRunning = false;
+        clearInterval(timerInterval);
+    }
+
+    function resetTimer() {
+        pauseTimer();
+        timeLeft = 0;
+        updateTimerDisplay();
+        document.getElementById("timer-display").classList.remove("timer-blink");
+    }
+
+    function updateTimerDisplay() {
+        let minutes = Math.floor(timeLeft / 60);
+        let seconds = timeLeft % 60;
+        
+        if (minutes < 10) minutes = "0" + minutes;
+        if (seconds < 10) seconds = "0" + seconds;
+        
+        document.getElementById("timer-display").innerText = minutes + ":" + seconds;
+    }
+
+</script>
+</body>
+</html>

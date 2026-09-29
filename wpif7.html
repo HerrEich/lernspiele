@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lern-App: Automaten (WP-IF 8)</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #64748b;
+            --success: #16a34a;
+            --error: #dc2626;
+            --bg: #f1f5f9;
+            --card: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--bg);
+            color: #1e293b;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container { width: 100%; max-width: 700px; }
+
+        .card {
+            background: var(--card);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            margin-bottom: 40px;
+        }
+
+        h1, h2 { color: var(--primary); text-align: center; }
+        
+        /* Quiz Styles */
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: var(--secondary);
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+
+        .question-text { font-size: 1.2rem; margin-bottom: 20px; font-weight: 600; }
+        
+        .options-grid { display: grid; gap: 12px; }
+
+        .option-btn {
+            padding: 15px;
+            text-align: left;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1rem;
+        }
+
+        .option-btn:hover:not(:disabled) { border-color: var(--primary); background: #eff6ff; }
+        .option-btn.correct { background: #dcfce7; border-color: var(--success); color: #166534; }
+        .option-btn.wrong { background: #fee2e2; border-color: var(--error); color: #991b1b; }
+        .option-btn:disabled { cursor: default; }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .btn-next {
+            display: none;
+            width: 100%;
+            margin-top: 20px;
+            padding: 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+        }
+
+        /* Simulation Styles */
+        .sim-box { background: #1e293b; color: white; padding: 20px; border-radius: 12px; text-align: center; }
+        .states { display: flex; justify-content: space-around; margin: 20px 0; }
+        .state {
+            width: 80px; height: 80px; border-radius: 50%; border: 4px solid #475569;
+            display: flex; align-items: center; justify-content: center; font-size: 1.5rem;
+            background: #334155; transition: 0.3s;
+        }
+        .state.active { border-color: #38bdf8; box-shadow: 0 0 20px #38bdf8; background: #0c4a6e; }
+        
+        .controls { display: flex; gap: 10px; justify-content: center; margin-top: 20px; }
+        .btn-sim { padding: 10px 15px; cursor: pointer; border-radius: 5px; border: none; background: #38bdf8; color: #082f49; font-weight: bold; }
+        
+        .cloze-input { border: none; border-bottom: 2px solid var(--primary); width: 100px; text-align: center; font-weight: bold; outline: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Vorbereitung: Klassenarbeit Automaten</h1>
+
+    <!-- Quiz 1 -->
+    <div class="card" id="quiz1-container">
+        <h2>Teil A: Grundlagen (Multiple-Choice)</h2>
+        <div class="quiz-header">
+            <span id="q1-progress">Frage 1 von 5</span>
+            <span id="q1-score">Punkte: 0</span>
+        </div>
+        <div id="q1-content">
+            <div class="question-text" id="q1-text">Lade Frage...</div>
+            <div class="options-grid" id="q1-options"></div>
+        </div>
+        <div id="q1-feedback" class="feedback"></div>
+        <button id="q1-next" class="btn-next" onclick="nextQuestion(1)">Nächste Frage</button>
+    </div>
+
+    <!-- Lückentext -->
+    <div class="card">
+        <h2>Teil B: Fachbegriffe (Lückentext)</h2>
+        <p style="line-height: 2;">
+            Am Anfang ist das Licht aus. Das ist der <input type="text" class="cloze-input" data-ans="Zustand"> "Licht aus". 
+            Wenn du den Knopf drückst, ist das die <input type="text" class="cloze-input" data-ans="Eingabe">. 
+            Daraufhin wechselt das Licht in einen neuen Zustand und fängt an zu leuchten. 
+            Dass es nun leuchtet, bezeichnen wir als <input type="text" class="cloze-input" data-ans="Ausgabe">.
+        </p>
+        <button class="btn-next" style="display:block;" onclick="checkCloze()">Lückentext prüfen</button>
+        <div id="cloze-msg" style="margin-top:10px; text-align:center; font-weight:bold;"></div>
+    </div>
+
+    <!-- Simulation -->
+    <div class="card">
+        <h2>Teil C: Drehkreuz-Simulation</h2>
+        <div class="sim-box">
+            <div class="states">
+                <div id="s-v" class="state active">V</div>
+                <div id="s-e" class="state">E</div>
+            </div>
+            <div id="sim-status">Aktueller Zustand: Verriegelt (V)</div>
+            <div class="controls">
+                <button class="btn-sim" onclick="simStep('ticket')">Ticket einwerfen</button>
+                <button class="btn-sim" onclick="simStep('walk')">Durchgehen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz 2 -->
+    <div class="card" id="quiz2-container">
+        <h2>Teil D: Vertiefung (Multiple-Choice)</h2>
+        <div class="quiz-header">
+            <span id="q2-progress">Frage 1 von 5</span>
+            <span id="q2-score">Punkte: 0</span>
+        </div>
+        <div id="q2-content">
+            <div class="question-text" id="q2-text">Lade Frage...</div>
+            <div class="options-grid" id="q2-options"></div>
+        </div>
+        <div id="q2-feedback" class="feedback"></div>
+        <button id="q2-next" class="btn-next" onclick="nextQuestion(2)">Nächste Frage</button>
+    </div>
+</div>
+
+<script>
+    // DATEN FÜR QUIZ 1 (Theorie aus PDF)
+    const data1 = [
+        { q: "Was ist ein Automat in der Informatik?", a: ["Ein Roboter für Menschen", "Ein Modell mit Zuständen und Eingaben", "Eine Kaffeemaschine", "Ein PC-Programm"], c: 1 },
+        { q: "Welches Objekt ist KEIN Informatik-Automat?", a: ["Getränkeautomat", "Ampel", "Einfaches Fahrrad", "Geldautomat"], c: 2 },
+        { q: "Was ist ein 'Zustand'?", a: ["Der Preis des Automaten", "Eine Situation, in der sich der Automat befindet", "Der Ort des Automaten"], c: 1 },
+        { q: "Was passiert bei einer Eingabe?", a: ["Nichts", "Zustandswechsel oder Bleiben im Zustand", "Der Automat geht kaputt"], c: 1 },
+        { q: "Wie viele Startzustände gibt es?", a: ["Zwei", "Beliebig viele", "Genau einen", "Keinen"], c: 2 }
+    ];
+
+    // DATEN FÜR QUIZ 2 (Transfer / Vertiefung)
+    const data2 = [
+        { q: "Was beschreibt ein Zustandsdiagramm?", a: ["Die Hardware-Teile", "Das logische Verhalten", "Den Stromverbrauch"], c: 1 },
+        { q: "Wie nennt man den Pfeil zwischen zwei Zuständen?", a: ["Übergang", "Leitung", "Schiene"], c: 0 },
+        { q: "Was ist beim Drehkreuz die 'Eingabe'?", a: ["Das Drehen des Kreuzes", "Das Ticket scannen", "Das Gehen des Fahrgasts"], c: 1 },
+        { q: "Ein Automat ist 'endlich', wenn...", a: ["er irgendwann kaputt geht", "die Anzahl der Zustände begrenzt ist", "er klein ist"], c: 1 },
+        { q: "Was ist beim Fahrradlicht die 'Ausgabe'?", a: ["Der Tastendruck", "Das Leuchten der Lampe", "Die Batterie"], c: 1 }
+    ];
+
+    let state = {
+        q1: { current: 0, score: 0 },
+        q2: { current: 0, score: 0 }
+    };
+
+    function loadQuestion(quizNum) {
+        const d = (quizNum === 1) ? data1 : data2;
+        const s = (quizNum === 1) ? state.q1 : state.q2;
+        
+        if(s.current >= d.length) {
+            document.getElementById(`q${quizNum}-content`).innerHTML = `<h3>Fertig! Du hast ${s.score} von ${d.length} Punkten erreicht.</h3>`;
+            document.getElementById(`q${quizNum}-next`).style.display = "none";
+            return;
+        }
+
+        const q = d[s.current];
+        document.getElementById(`q${quizNum}-text`).innerText = q.q;
+        document.getElementById(`q${quizNum}-progress`).innerText = `Frage ${s.current + 1} von ${d.length}`;
+        
+        const optionsContainer = document.getElementById(`q${quizNum}-options`);
+        optionsContainer.innerHTML = "";
+        q.a.forEach((opt, i) => {
+            const btn = document.createElement("button");
+            btn.className = "option-btn";
+            btn.innerText = opt;
+            btn.onclick = () => checkAnswer(quizNum, i);
+            optionsContainer.appendChild(btn);
+        });
+
+        document.getElementById(`q${quizNum}-feedback`).style.display = "none";
+        document.getElementById(`q${quizNum}-next`).style.display = "none";
+    }
+
+    function checkAnswer(quizNum, idx) {
+        const d = (quizNum === 1) ? data1 : data2;
+        const s = (quizNum === 1) ? state.q1 : state.q2;
+        const q = d[s.current];
+        const buttons = document.getElementById(`q${quizNum}-options`).children;
+        const feedback = document.getElementById(`q${quizNum}-feedback`);
+
+        // Deaktiviere alle Buttons
+        for(let btn of buttons) btn.disabled = true;
+
+        if(idx === q.c) {
+            buttons[idx].classList.add("correct");
+            feedback.innerText = "Richtig!";
+            feedback.style.backgroundColor = "#dcfce7";
+            feedback.style.color = "#166534";
+            s.score++;
+        } else {
+            buttons[idx].classList.add("wrong");
+            buttons[q.c].classList.add("correct");
+            feedback.innerText = "Leider falsch!";
+            feedback.style.backgroundColor = "#fee2e2";
+            feedback.style.color = "#991b1b";
+        }
+
+        document.getElementById(`q${quizNum}-score`).innerText = `Punkte: ${s.score}`;
+        feedback.style.display = "block";
+        document.getElementById(`q${quizNum}-next`).style.display = "block";
+    }
+
+    function nextQuestion(quizNum) {
+        if(quizNum === 1) state.q1.current++;
+        else state.q2.current++;
+        loadQuestion(quizNum);
+    }
+
+    // Lückentext Logik
+    function checkCloze() {
+        const inputs = document.querySelectorAll('.cloze-input');
+        let right = 0;
+        inputs.forEach(i => {
+            if(i.value.toLowerCase().trim() === i.dataset.ans.toLowerCase()) {
+                i.style.color = "green";
+                right++;
+            } else {
+                i.style.color = "red";
+            }
+        });
+        document.getElementById('cloze-msg').innerText = `${right} von 3 richtig!`;
+    }
+
+    // Simulation Logik
+    let currentSimState = 'V';
+    function simStep(action) {
+        const sv = document.getElementById('s-v');
+        const se = document.getElementById('s-e');
+        const status = document.getElementById('sim-status');
+
+        if(action === 'ticket') {
+            currentSimState = 'E';
+            status.innerText = "EINGABE: Ticket -> ZUSTAND: Entsperrt (E) -> AUSGABE: Klack-Geräusch";
+            sv.classList.remove('active');
+            se.classList.add('active');
+        } else if(action === 'walk') {
+            if(currentSimState === 'E') {
+                currentSimState = 'V';
+                status.innerText = "EINGABE: Durchgehen -> ZUSTAND: Verriegelt (V) -> AUSGABE: Sperren";
+                se.classList.remove('active');
+                sv.classList.add('active');
+            } else {
+                status.innerText = "EINGABE: Durchgehen -> ZUSTAND: V (Gesperrt!) -> AUSGABE: Blockiert";
+            }
+        }
+    }
+
+    // Init
+    loadQuestion(1);
+    loadQuestion(2);
+</script>
+
+</body>
+</html>

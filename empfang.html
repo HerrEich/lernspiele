@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulation: Guter und schlechter Empfang</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #34495e;
+            --accent: #3498db;
+            --light: #ecf0f1;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --warning: #f1c40f;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light);
+            color: var(--primary);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            margin-top: 0;
+            text-align: center;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            max-width: 900px;
+            width: 100%;
+        }
+        
+        /* Z-INDEX ERZWUNGEN: Damit die Buttons garantiert anklickbar sind */
+        .tabs {
+            position: relative;
+            z-index: 9999 !important;
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 10px 15px;
+            border: none;
+            background-color: var(--secondary);
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-size: 16px;
+            position: relative;
+            z-index: 10000 !important;
+        }
+        button:hover { background-color: var(--accent); }
+        button.active { background-color: var(--accent); font-weight: bold; }
+        
+        .simulation-area {
+            position: relative;
+            width: 800px;
+            height: 400px;
+            background: #eef2f5;
+            border: 2px solid var(--secondary);
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 0 auto;
+            cursor: grab;
+            z-index: 1;
+        }
+        .simulation-area:active { cursor: grabbing; }
+        
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 2;
+        }
+        
+        .phone-ui {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255,255,255,0.9);
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: bold;
+        }
+        .signal-bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 3px;
+            height: 20px;
+        }
+        .bar {
+            width: 6px;
+            background: #ccc;
+            border-radius: 1px;
+        }
+        .bar:nth-child(1) { height: 5px; }
+        .bar:nth-child(2) { height: 10px; }
+        .bar:nth-child(3) { height: 15px; }
+        .bar:nth-child(4) { height: 20px; }
+        
+        .explanation {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fff3cd;
+            border-left: 5px solid var(--warning);
+            border-radius: 4px;
+            min-height: 60px;
+            line-height: 1.5;
+        }
+
+        .controls {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        input[type="range"] { flex-grow: 1; }
+
+        #phone {
+            position: absolute;
+            width: 30px;
+            height: 50px;
+            background: #333;
+            border-radius: 5px;
+            border: 2px solid #555;
+            z-index: 5;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #phone::after {
+            content: '';
+            width: 20px;
+            height: 35px;
+            background: #add8e6;
+            display: block;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Elektromagnetische Wellen im Einsatz</h1>
+    
+    <!-- Onclick-Attribute wieder integriert für maximale Kompatibilität -->
+    <div class="tabs">
+        <button id="btn-haus" onclick="setMode('haus')">1. Haus (Dämpfung)</button>
+        <button id="btn-stadt" onclick="setMode('stadt')">2. Stadt (Phänomene)</button>
+        <button id="btn-wellen" onclick="setMode('wellen')">3. Reichweite & Wellenlänge</button>
+    </div>
+
+    <div class="simulation-area" id="simArea">
+        <canvas id="canvas" width="800" height="400"></canvas>
+        <div id="phone" style="left: 400px; top: 200px;"></div>
+        
+        <div class="phone-ui" id="phoneUI">
+            Empfang:
+            <div class="signal-bars" id="signalBars">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+            <span id="signalText">4 Balken</span>
+        </div>
+    </div>
+
+    <div class="controls" id="waveControls">
+        <div class="slider-container">
+            <label for="freqSlider">Frequenz (Wellenlänge):</label>
+            <span>Niedrig (Lange Wellen)</span>
+            <input type="range" id="freqSlider" min="1" max="5" value="1" step="0.1">
+            <span>Hoch (Kurze Wellen)</span>
+        </div>
+    </div>
+
+    <div class="explanation" id="explanationText"></div>
+</div>
+
+<script>
+    // Alle globalen Elemente holen
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const simArea = document.getElementById('simArea');
+    const phoneEl = document.getElementById('phone');
+    const signalBars = document.getElementById('signalBars').children;
+    const signalText = document.getElementById('signalText');
+    const explanationText = document.getElementById('explanationText');
+    const waveControls = document.getElementById('waveControls');
+    const freqSlider = document.getElementById('freqSlider');
+
+    let mode = 'haus'; 
+    let phoneX = 400;
+    let phoneY = 200;
+    let isDragging = false;
+    let time = 0;
+
+    const sender = { x: 40, y: 80 };
+
+    const obstacles = {
+        haus: [
+            { x: 300, y: 0, w: 50, h: 120, type: 'wall' },     
+            { x: 300, y: 120, w: 50, h: 100, type: 'window' }, 
+            { x: 300, y: 220, w: 50, h: 180, type: 'wall' },   
+        ],
+        stadt: [
+            { x: 200, y: 180, w: 100, h: 220, type: 'building' },        
+            { x: 650, y: 50, w: 150, h: 350, type: 'building_reflect' }, 
+        ]
+    };
+
+    // FUNKTION ALS GLOBAL DEFINIEREN (Behebt Blockaden in iFrames/Containern)
+    window.setMode = function(newMode) {
+        mode = newMode;
+        
+        // Klassen manuell umschalten
+        document.getElementById('btn-haus').classList.remove('active');
+        document.getElementById('btn-stadt').classList.remove('active');
+        document.getElementById('btn-wellen').classList.remove('active');
+        
+        const activeBtn = document.getElementById('btn-' + newMode);
+        if (activeBtn) activeBtn.classList.add('active');
+        
+        if (mode === 'wellen') {
+            phoneEl.style.display = 'none';
+            document.getElementById('phoneUI').style.display = 'none';
+            waveControls.style.display = 'block';
+            explanationText.innerHTML = "<strong>Reichweite:</strong> Je höher die Frequenz (kleinere Wellenlänge), desto stärker wird die Welle durch die Luft gedämpft. Niedrige Frequenzen haben eine größere Reichweite.<br><em>Bewege den Regler!</em>";
+        } else {
+            phoneEl.style.display = 'flex';
+            document.getElementById('phoneUI').style.display = 'flex';
+            waveControls.style.display = 'none';
+            if (mode === 'haus') {
+                phoneX = 450; phoneY = 160;
+                explanationText.innerHTML = "<strong>Dämpfung:</strong> Ziehe das Smartphone hinter die dicke Mauer oder hinter das Fenster. Glas absorbiert weniger Energie als Stein, der Empfang am Fenster ist besser.";
+            } else if (mode === 'stadt') {
+                phoneX = 350; phoneY = 350; 
+                explanationText.innerHTML = "<strong>Ziehe das Smartphone in die verschiedenen Bereiche zwischen den Häusern:</strong><br>1. <strong>Tief unten links</strong> = Kein Empfang (Abschattung)<br>2. <strong>Direkt unter der Dachkante</strong> = Schwacher Empfang (Beugung)<br>3. <strong>Näher am rechten Gebäude</strong> = Guter Empfang (Reflexion)";
+            }
+        }
+        updatePhonePos();
+    };
+
+    // Zusätzliche Event-Listener zur Sicherheit
+    document.getElementById('btn-haus').addEventListener('click', () => window.setMode('haus'));
+    document.getElementById('btn-stadt').addEventListener('click', () => window.setMode('stadt'));
+    document.getElementById('btn-wellen').addEventListener('click', () => window.setMode('wellen'));
+
+    // Drag & Drop Steuerung
+    simArea.addEventListener('mousedown', (e) => { isDragging = true; updatePos(e); });
+    simArea.addEventListener('mousemove', (e) => { if (isDragging) updatePos(e); });
+    window.addEventListener('mouseup', () => { isDragging = false; });
+    
+    simArea.addEventListener('touchstart', (e) => { isDragging = true; updatePos(e.touches[0]); });
+    simArea.addEventListener('touchmove', (e) => { if (isDragging) { e.preventDefault(); updatePos(e.touches[0]); } }, {passive: false});
+    window.addEventListener('touchend', () => { isDragging = false; });
+
+    function updatePos(e) {
+        if(mode === 'wellen') return;
+        const rect = simArea.getBoundingClientRect();
+        phoneX = e.clientX - rect.left;
+        phoneY = e.clientY - rect.top;
+        phoneX = Math.max(10, Math.min(790, phoneX));
+        phoneY = Math.max(10, Math.min(390, phoneY));
+        updatePhonePos();
+    }
+
+    function updatePhonePos() {
+        phoneEl.style.left = phoneX + 'px';
+        phoneEl.style.top = phoneY + 'px';
+    }
+
+    function setSignal(bars) {
+        for(let i=0; i<4; i++) {
+            if(i < bars) {
+                signalBars[i].style.background = bars > 2 ? 'var(--success)' : (bars > 1 ? 'var(--warning)' : 'var(--danger)');
+            } else {
+                signalBars[i].style.background = '#ccc';
+            }
+        }
+        signalText.innerText = bars === 0 ? "Kein Empfang!" : (bars + " Balken");
+    }
+
+    function lineIntersectsRect(x1, y1, x2, y2, rx, ry, rw, rh) {
+        let left = lineIntersectsLine(x1,y1,x2,y2, rx,ry,rx,ry+rh);
+        let right = lineIntersectsLine(x1,y1,x2,y2, rx+rw,ry,rx+rw,ry+rh);
+        let top = lineIntersectsLine(x1,y1,x2,y2, rx,ry,rx+rw,ry);
+        let bottom = lineIntersectsLine(x1,y1,x2,y2, rx,ry+rh,rx+rw,ry+rh);
+        return left || right || top || bottom;
+    }
+
+    function lineIntersectsLine(x1, y1, x2, y2, x3, y3, x4, y4) {
+        let uA = ((x4-x3)*(y1-y3) - (y4-y3)*(x1-x3)) / ((y4-y3)*(x2-x1) - (x4-x3)*(y2-y1));
+        let uB = ((x2-x1)*(y1-y3) - (y2-y1)*(x1-x3)) / ((y4-y3)*(x2-x1) - (x4-x3)*(y2-y1));
+        return (uA >= 0 && uA <= 1 && uB >= 0 && uB <= 1);
+    }
+
+    function drawSender() {
+        ctx.fillStyle = '#7f8c8d';
+        ctx.fillRect(sender.x - 5, sender.y, 10, 350); 
+        
+        ctx.beginPath();
+        ctx.moveTo(sender.x, sender.y - 15);
+        ctx.lineTo(sender.x - 15, sender.y + 10);
+        ctx.lineTo(sender.x + 15, sender.y + 10);
+        ctx.fill();
+        
+        ctx.strokeStyle = 'rgba(52, 152, 219, ' + (Math.sin(time*0.1)*0.5 + 0.5) + ')';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(sender.x, sender.y, 15 + (time%30), -0.5*Math.PI, 0.5*Math.PI);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(sender.x, sender.y, 30 + (time%30), -0.5*Math.PI, 0.5*Math.PI);
+        ctx.stroke();
+    }
+
+    function drawWaveLine(startX, startY, endX, endY, color, dash = []) {
+        ctx.beginPath();
+        ctx.setLineDash(dash);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.moveTo(startX, startY);
+        ctx.lineTo(endX, endY);
+        ctx.stroke();
+        ctx.setLineDash([]);
+    }
+
+    function drawHausScenario() {
+        obstacles.haus.forEach(obs => {
+            if (obs.type === 'wall') {
+                ctx.fillStyle = '#95a5a6';
+                ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
+                ctx.strokeStyle = '#7f8c8d';
+                ctx.strokeRect(obs.x, obs.y, obs.w, obs.h);
+            } else if (obs.type === 'window') {
+                ctx.fillStyle = 'rgba(135, 206, 235, 0.4)';
+                ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
+                ctx.strokeStyle = '#3498db';
+                ctx.strokeRect(obs.x, obs.y, obs.w, obs.h);
+            }
+        });
+
+        let signal = 4;
+        let hitWall = false;
+        let hitWindow = false;
+
+        obstacles.haus.forEach(obs => {
+            if (lineIntersectsRect(sender.x, sender.y, phoneX, phoneY, obs.x, obs.y, obs.w, obs.h)) {
+                if (obs.type === 'wall') hitWall = true;
+                if (obs.type === 'window') hitWindow = true;
+            }
+        });
+
+        let dist = Math.hypot(phoneX - sender.x, phoneY - sender.y);
+        if (dist > 600) signal -= 1;
+
+        if (hitWall) {
+            signal = 1;
+            drawWaveLine(sender.x, sender.y, phoneX, phoneY, 'rgba(231, 76, 60, 0.5)', [5, 5]);
+            explanationText.innerHTML = "<strong>Starke Dämpfung!</strong> Die dicke Mauer absorbiert fast die gesamte Energie. Der Empfang im Haus ist schwach.";
+        } else if (hitWindow) {
+            signal = 3; 
+            drawWaveLine(sender.x, sender.y, phoneX, phoneY, 'rgba(46, 204, 113, 0.8)');
+            explanationText.innerHTML = "<strong>Schwache Dämpfung!</strong> Das dünne Glasfenster lässt die elektromagnetischen Wellen viel besser durch. Am Fenster hast du guten Empfang.";
+        } else {
+            drawWaveLine(sender.x, sender.y, phoneX, phoneY, 'rgba(46, 204, 113, 1)');
+            explanationText.innerHTML = "<strong>Direkter Empfang!</strong> Im Freien hast du direkten Sichtkontakt zum Sender. Voller Empfang.";
+        }
+
+        setSignal(signal);
+    }
+
+    function drawStadtScenario() {
+        obstacles.stadt.forEach(obs => {
+            ctx.fillStyle = obs.type === 'building' ? '#34495e' : '#7f8c8d';
+            ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
+            ctx.fillStyle = '#f1c40f';
+            for(let i=10; i<obs.w-10; i+=20) {
+                for(let j=10; j<obs.h-10; j+=30) {
+                    if(Math.random() > 0.3) ctx.fillRect(obs.x+i, obs.y+j, 10, 15);
+                }
+            }
+        });
+
+        let b1 = obstacles.stadt[0];
+        let b2 = obstacles.stadt[1];
+
+        let isBlocked = lineIntersectsRect(sender.x, sender.y, phoneX, phoneY, b1.x, b1.y, b1.w, b1.h) ||
+                        lineIntersectsRect(sender.x, sender.y, phoneX, phoneY, b2.x, b2.y, b2.w, b2.h);
+        
+        let signal = 4;
+        let state = 'direkt';
+
+        let distToCorner = Math.hypot(phoneX - (b1.x + b1.w), phoneY - b1.y);
+        let inShadowBehindB1 = isBlocked && phoneX >= b1.x + b1.w && phoneX < b2.x;
+        let isBeugungZone = inShadowBehindB1 && distToCorner < 140;
+
+        let dxToWall = b2.x - sender.x;
+        let dxFromWall = b2.x - phoneX;
+        let totalDx = dxToWall + dxFromWall;
+        let reflectY = sender.y + (phoneY - sender.y) * (dxToWall / totalDx);
+        
+        let ray1HitsB1 = lineIntersectsRect(sender.x, sender.y, b2.x, reflectY, b1.x, b1.y, b1.w, b1.h);
+        let ray2HitsB1 = lineIntersectsRect(b2.x, reflectY, phoneX, phoneY, b1.x, b1.y, b1.w, b1.h);
+        
+        let hitsB2Wall = reflectY > b2.y && reflectY < b2.y + b2.h;
+        let isReflexionZone = isBlocked && !isBeugungZone && !ray1HitsB1 && !ray2HitsB1 && hitsB2Wall && phoneX > 450;
+
+        if (isBlocked) {
+            if (isReflexionZone) {
+                signal = 3;
+                state = 'reflexion';
+                drawWaveLine(sender.x, sender.y, b2.x, reflectY, 'rgba(52, 152, 219, 0.9)');
+                drawWaveLine(b2.x, reflectY, phoneX, phoneY, 'rgba(52, 152, 219, 0.9)');
+            } else if (isBeugungZone) {
+                signal = 2;
+                state = 'beugung';
+                drawWaveLine(sender.x, sender.y, b1.x+b1.w, b1.y, 'rgba(241, 196, 15, 0.8)');
+                
+                ctx.strokeStyle = 'rgba(241, 196, 15, 0.6)';
+                ctx.lineWidth = 2;
+                for(let r=20; r<=120; r+=20) {
+                    ctx.beginPath();
+                    ctx.arc(b1.x+b1.w, b1.y, r, 0, Math.PI/2);
+                    ctx.stroke();
+                }
+                drawWaveLine(b1.x+b1.w, b1.y, phoneX, phoneY, 'rgba(241, 196, 15, 0.9)', [3,3]);
+            } else {
+                signal = 0;
+                state = 'schatten';
+                
+                let dx = phoneX - sender.x;
+                let dy = phoneY - sender.y;
+                let tHit = 1;
+                
+                if (dx > 0) {
+                    let tX = (b1.x - sender.x) / dx;
+                    let yAtX = sender.y + tX * dy;
+                    if (tX > 0 && tX < tHit && yAtX >= b1.y && yAtX <= b1.y + b1.h) tHit = tX;
+                }
+                if (dy > 0) {
+                    let tY = (b1.y - sender.y) / dy;
+                    let xAtY = sender.x + tY * dx;
+                    if (tY > 0 && tY < tHit && xAtY >= b1.x && xAtY <= b1.x + b1.w) tHit = tY;
+                }
+                
+                let hitX = sender.x + tHit * dx;
+                let hitY = sender.y + tHit * dy;
+                drawWaveLine(sender.x, sender.y, hitX, hitY, 'rgba(231, 76, 60, 0.8)');
+            }
+        } else {
+            drawWaveLine(sender.x, sender.y, phoneX, phoneY, 'rgba(46, 204, 113, 0.8)');
+        }
+
+        setSignal(signal);
+
+        if (state === 'direkt') explanationText.innerHTML = "<strong>Direkter Empfang:</strong> Keine Hindernisse im Weg. Der Sendemast ist hoch genug, um direkt zu dir zu funken.";
+        if (state === 'schatten') explanationText.innerHTML = "<strong>Abschattung:</strong> Du stehst tief im 'Funkschatten' des ersten Gebäudes. Da elektromagnetische Wellen sich primär gradlinig ausbreiten, hast du hier <strong>keinen Empfang</strong>.";
+        if (state === 'reflexion') explanationText.innerHTML = "<strong>Reflexion:</strong> Du stehst im Schatten des ersten Hauses, aber hast trotzdem Empfang! Die Wellen prallen vom rechten Gebäude ab (Einfallswinkel = Ausfallswinkel) und werden zu dir <strong>reflektiert</strong>.";
+        if (state === 'beugung') explanationText.innerHTML = "<strong>Beugung:</strong> Wenn die Welle knapp an der Gebäudekante vorbeiläuft, ändert sie leicht ihre Ausbreitungsrichtung. Dadurch hast du direkt unterhalb der Dachkante noch schwachen Empfang.";
+    }
+
+    function drawWellenScenario() {
+        let freq = parseFloat(freqSlider.value);
+        
+        ctx.fillStyle = 'var(--primary)';
+        ctx.font = '16px Arial';
+        ctx.fillText("Hohe Reichweite (Sender nah)", 50, 50);
+        ctx.fillText("Geringe Reichweite (weit weg)", 550, 50);
+
+        ctx.beginPath();
+        ctx.moveTo(50, 200);
+        ctx.lineTo(750, 200);
+        ctx.strokeStyle = '#aaa';
+        ctx.stroke();
+        ctx.fillText("Entfernung durch die Luft (x)", 600, 220);
+
+        ctx.beginPath();
+        ctx.strokeStyle = 'var(--accent)';
+        ctx.lineWidth = 3;
+        
+        let damping = 0.001 * Math.pow(freq, 2.5); 
+        let wavelength = 60 / freq;
+
+        for(let x = 0; x < 700; x++) {
+            let amplitude = 100 * Math.exp(-damping * x); 
+            let y = 200 - amplitude * Math.sin((x / wavelength) - (time*0.1));
+            
+            if (x === 0) ctx.moveTo(50 + x, y);
+            else ctx.lineTo(50 + x, y);
+        }
+        ctx.stroke();
+
+        let wlText = freq < 2 ? "Große Wellenlänge (z.B. Mittelwelle, UKW)" : (freq > 4 ? "Kleine Wellenlänge (z.B. 5G, Satellit)" : "Mittlere Wellenlänge (z.B. 4G/LTE)");
+        
+        explanationText.innerHTML = `<strong>Wellenlänge und Reichweite:</strong><br>
+        Aktuelle Einstellung: <em>${wlText}</em>.<br>
+        Die Dämpfung durch die Luft sorgt dafür, dass die Welle schwächer wird. <strong>Je größer die Frequenz (kurze Wellen), desto schneller verliert die Welle an Energie (geringere Reichweite).</strong> Lange Wellen reichen viel weiter!`;
+    }
+
+    function loop() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        time++;
+
+        if (mode === 'haus') {
+            drawSender();
+            drawHausScenario();
+        } else if (mode === 'stadt') {
+            drawSender();
+            drawStadtScenario();
+        } else if (mode === 'wellen') {
+            drawWellenScenario();
+        }
+
+        requestAnimationFrame(loop);
+    }
+
+    // Beim allerersten Start Tab 1 aktivieren
+    window.setMode('haus');
+    loop();
+
+</script>
+</body>
+</html>

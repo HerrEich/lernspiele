@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EVA-Prinzip: Das interaktive Zuordnungsspiel</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            user-select: none;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            background: white;
+            padding: 15px 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            max-width: 900px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #1e3a8a;
+            margin: 0 0 5px 0;
+            font-size: 1.8em;
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            color: #4b5563;
+            font-weight: bold;
+        }
+
+        .game-container {
+            display: grid;
+            grid-template-columns: 1fr 3fr;
+            gap: 20px;
+            max-width: 1100px;
+            width: 100%;
+        }
+
+        @media (max-width: 800px) {
+            .game-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Komponenten-Pool (Startbereich) */
+        .pool-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 2px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .pool-title {
+            font-weight: bold;
+            color: #374151;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 1.1em;
+            border-bottom: 2px solid #f3f4f6;
+            padding-bottom: 8px;
+            width: 100%;
+        }
+
+        .items-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+            min-height: 200px;
+        }
+
+        @media (max-width: 800px) {
+            .items-container {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+
+        /* Einzelnes ziehbares Element */
+        .drag-item {
+            background-color: #f3f4f6;
+            border: 2px solid #d1d5db;
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+            font-weight: bold;
+            cursor: grab;
+            transition: transform 0.15s, box-shadow 0.15s, background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .drag-item:active {
+            cursor: grabbing;
+            transform: scale(1.03);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .drag-item.dragging {
+            opacity: 0.5;
+        }
+
+        /* Die 3 Körbe (Drop-Zonen) */
+        .zones-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .zones-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .drop-zone {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-top: 8px solid;
+            min-height: 350px;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+
+        .zone-e { border-top-color: #3b82f6; } /* Blau */
+        .zone-v { border-top-color: #4b5563; } /* Grau */
+        .zone-a { border-top-color: #10b981; } /* Grün */
+
+        .zone-title {
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .zone-e .zone-title { color: #2563eb; }
+        .zone-v .zone-title { color: #374151; }
+        .zone-a .zone-title { color: #059669; }
+
+        .drop-area {
+            flex-grow: 1;
+            border: 2px dashed #e5e7eb;
+            border-radius: 12px;
+            background-color: #f9fafb;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 10px;
+            transition: background-color 0.2s;
+        }
+
+        .drop-area.dragover {
+            background-color: #f0f7ff;
+            border-color: #3b82f6;
+        }
+
+        /* Richtig platzierte Elemente im Korb */
+        .placed-item {
+            background-color: #f0fdf4;
+            border: 2px solid #10b981;
+            color: #065f46;
+            cursor: default;
+        }
+
+        /* Info-Bereich & Sprachförderung */
+        .info-panel {
+            grid-column: 1 / -1;
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 2px solid #e5e7eb;
+            margin-top: 10px;
+        }
+
+        .sentence-builder {
+            background-color: #eff6ff;
+            border: 2px solid #bfdbfe;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            font-size: 1.15em;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .highlight-blue { color: #2563eb; font-weight: bold; }
+        .highlight-gray { color: #4b5563; font-weight: bold; }
+        .highlight-green { color: #059669; font-weight: bold; }
+
+        .score-board {
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #1e3a8a;
+        }
+
+        .reset-btn {
+            background-color: #ef4444;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 15px;
+        }
+
+        .reset-btn:hover {
+            background-color: #dc2626;
+        }
+
+        .emoji-icon {
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🎮 Das interaktive EVA-Zuordnungsspiel</h1>
+        <div class="subtitle">Bringe die Teile an den richtigen Platz!</div>
+    </header>
+
+    <div class="score-board">
+        Gelöst: <span id="score">0</span> von 10 Komponenten
+    </div>
+
+    <div class="game-container">
+        
+        <!-- START-POOL -->
+        <div class="pool-card">
+            <div class="pool-title">📌 PC-Teile</div>
+            <div class="items-container" id="itemsPool">
+                <!-- Dynamisch generiert -->
+            </div>
+        </div>
+
+        <!-- DROP-ZONEN -->
+        <div class="zones-grid">
+            
+            <!-- EINGABE -->
+            <div class="drop-zone zone-e">
+                <div class="zone-title">📥 1. Eingabe (E)</div>
+                <div class="drop-area" id="E" data-zone="E"></div>
+            </div>
+
+            <!-- VERARBEITUNG -->
+            <div class="drop-zone zone-v">
+                <div class="zone-title">⚙️ 2. Verarbeitung (V)</div>
+                <div class="drop-area" id="V" data-zone="V"></div>
+            </div>
+
+            <!-- AUSGABE -->
+            <div class="drop-zone zone-a">
+                <div class="zone-title">🖥️ 3. Ausgabe (A)</div>
+                <div class="drop-area" id="A" data-zone="A"></div>
+            </div>
+
+        </div>
+
+        <!-- SPRACHFÖRDER-PANEL -->
+        <div class="info-panel">
+            <h3 style="margin-top: 0; color: #1e3a8a; text-align: center;">💬 Satzbau-Hilfe (Formuliere den Satz laut!)</h3>
+            <div class="sentence-builder" id="sentenceBox">
+                <span style="color: #6b7280; font-style: italic;">Ziehe ein Teil in einen Korb, um den Satz zu bauen...</span>
+            </div>
+            <div style="text-align: center;">
+                <button class="reset-btn" id="resetBtn">Spiel zurücksetzen</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Komponenten-Datenbank
+        const components = [
+            { id: "comp1", name: "Tastatur", icon: "⌨️", zone: "E", text: "wir damit Texte und Befehle in den Computer eintippen." },
+            { id: "comp2", name: "Maus", icon: "🖱️", zone: "E", text: "wir damit auf dem Bildschirm klicken und Bewegungen übertragen." },
+            { id: "comp3", name: "Mikrofon", icon: "🎤", zone: "E", text: "wir damit unsere Stimme und Töne in den Computer hineinschicken." },
+            { id: "comp4", name: "Scanner", icon: "📷", zone: "E", text: "wir damit gedruckte Bilder digitalisieren und einlesen." },
+            
+            { id: "comp5", name: "Hauptprozessor (CPU)", icon: "🧠", zone: "V", text: "er als 'Gehirn' alle Berechnungen und Befehle ausführt." },
+            { id: "comp6", name: "Arbeitsspeicher (RAM)", icon: "💾", zone: "V", text: "er Daten für geöffnete Programme ganz schnell zwischenspeichert." },
+            { id: "comp7", name: "Grafikkarte", icon: "🎮", zone: "V", text: "sie die Bilddaten berechnet und für den Monitor vorbereitet." },
+            
+            { id: "comp8", name: "Monitor (Bildschirm)", icon: "🖥️", zone: "A", text: "er uns das fertige Bild und Programme visuell anzeigt." },
+            { id: "comp9", name: "Drucker", icon: "🖨️", zone: "A", text: "er Texte und Bilder aus dem Computer auf Papier ausgibt." },
+            { id: "comp10", name: "Lautsprecher", icon: "🔊", zone: "A", text: "sie Musik und Töne aus dem Computer hörbar machen." }
+        ];
+
+        let score = 0;
+        const itemsPool = document.getElementById('itemsPool');
+        const scoreSpan = document.getElementById('score');
+        const sentenceBox = document.getElementById('sentenceBox');
+        const resetBtn = document.getElementById('resetBtn');
+
+        // Web Audio API für Sound-Effekte
+        let audioCtx = null;
+        function playTone(freq, duration, type = 'sine') {
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {
+                console.log("Audio blockiert");
+            }
+        }
+
+        // Mische die Komponenten für den Pool
+        function shuffle(array) {
+            return array.sort(() => Math.random() - 0.5);
+        }
+
+        // Spiel initialisieren
+        function initGame() {
+            score = 0;
+            scoreSpan.textContent = score;
+            sentenceBox.innerHTML = '<span style="color: #6b7280; font-style: italic;">Ziehe ein Teil in einen Korb, um den Satz zu bauen...</span>';
+            
+            // Leere alle Körbe
+            document.querySelectorAll('.drop-area').forEach(area => area.innerHTML = '');
+            itemsPool.innerHTML = '';
+
+            // Komponenten mischen und erzeugen
+            const shuffled = shuffle([...components]);
+            shuffled.forEach(comp => {
+                const item = document.createElement('div');
+                item.className = 'drag-item';
+                item.draggable = true;
+                item.id = comp.id;
+                item.innerHTML = `<span class="emoji-icon">${comp.icon}</span> ${comp.name}`;
+                
+                // Drag-Events
+                item.addEventListener('dragstart', dragStart);
+                item.addEventListener('dragend', dragEnd);
+                
+                // Touch-Events für Mobilgeräte/Smartboards
+                item.addEventListener('touchstart', handleTouchStart, {passive: false});
+                item.addEventListener('touchmove', handleTouchMove, {passive: false});
+                item.addEventListener('touchend', handleTouchEnd);
+
+                itemsPool.appendChild(item);
+            });
+        }
+
+        // Drag & Drop Logik
+        let draggedItem = null;
+
+        function dragStart(e) {
+            draggedItem = this;
+            this.classList.add('dragging');
+        }
+
+        function dragEnd() {
+            this.classList.remove('dragging');
+        }
+
+        // Drop-Zonen vorbereiten
+        document.querySelectorAll('.drop-area').forEach(area => {
+            area.addEventListener('dragover', e => {
+                e.preventDefault();
+                area.classList.add('dragover');
+            });
+
+            area.addEventListener('dragleave', () => {
+                area.classList.remove('dragover');
+            });
+
+            area.addEventListener('drop', e => {
+                e.preventDefault();
+                area.classList.remove('dragover');
+                handlePlacement(draggedItem, area);
+            });
+        });
+
+        // Gemeinsame Logik für Platzierung (Drag/Drop und Touch)
+        function handlePlacement(item, area) {
+            if (!item) return;
+            const compData = components.find(c => c.id === item.id);
+            const targetZone = area.getAttribute('data-zone');
+
+            if (compData.zone === targetZone) {
+                // Richtig zugeordnet!
+                area.appendChild(item);
+                item.draggable = false;
+                item.classList.add('placed-item');
+                
+                // Sound abspielen (Erfolg)
+                playTone(523.25, 0.15, 'triangle'); // C5
+                setTimeout(() => playTone(659.25, 0.2, 'triangle'), 100); // E5
+
+                // Score erhöhen
+                score++;
+                scoreSpan.textContent = score;
+
+                // Satzbau-Hilfe aktualisieren
+                updateSentence(compData);
+
+                // Prüfen ob alles gelöst ist
+                if (score === 10) {
+                    setTimeout(() => {
+                        playTone(523.25, 0.1, 'sine');
+                        setTimeout(() => playTone(659.25, 0.1, 'sine'), 80);
+                        setTimeout(() => playTone(783.99, 0.1, 'sine'), 160);
+                        setTimeout(() => playTone(1046.50, 0.4, 'sine'), 240);
+                        alert("🎉 Super gemacht! Du hast alle 10 Komponenten richtig zugeordnet und bist jetzt ein EVA-Profi!");
+                    }, 500);
+                }
+            } else {
+                // Falsch zugeordnet! Zurück in den Pool
+                playTone(220, 0.25, 'sawtooth'); // Tiefer Fehler-Ton
+                itemsPool.appendChild(item);
+                
+                // Kurzes rotes Aufblinken der Korb-Zone als Feedback
+                const card = area.parentElement;
+                const originalBorder = card.style.borderColor;
+                card.style.borderColor = '#ef4444';
+                setTimeout(() => {
+                    card.style.borderColor = originalBorder;
+                }, 400);
+            }
+        }
+
+        // Satzbau-Hilfe Texte generieren
+        function updateSentence(comp) {
+            let zoneName = "";
+            let colorClass = "";
+
+            if (comp.zone === "E") {
+                zoneName = "Eingabe (E)";
+                colorClass = "highlight-blue";
+            } else if (comp.zone === "V") {
+                zoneName = "Verarbeitung (V)";
+                colorClass = "highlight-gray";
+            } else if (comp.zone === "A") {
+                zoneName = "Ausgabe (A)";
+                colorClass = "highlight-green";
+            }
+
+            sentenceBox.innerHTML = `
+                <span>Die Komponente <strong class="${colorClass}">${comp.icon} ${comp.name}</strong> gehört zur 
+                <strong class="${colorClass}">${zoneName}</strong>, weil ${comp.text}</span>
+            `;
+        }
+
+        // --- SMARTBOARD- & TOUCH-LOGIK (EMULATION) ---
+        let touchItem = null;
+        let startX, startY;
+
+        function handleTouchStart(e) {
+            touchItem = this;
+            const touch = e.touches[0];
+            startX = touch.clientX;
+            startY = touch.clientY;
+            this.style.position = 'absolute';
+            this.style.zIndex = '1000';
+            moveAt(touch.clientX, touch.clientY);
+        }
+
+        function moveAt(pageX, pageY) {
+            if (!touchItem) return;
+            touchItem.style.left = pageX - touchItem.offsetWidth / 2 + 'px';
+            touchItem.style.top = pageY - touchItem.offsetHeight / 2 + 'px';
+        }
+
+        function handleTouchMove(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            moveAt(touch.clientX, touch.clientY);
+        }
+
+        function handleTouchEnd(e) {
+            if (!touchItem) return;
+            
+            touchItem.style.position = '';
+            touchItem.style.zIndex = '';
+            touchItem.style.left = '';
+            touchItem.style.top = '';
+
+            const touch = e.changedTouches[0];
+            // Finde das Element unter dem Finger beim Loslassen
+            const elemBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+            
+            if (elemBelow) {
+                const dropArea = elemBelow.closest('.drop-area');
+                if (dropArea) {
+                    handlePlacement(touchItem, dropArea);
+                } else {
+                    // Zurück in den Pool
+                    itemsPool.appendChild(touchItem);
+                }
+            } else {
+                itemsPool.appendChild(touchItem);
+            }
+            touchItem = null;
+        }
+
+        resetBtn.addEventListener('click', initGame);
+
+        // Starten
+        window.onload = initGame;
+    </script>
+</body>
+</html>

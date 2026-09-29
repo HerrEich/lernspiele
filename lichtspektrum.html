@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Das Elektromagnetische Spektrum - Klasse 9</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f1f5f9;
+            --accent-color: #38bdf8;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 { font-weight: 300; margin: 0 0 5px 0; text-align: center; }
+        .subtitle { color: #94a3b8; margin-bottom: 25px; font-size: 0.9em; text-align: center; }
+
+        .main-container {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 900px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* --- OBEN: VISUALISIERUNG --- */
+        .viz-wrapper {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+            align-items: stretch;
+        }
+
+        /* Icon Box links */
+        .icon-box {
+            width: 140px;
+            background: #0f172a;
+            border-radius: 12px;
+            border: 2px solid #334155;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 10px;
+            transition: all 0.3s;
+        }
+
+        .icon-emoji { font-size: 3.5em; margin-bottom: 5px; }
+        .icon-label { font-size: 0.85em; color: #94a3b8; line-height: 1.2; }
+        .icon-sub { font-size: 0.7em; color: #64748b; margin-top: 5px; text-transform: uppercase; letter-spacing: 1px;}
+
+        /* Canvas rechts */
+        canvas {
+            flex-grow: 1;
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            border: 1px solid #334155;
+            height: 140px;
+            width: 100%;
+        }
+
+        /* --- MITTE: INFOS --- */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        /* Spezialbox für Frequenz Erklärung */
+        .freq-explainer {
+            grid-column: 1 / -1;
+            background: rgba(56, 189, 248, 0.1);
+            border-left: 4px solid var(--accent-color);
+            padding: 10px 15px;
+            font-size: 0.9em;
+            color: #cbd5e1;
+            margin-bottom: 15px;
+            border-radius: 0 8px 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .freq-icon { font-size: 1.5em; }
+
+        .info-card {
+            background: rgba(255,255,255,0.03);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .label { font-size: 0.75em; text-transform: uppercase; color: #64748b; letter-spacing: 1px; margin-bottom: 5px; display: block; }
+        .value { font-size: 1.4em; font-weight: bold; color: #f1f5f9; }
+        .desc { font-size: 0.95em; color: #cbd5e1; margin-top: 8px; line-height: 1.4; }
+
+        /* --- GEFAHRENANZEIGE --- */
+        .danger-box {
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 25px;
+            transition: background-color 0.3s;
+        }
+
+        /* --- UNTEN: SLIDER --- */
+        .controls { position: relative; padding: 10px 0; }
+
+        input[type=range] {
+            width: 100%;
+            -webkit-appearance: none;
+            background: transparent;
+            z-index: 5;
+            position: relative;
+            cursor: pointer;
+        }
+
+        input[type=range]:focus { outline: none; }
+
+        /* Slider Thumb (Knopf) */
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 28px; width: 28px;
+            border-radius: 50%;
+            background: #fff;
+            margin-top: -12px;
+            box-shadow: 0 0 10px rgba(255,255,255,0.8);
+            border: 2px solid #333;
+        }
+
+        /* Slider Track (Hintergrundbalken) */
+        .spectrum-track {
+            height: 15px;
+            width: 100%;
+            border-radius: 8px;
+            margin-top: -10px; /* Slider darüberlegen */
+            background: linear-gradient(90deg,
+                #a855f7 0%,   /* Gamma */
+                #6366f1 15%,  /* Röntgen */
+                #3b82f6 30%,  /* UV */
+                #ffffff 45%,  /* Sichtbar (Weiß als Platzhalter) */
+                #ef4444 60%,  /* IR */
+                #f97316 80%,  /* Mikro */
+                #475569 100%  /* Radio */
+            );
+            position: relative;
+            overflow: hidden;
+        }
+
+        .visible-rainbow {
+            position: absolute;
+            left: 38%; width: 12%; height: 100%;
+            background: linear-gradient(90deg, violet, blue, green, yellow, orange, red);
+            opacity: 0.9;
+        }
+
+        .axis-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75em;
+            color: #64748b;
+            margin-top: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .viz-wrapper { flex-direction: column; }
+            .icon-box, canvas { width: 100%; }
+            .info-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Elektromagnetisches Spektrum</h1>
+    <div class="subtitle">Interaktive Simulation für Physik Klasse 9</div>
+
+    <div class="main-container">
+
+        <div class="viz-wrapper">
+            <div class="icon-box" id="iconBox">
+                <span class="icon-sub">Größenvergleich</span>
+                <div class="icon-emoji" id="sizeIcon">🦠</div>
+                <div class="icon-label">So groß wie:<br><strong id="sizeLabel" style="color:white;">Bakterie</strong></div>
+            </div>
+            <canvas id="waveCanvas"></canvas>
+        </div>
+
+        <div class="info-grid">
+            <div class="info-card" style="grid-column: 1 / -1;">
+                <span class="label">Strahlungsart</span>
+                <div class="value" id="typeName">Sichtbares Licht</div>
+                <div class="desc" id="typeInfo">
+                    Hier stehen spannende Infos zur Strahlung.
+                </div>
+            </div>
+
+            <div class="info-card">
+                <span class="label">Wellenlänge ($\lambda$)</span>
+                <div class="value" id="lambdaVal">500 nm</div>
+            </div>
+
+            <div class="info-card">
+                <span class="label">Frequenz ($f$)</span>
+                <div class="value" id="freqVal">600 THz</div>
+            </div>
+        </div>
+
+        <div class="freq-explainer">
+            <span class="freq-icon">⏱️</span>
+            <div>
+                <strong>Frequenz verständlich erklärt:</strong><br>
+                Dieser Wert gibt an, wie oft die Welle <em>pro Sekunde</em> schwingt.
+                <br>Hohe Zahl = Schnelles Zittern (viel Energie).
+            </div>
+        </div>
+
+        <div id="dangerBox" class="danger-box">Ungefährlich</div>
+
+        <div class="controls">
+            <input type="range" id="slider" min="0" max="1000" value="450">
+
+            <div class="spectrum-track">
+                <div class="visible-rainbow"></div>
+            </div>
+
+            <div class="axis-labels">
+                <span>Gamma</span>
+                <span>Röntgen</span>
+                <span>UV</span>
+                <span>Sichtbar</span>
+                <span>Infrarot</span>
+                <span>Mikrowelle</span>
+                <span>Radio</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- SETUP ---
+        const slider = document.getElementById('slider');
+        const canvas = document.getElementById('waveCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Elemente holen
+        const typeName = document.getElementById('typeName');
+        const typeInfo = document.getElementById('typeInfo');
+        const lambdaVal = document.getElementById('lambdaVal');
+        const freqVal = document.getElementById('freqVal');
+        const sizeIcon = document.getElementById('sizeIcon');
+        const sizeLabel = document.getElementById('sizeLabel');
+        const iconBox = document.getElementById('iconBox');
+        const dangerBox = document.getElementById('dangerBox');
+
+        canvas.width = 800;
+        canvas.height = 140;
+        let phase = 0;
+
+        // --- HILFSFUNKTIONEN ---
+
+        // Logarithmische Skala berechnen
+        function getWavelength(sliderValue) {
+            // Slider 0-1000 mappt auf 10^-14m bis 10^3m
+            const minExp = -14;
+            const maxExp = 3;
+            const exp = minExp + (sliderValue / 1000) * (maxExp - minExp);
+            return Math.pow(10, exp);
+        }
+
+        // Formatierung der Zahlen
+        function formatMetric(val) {
+            if (val < 1e-9) return (val * 1e12).toFixed(1) + " pm"; // Pikometer
+            if (val < 1e-6) return (val * 1e9).toFixed(0) + " nm";  // Nanometer
+            if (val < 1e-3) return (val * 1e6).toFixed(1) + " µm";  // Mikrometer
+            if (val < 1)    return (val * 1e3).toFixed(1) + " mm";  // Millimeter
+            if (val < 1000) return val.toFixed(2) + " m";           // Meter
+            return (val / 1000).toFixed(2) + " km";                 // Kilometer
+        }
+
+        function formatHertz(val) {
+            if (val > 1e18) return (val / 1e18).toFixed(1) + " EHz (Trillionen)";
+            if (val > 1e15) return (val / 1e15).toFixed(1) + " PHz (Billiarden)";
+            if (val > 1e12) return (val / 1e12).toFixed(1) + " THz (Bio.)";
+            if (val > 1e9)  return (val / 1e9).toFixed(1) + " GHz (Mrd.)";
+            if (val > 1e6)  return (val / 1e6).toFixed(1) + " MHz (Mio.)";
+            if (val > 1e3)  return (val / 1e3).toFixed(1) + " kHz (Tsd.)";
+            return val.toFixed(0) + " Hz";
+        }
+
+        // --- DATENBANK (Didaktisch angepasst) ---
+        function getData(meters) {
+            // Frequenz f = c / lambda
+            const f = 299792458 / meters;
+
+            if (meters < 1e-11) {
+                return {
+                    name: "Gammastrahlung",
+                    info: "Entsteht bei Kernspaltung oder Sternexplosionen. Wird in der Medizin genutzt, um Krebszellen gezielt abzutöten.",
+                    obj: "Atomkern",
+                    emoji: "⚛️",
+                    color: "#a855f7",
+                    danger: "🔴 Sehr gefährlich (Zerstört Zellen)",
+                    dangerBg: "rgba(220, 38, 38, 0.25)"
+                };
+            } else if (meters < 1e-8) {
+                return {
+                    name: "Röntgenstrahlung",
+                    info: "Kann weiche Stoffe (Haut) durchdringen, aber keine dichten (Knochen). Deshalb sieht man auf Röntgenbildern das Skelett.",
+                    obj: "Atom",
+                    emoji: "🦴",
+                    color: "#6366f1",
+                    danger: "🟠 Gefährlich bei hoher Dosis",
+                    dangerBg: "rgba(234, 88, 12, 0.25)"
+                };
+            } else if (meters < 3.8e-7) {
+                return {
+                    name: "Ultraviolett (UV)",
+                    info: "Kommt von der Sonne. In Maßen wichtig für Vitamin D, zu viel verursacht Sonnenbrand. Wird auch zum Reinigen von Wasser genutzt.",
+                    obj: "Virus",
+                    emoji: "🦠",
+                    color: "#3b82f6",
+                    danger: "🟡 Vorsicht: Sonnenbrandgefahr",
+                    dangerBg: "rgba(202, 138, 4, 0.25)"
+                };
+            } else if (meters < 7.8e-7) {
+                return {
+                    name: "Sichtbares Licht",
+                    info: "Der einzige Bereich, den unsere Augen sehen können. Pflanzen brauchen es für die Photosynthese, um Sauerstoff zu produzieren.",
+                    obj: "Bakterie",
+                    emoji: "👁️",
+                    color: "rainbow",
+                    danger: "🟢 Ungefährlich (außer Laser)",
+                    dangerBg: "rgba(22, 163, 74, 0.25)"
+                };
+            } else if (meters < 1e-3) {
+                return {
+                    name: "Infrarot (Wärme)",
+                    info: "Wir spüren sie als Wärme auf der Haut. Fernbedienungen nutzen sie für Signale, und Schlangen sehen damit Beute im Dunkeln.",
+                    obj: "Sandkorn / Haar",
+                    emoji: "🔥",
+                    color: "#ef4444",
+                    danger: "🟢 Ungefährlich (wird warm)",
+                    dangerBg: "rgba(22, 163, 74, 0.25)"
+                };
+            } else if (meters < 1) {
+                return {
+                    name: "Mikrowellen",
+                    info: "Bringt Wassermoleküle zum Schwingen, wodurch Essen heiß wird. Auch WLAN-Router und Handys nutzen diese Wellen.",
+                    obj: "Insekt",
+                    emoji: "🐝",
+                    color: "#f97316",
+                    danger: "🟢 Meist ungefährlich",
+                    dangerBg: "rgba(22, 163, 74, 0.25)"
+                };
+            } else {
+                return {
+                    name: "Radiowellen",
+                    info: "Haben riesige Reichweiten. Sie übertragen Musik zum Autoradio oder Daten zum Fernseher, ohne dass Kabel nötig sind.",
+                    obj: "Mensch / Haus",
+                    emoji: "🏠",
+                    color: "#475569",
+                    danger: "🟢 Ungefährlich",
+                    dangerBg: "rgba(22, 163, 74, 0.25)"
+                };
+            }
+        }
+
+        // Regenbogenfarbe berechnen
+        function getRainbowColor(meters) {
+            const nm = meters * 1e9;
+            if (nm < 380 || nm > 780) return null;
+            // Einfache RGB Näherung
+            if (nm < 440) return `rgb(${(-(nm-440)/(60))*255}, 0, 255)`;
+            if (nm < 490) return `rgb(0, ${(nm-440)/(50)*255}, 255)`;
+            if (nm < 510) return `rgb(0, 255, ${(-(nm-510)/(20))*255})`;
+            if (nm < 580) return `rgb(${(nm-510)/(70)*255}, 255, 0)`;
+            if (nm < 645) return `rgb(255, ${(-(nm-645)/(65))*255}, 0)`;
+            return `rgb(255, 0, 0)`;
+        }
+
+        // --- ANIMATION LOOP ---
+        function loop() {
+            const val = parseInt(slider.value);
+            const lambda = getWavelength(val);
+            const freq = 299792458 / lambda;
+            const data = getData(lambda);
+
+            // 1. Text Infos Update
+            typeName.textContent = data.name;
+            typeInfo.textContent = data.info;
+            sizeLabel.textContent = data.obj;
+            sizeIcon.textContent = data.emoji;
+
+            lambdaVal.textContent = formatMetric(lambda);
+            freqVal.textContent = formatHertz(freq);
+
+            dangerBox.textContent = data.danger;
+            dangerBox.style.backgroundColor = data.dangerBg;
+
+            // Farbe setzen
+            let drawColor = data.color;
+            if (drawColor === "rainbow") {
+                drawColor = getRainbowColor(lambda) || "#ffffff";
+            }
+
+            iconBox.style.borderColor = drawColor;
+            iconBox.style.boxShadow = `0 0 15px ${drawColor}40`; // Hex Alpha 40
+            document.documentElement.style.setProperty('--accent-color', drawColor);
+
+            // 2. Canvas Animation
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.beginPath();
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = drawColor;
+
+            // Frequenz visualisieren (Fake Visualisierung für Lerneffekt)
+            // Slider links (0) = Hohe Frequenz (Welle eng)
+            // Slider rechts (1000) = Niedrige Frequenz (Welle weit)
+            // Wir nutzen den Slider-Wert direkt für die "Visual Frequency"
+            // Umkehrung: 1000 - val
+            const visualFreqFactor = 0.5 + Math.pow((1000 - val) / 150, 2) * 0.8;
+
+            const amplitude = 40;
+            const cy = canvas.height / 2;
+
+            for (let x = 0; x < canvas.width; x++) {
+                // Formel: y = sin(x * frequenz + phase)
+                const y = cy + amplitude * Math.sin((x * visualFreqFactor * 0.02) - phase);
+                if (x===0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+
+            // Geschwindigkeit der Animation anpassen (Links schnell, Rechts langsam)
+            const speed = 0.02 + ((1000 - val) / 1000) * 0.8;
+            phase += speed;
+
+            requestAnimationFrame(loop);
+        }
+
+        loop();
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Klassen-Abschluss-Spiel</title>
+    <style>
+        :root {
+            --primary: #4A90E2;
+            --secondary: #50E3C2;
+            --danger: #E94A4A;
+            --warning: #F5A623;
+            --dark: #333;
+            --light: #F5F7FA;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            color: white;
+        }
+        button:hover {
+            transform: scale(1.05);
+        }
+        .btn-blue { background-color: var(--primary); }
+        .btn-green { background-color: var(--secondary); color: var(--dark); }
+        .btn-red { background-color: var(--danger); }
+        .btn-dark { background-color: var(--dark); }
+        .btn-warning { background-color: var(--warning); color: var(--dark); font-weight: bold; }
+        
+        /* Setup Bereich */
+        #setup-section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--light);
+        }
+        
+        /* Spiel Bereich */
+        #game-section {
+            display: none;
+        }
+
+        /* SMARTBOARD BEREICH (OBEN) */
+        .public-view {
+            background-color: var(--light);
+            border: 2px solid var(--primary);
+            padding: 30px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .action-type {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--danger);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+        }
+        .hint-box {
+            display: none;
+            background-color: #FFF3CD;
+            color: #856404;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: left;
+        }
+        .hint-box p {
+            margin: 5px 0;
+            padding: 5px;
+            border-bottom: 1px dashed #ffe69c;
+        }
+        .hint-box p:last-child {
+            border-bottom: none;
+        }
+
+        /* ABSTANDSHALTER */
+        .spacer {
+            height: 70vh; /* Macht eine riesige Lücke, damit man scrollen muss */
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 20px;
+            color: #aaa;
+            font-style: italic;
+            border-bottom: 2px dashed #ddd;
+            margin-bottom: 40px;
+        }
+
+        /* ERKLÄRER BEREICH (UNTEN) */
+        .secret-view {
+            background-color: #ffebee;
+            padding: 30px;
+            border-radius: 10px;
+            border: 3px dashed var(--danger);
+            margin-top: 20px;
+        }
+        .secret-view h3 {
+            color: var(--danger);
+            margin-top: 0;
+        }
+        .actual-word {
+            font-size: 48px;
+            margin: 20px 0;
+            font-weight: bold;
+            color: var(--dark);
+        }
+
+        /* Timer Bereich */
+        .timer-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #E8F0FE;
+            border-radius: 10px;
+        }
+        .timer-display {
+            font-size: 60px;
+            font-weight: bold;
+            font-family: monospace;
+            margin: 10px 0;
+        }
+        .timer-blink {
+            color: var(--danger);
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        /* Scoreboard */
+        .scoreboard {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid var(--light);
+        }
+        .team-score {
+            background: white;
+            padding: 15px;
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            min-width: 150px;
+            margin: 10px;
+        }
+        .team-score h3 { margin: 0 0 10px 0; }
+        .score-number { font-size: 30px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 id="top">🎉 Klassen-Abschluss-Spiel 🎉</h1>
+
+    <!-- EINSTELLUNGEN -->
+    <div id="setup-section">
+        <h2>Einstellungen</h2>
+        <label for="team-count">Anzahl der Teams: </label>
+        <input type="number" id="team-count" value="2" min="2" max="6" style="font-size: 18px; width: 50px; text-align: center;">
+        <br><br>
+        <button class="btn-blue" onclick="startGame()">Spiel Starten</button>
+    </div>
+
+    <!-- SPIELBEREICH -->
+    <div id="game-section">
+
+        <!-- ========================================== -->
+        <!-- BEREICH 1: FÜR DAS SMARTBOARD (GANZ OBEN)  -->
+        <!-- ========================================== -->
+        
+        <div class="public-view">
+            <h3 style="margin-top: 0; color: #888;">Ansicht für die Klasse</h3>
+            <div id="action-type-top" class="action-type">Warte auf erstes Wort...</div>
+            
+            <button class="btn-dark" onclick="showNextHint()" id="hint-btn" style="display: none;">💡 Tipp 1 anzeigen</button>
+            <div id="hint-box" class="hint-box"></div>
+        </div>
+
+        <!-- Timer -->
+        <div class="timer-section">
+            <h3>Timer</h3>
+            <button class="btn-green" onclick="setTimer(60)">1 Min</button>
+            <button class="btn-green" onclick="setTimer(120)">2 Min</button>
+            <button class="btn-green" onclick="setTimer(180)">3 Min</button>
+            
+            <div id="timer-display" class="timer-display">00:00</div>
+            
+            <button class="btn-blue" onclick="startTimer()">▶️ Start</button>
+            <button class="btn-dark" onclick="pauseTimer()">⏸️ Pause</button>
+            <button class="btn-red" onclick="resetTimer()">⏹️ Reset</button>
+        </div>
+
+        <!-- Punktestand -->
+        <div id="scoreboard" class="scoreboard">
+            <!-- Wird dynamisch generiert -->
+        </div>
+
+
+        <!-- ========================================== -->
+        <!-- RIESIGER ABSTANDSHALTER ZUM SCROLLEN       -->
+        <!-- ========================================== -->
+        <div class="spacer">
+            ⬇️ Lehrer-Bereich: Scrolle weiter nach unten für das geheime Wort ⬇️
+        </div>
+
+
+        <!-- ========================================== -->
+        <!-- BEREICH 2: ERKLÄRER-ANSICHT (GANZ UNTEN)   -->
+        <!-- ========================================== -->
+        
+        <div class="secret-view">
+            <h3>🤫 Erklärer-Ansicht (Geheim)</h3>
+            <p>Lass den Schüler hier das Wort ablesen, ohne dass es am Smartboard auftaucht.</p>
+            
+            <button class="btn-blue" onclick="generateWord()" style="font-size: 20px; padding: 15px 30px;">🎁 Neues Wort ziehen</button>
+            
+            <!-- Hier taucht das Wort auf -->
+            <div id="action-type-bottom" class="action-type" style="margin-top: 20px; font-size: 20px;"></div>
+            <div id="actual-word" class="actual-word">???</div>
+            
+            <!-- Bequemer Button, um sofort wieder nach oben zum Timer zu springen -->
+            <button class="btn-dark" onclick="window.scrollTo(0, 0)" style="margin-top: 20px;">⬆️ Wieder ganz nach oben scrollen</button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // --- WORTLISTE MIT TIPPS ---
+    let originalWordList = [
+        // --- ASTRONOMIE ---
+        { word: "Asteroid", hints: ["Ein Gesteinsbrocken im Weltall.", "Fliegt oft zwischen Mars und Jupiter.", "Ist kleiner als ein Planet."] },
+        { word: "Außerirdischer (Alien)", hints: ["Ein Lebewesen, das nicht von der Erde stammt.", "Wird oft mit grüner Haut und großen Augen dargestellt.", "Reist angeblich in einem UFO."] },
+        { word: "Galaxie", hints: ["Eine riesige Ansammlung von Sternen und Planetensystemen.", "Sieht oft spiralförmig aus.", "Unsere nennt man Milchstraße."] },
+        { word: "Gasplanet", hints: ["Ein Himmelskörper, der nicht aus festem Gestein besteht.", "Jupiter und Saturn gehören dazu.", "Man kann auf ihm nicht landen."] },
+        { word: "Komet", hints: ["Ein Himmelskörper aus Eis und Staub.", "Hat oft einen leuchtenden Schweif.", "Zieht meist in langgestreckten Bahnen um die Sonne."] },
+        { word: "Lichtgeschwindigkeit", hints: ["Das absolute Tempolimit im Universum.", "Etwa 300.000 Kilometer pro Sekunde.", "Einstein hat in seiner Theorie darüber gesprochen."] },
+        { word: "Milchstraße", hints: ["Der Name unserer Heimatgalaxie.", "Sieht am dunklen Nachthimmel aus wie ein wolkiges, helles Band.", "Beinhaltet unser Sonnensystem."] },
+        { word: "Mond", hints: ["Ein natürlicher Satellit, der die Erde umkreist.", "Sorgt für Ebbe und Flut.", "Wurde 1969 von Neil Armstrong betreten."] },
+        { word: "Planet", hints: ["Ein großer Himmelskörper, der einen Stern umkreist.", "Es gibt acht davon in unserem Sonnensystem.", "Die Erde ist einer davon."] },
+        { word: "Roter Riese", hints: ["Ein Stern in seiner späten Lebensphase.", "Er hat sich extrem aufgebläht und seine Farbe verändert.", "Unsere Sonne wird einmal zu einem solchen Himmelskörper."] },
+        { word: "Schwarzes Loch", hints: ["Ein Ort im Weltall mit extrem hoher Schwerkraft.", "Es zieht sogar Licht an, sodass es nicht entkommen kann.", "Entsteht oft, wenn ein riesiger Stern stirbt."] },
+        { word: "Sonne", hints: ["Der Stern im Zentrum unseres Sonnensystems.", "Spendet uns Licht und Wärme.", "Besteht vor allem aus Wasserstoff und Helium."] },
+        { word: "Stern", hints: ["Ein riesiger, glühender Gasball am Himmel.", "Die Sonne ist ein Beispiel dafür.", "Man sieht sie nachts funkeln."] },
+        { word: "Sternschnuppe", hints: ["Ein kleiner Gesteinsbrocken, der in unserer Atmosphäre verglüht.", "Zieht einen kurzen, leuchtenden Streifen über den Nachthimmel.", "Wenn man sie sieht, darf man sich etwas wünschen."] },
+        { word: "Supernova", hints: ["Eine gigantische Explosion am Ende eines Sternenlebens.", "Leuchtet für kurze Zeit extrem hell im Universum.", "Schleudert viele neue Elemente ins Weltall."] },
+        { word: "Umlaufbahn", hints: ["Der Weg, auf dem sich ein Himmelskörper um einen anderen bewegt.", "Wird in der Wissenschaft auch Orbit genannt.", "Die Erde braucht auf diesem Weg ein Jahr um die Sonne."] },
+        { word: "Zwergplanet", hints: ["Ein Himmelskörper, der rund ist, aber seine Bahn nicht ganz bereinigt hat.", "Kleiner als die 8 Hauptplaneten.", "Pluto wurde in diese Kategorie zurückgestuft."] },
+
+        // --- KLEIDUNG ---
+        { word: "Baumwolle", hints: ["Eine sehr häufige, natürliche Textilfaser.", "Wächst an einer Pflanze in Form weißer, flauschiger Bällchen.", "Daraus bestehen die meisten T-Shirts und Jeans."] },
+        { word: "Fast-Fashion", hints: ["Kleidung, die extrem schnell und billig produziert wird.", "Führt oft zu Umweltproblemen und Bergen an Müll.", "Gegenteil von nachhaltiger Mode."] },
+        { word: "Leinen", hints: ["Ein Stoff, der aus der Flachspflanze gewonnen wird.", "Kühlt sehr gut im Sommer.", "Ist dafür bekannt, sehr leicht zu knittern."] },
+        { word: "Mikroplastik", hints: ["Winzige Kunststoffteilchen, kleiner als 5 Millimeter.", "Lösen sich z.B. beim Waschen von synthetischer Kleidung (Fleece).", "Landen in Ozeanen und Tieren."] },
+        { word: "Monokultur", hints: ["Der Anbau von nur einer einzigen Pflanzenart auf einer riesigen Fläche.", "Oft beim Baumwollanbau praktiziert.", "Schlecht für den Boden und Insekten."] },
+        { word: "Ökologischer Fußabdruck", hints: ["Ein Maß dafür, wie viel Natur jemand für seinen Lebensstil verbraucht.", "Wird in Erden gemessen (z.B. man bräuchte 3 Erden).", "Je mehr wir konsumieren, desto größer wird er."] },
+        { word: "Ökologischer Rucksack", hints: ["Ein Bild für alle Materialien, die bei der Herstellung eines Produkts anfallen, auch wenn man sie später nicht sieht.", "Es beinhaltet auch Wasser und Abfallstoffe bei der Produktion.", "Er ist oft viel schwerer als das eigentliche Produkt in deinen Händen."] },
+        { word: "Polyester", hints: ["Eine der bekanntesten synthetischen Fasern für Textilien.", "Wird aus Erdöl hergestellt (im Grunde Plastik).", "Besonders oft in Sportkleidung zu finden."] },
+        { word: "Secondhand", hints: ["Kleidung, die nicht neu ist, sondern schon jemandem gehörte.", "Man kauft es auf dem Flohmarkt oder im Vintage-Laden.", "Sehr umweltfreundlich, da nichts Neues produziert werden muss."] },
+        { word: "Seide", hints: ["Ein sehr edler und glänzender Naturstoff.", "Fühlt sich glatt und fließend an.", "Wird aus dem Kokon einer bestimmten Raupe gewonnen."] },
+        { word: "Wolle", hints: ["Ein natürliches Material, das uns im Winter schön warm hält.", "Das klassische Material für dicke Pullover.", "Wird gewonnen, indem man Schafe schert."] },
+
+        // --- MOBILITÄT ---
+        { word: "Auspuff", hints: ["Ein Rohr meistens am Heck eines Fahrzeugs.", "Dort kommen die schädlichen Abgase heraus.", "Fehlt bei reinen Elektroautos komplett."] },
+        { word: "Dampfmaschine", hints: ["Eine Erfindung, die den Beginn der Industrialisierung markierte.", "Macht aus heißem Wasserdampf mechanische Energie.", "Zog früher die alten Lokomotiven."] },
+        { word: "Elektroauto", hints: ["Ein Fahrzeug, das keinen Sprit tankt.", "Hat statt eines Verbrennungsmotors einen Akku.", "Muss an der Ladesäule oder Steckdose aufgeladen werden."] },
+        { word: "Erdöl", hints: ["Ein fossiler Rohstoff tief aus dem Boden.", "Wird manchmal auch schwarzes Gold genannt.", "Daraus werden Benzin, Diesel und Plastik gemacht."] },
+        { word: "Fahrrad", hints: ["Ein Fahrzeug mit zwei Rädern.", "Man braucht Muskelkraft, um vorwärts zu kommen.", "Sehr gut für die Umwelt und die Gesundheit."] },
+        { word: "Kolben", hints: ["Ein zylinderförmiges Bauteil im Inneren eines Motors.", "Bewegt sich rasend schnell auf und ab.", "Verdichtet das Luft-Treibstoff-Gemisch vor der Zündung."] },
+        { word: "Lokomotive", hints: ["Das Fahrzeug, das einen Eisenbahnzug zieht.", "Befindet sich ganz vorne am Zug.", "Früher dampften sie, heute fahren sie meist mit Strom."] },
+        { word: "Ruß", hints: ["Ein schwarzes Pulver, das bei Verbrennung anfällt.", "Bleibt oft im Kamin hängen.", "Ältere Dieselautos blasen ihn ungefiltert in die Luft."] },
+        { word: "Smog", hints: ["Ein Zustand, bei dem die Luft in einer Stadt stark verschmutzt ist.", "Mischung aus Nebel und Abgasen (Rauch).", "Man sieht den Himmel nicht und es kratzt im Hals."] },
+        { word: "Zündfunke", hints: ["Ein kleiner, elektrischer Blitz.", "Wird benötigt, damit das Benzin im Motor explodiert.", "Springt an der Zündkerze über."] },
+        { word: "Zündkerze", hints: ["Ein kleines, wichtiges Ersatzteil in Benzinmotoren.", "Erzeugt den Funken für die Verbrennung.", "Muss regelmäßig in der Werkstatt gewechselt werden."] },
+
+        // --- INFORMATION UND KOMMUNIKATION ---
+        { word: "Binärsystem (oder Binärcode)", hints: ["Das Zahlensystem, das alle Computer nutzen.", "Besteht nur aus zwei Zahlen: 0 und 1.", "Steht symbolisch für Strom an oder Strom aus."] },
+        { word: "Schallwellen", hints: ["Auf diese Weise breiten sich Töne und Geräusche aus.", "Es braucht ein Medium wie Luft, sonst hört man nichts.", "Im leeren Weltraum gibt es sie nicht."] },
+        { word: "Elektromagnetische Wellen", hints: ["Auf diese Weise breiten sich Licht, WLAN oder Radio aus.", "Können auch durch ein absolutes Vakuum (Weltall) reisen.", "Sie reisen mit Lichtgeschwindigkeit."] },
+        { word: "Verschattung", hints: ["Wenn ein Objekt das Licht blockiert, sodass es dahinter dunkel wird.", "Im Sommer nutzt man Rollläden am Haus, um das zu erreichen.", "Sonnenfinsternisse sind ein riesiges Beispiel dafür."] },
+        { word: "Reflexion", hints: ["Wenn Licht, Schall oder Wellen an einer Oberfläche zurückgeworfen werden.", "Passiert optisch an jedem Spiegel.", "Passiert akustisch, wenn ein Echo in den Bergen entsteht."] },
+        { word: "Hertz", hints: ["Die physikalische Einheit für Frequenz.", "Gibt an, wie viele Schwingungen es pro Sekunde gibt.", "Auf dem Radio steht das oft mit einem Mega davor (MHz)."] },
+        { word: "Mikrowellen", hints: ["Eine bestimmte Form von elektromagnetischer Strahlung.", "Macht in der Küche ganz schnell unser Essen warm.", "Wird aber auch für Radar oder Handyempfang genutzt."] }
+    ];
+
+    let currentWordList = [];
+    const actionTypes = ["Mündlich erklären", "Pantomimisch darstellen", "Zeichnerisch darstellen"];
+    
+    // Spiel-Status
+    let teamScores = [];
+    let currentSelectedWord = null; 
+    let currentHintIndex = 0; 
+
+    // --- SPIEL LOGIK ---
+    function startGame() {
+        let teamCount = document.getElementById("team-count").value;
+        if (teamCount < 2) teamCount = 2;
+
+        teamScores = Array(parseInt(teamCount)).fill(0);
+        updateScoreboard();
+
+        currentWordList = [...originalWordList];
+
+        document.getElementById("setup-section").style.display = "none";
+        document.getElementById("game-section").style.display = "block";
+    }
+
+    function generateWord() {
+        if (currentWordList.length === 0) {
+            alert("Alle Wörter wurden gespielt! Lade die Seite neu, um von vorne zu beginnen.");
+            return;
+        }
+
+        let randomWordIndex = Math.floor(Math.random() * currentWordList.length);
+        currentSelectedWord = currentWordList[randomWordIndex];
+        currentWordList.splice(randomWordIndex, 1);
+
+        let randomActionIndex = Math.floor(Math.random() * actionTypes.length);
+        let selectedAction = actionTypes[randomActionIndex];
+
+        // Action-Typ oben (für alle) und unten (für Erklärer) anzeigen
+        document.getElementById("action-type-top").innerText = selectedAction;
+        document.getElementById("action-type-bottom").innerText = selectedAction;
+        
+        // Wort NUR ganz unten beim Erklärer anzeigen
+        document.getElementById("actual-word").innerText = currentSelectedWord.word;
+        
+        // Hilfe / Tipps oben zurücksetzen
+        currentHintIndex = 0;
+        let hintBox = document.getElementById("hint-box");
+        let hintBtn = document.getElementById("hint-btn");
+        
+        hintBox.innerHTML = ""; 
+        hintBox.style.display = "none";
+        
+        hintBtn.style.display = "inline-block";
+        hintBtn.innerText = "💡 Tipp 1 anzeigen";
+    }
+
+    function showNextHint() {
+        if (!currentSelectedWord) return;
+        
+        let hintBox = document.getElementById("hint-box");
+        let hintBtn = document.getElementById("hint-btn");
+        
+        hintBox.style.display = "block";
+        
+        let newHint = document.createElement("p");
+        newHint.innerText = "Tipp " + (currentHintIndex + 1) + ": " + currentSelectedWord.hints[currentHintIndex];
+        hintBox.appendChild(newHint);
+        
+        currentHintIndex++;
+        
+        if (currentHintIndex < currentSelectedWord.hints.length) {
+            hintBtn.innerText = "💡 Tipp " + (currentHintIndex + 1) + " anzeigen";
+        } else {
+            hintBtn.style.display = "none";
+        }
+    }
+
+    // --- SCOREBOARD LOGIK ---
+    function updateScoreboard() {
+        let scoreboard = document.getElementById("scoreboard");
+        scoreboard.innerHTML = ""; 
+
+        for (let i = 0; i < teamScores.length; i++) {
+            let teamDiv = document.createElement("div");
+            teamDiv.className = "team-score";
+            
+            let title = document.createElement("h3");
+            title.innerText = "Team " + (i + 1);
+            
+            let score = document.createElement("div");
+            score.className = "score-number";
+            score.innerText = teamScores[i];
+            
+            let addBtn = document.createElement("button");
+            addBtn.className = "btn-blue";
+            addBtn.innerText = "+1 Punkt";
+            addBtn.onclick = function() { addPoint(i); };
+
+            let subBtn = document.createElement("button");
+            subBtn.className = "btn-red";
+            subBtn.innerText = "-1";
+            subBtn.style.padding = "10px";
+            subBtn.onclick = function() { removePoint(i); };
+
+            teamDiv.appendChild(title);
+            teamDiv.appendChild(score);
+            teamDiv.appendChild(addBtn);
+            teamDiv.appendChild(subBtn);
+            scoreboard.appendChild(teamDiv);
+        }
+    }
+
+    function addPoint(teamIndex) {
+        teamScores[teamIndex]++;
+        updateScoreboard();
+    }
+
+    function removePoint(teamIndex) {
+        if(teamScores[teamIndex] > 0) {
+            teamScores[teamIndex]--;
+            updateScoreboard();
+        }
+    }
+
+    // --- TIMER LOGIK ---
+    let timerInterval;
+    let timeLeft = 0; 
+    let isRunning = false;
+
+    function setTimer(seconds) {
+        pauseTimer();
+        timeLeft = seconds;
+        updateTimerDisplay();
+        document.getElementById("timer-display").classList.remove("timer-blink");
+    }
+
+    function startTimer() {
+        if (isRunning || timeLeft <= 0) return;
+        isRunning = true;
+        
+        document.getElementById("timer-display").classList.remove("timer-blink");
+
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            updateTimerDisplay();
+
+            if (timeLeft <= 0) {
+                pauseTimer();
+                document.getElementById("timer-display").classList.add("timer-blink");
+            }
+        }, 1000);
+    }
+
+    function pauseTimer() {
+        isRunning = false;
+        clearInterval(timerInterval);
+    }
+
+    function resetTimer() {
+        pauseTimer();
+        timeLeft = 0;
+        updateTimerDisplay();
+        document.getElementById("timer-display").classList.remove("timer-blink");
+    }
+
+    function updateTimerDisplay() {
+        let minutes = Math.floor(timeLeft / 60);
+        let seconds = timeLeft % 60;
+        
+        if (minutes < 10) minutes = "0" + minutes;
+        if (seconds < 10) seconds = "0" + seconds;
+        
+        document.getElementById("timer-display").innerText = minutes + ":" + seconds;
+    }
+
+</script>
+</body>
+</html>
