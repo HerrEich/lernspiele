@@ -1,0 +1,536 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f5f0">
+  <title>Pixelwerkstatt · Bilder, Bits & Bewegung</title>
+  <style>
+    :root { color-scheme: light; --ink:#202b40; --muted:#536078; --paper:#f6f5f0; --line:#dce1e8; --blue:#284dd4; --soft:#eef2ff; --green:#176342; }
+    * { box-sizing:border-box; }
+    [hidden] { display:none !important; }
+    body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif; }
+    button,input,textarea { font:inherit; }
+    button { cursor:pointer; touch-action:manipulation; }
+    button:disabled { cursor:default; opacity:.55; }
+    button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible { outline:3px solid #b33b09; outline-offset:4px; }
+    button { min-height:44px; border:1px solid var(--line); border-radius:10px; padding:9px 15px; background:white; color:var(--ink); font-weight:650; }
+    button:hover:not(:disabled) { border-color:var(--blue); background:var(--soft); }
+    .primary { background:var(--blue); color:white; border-color:var(--blue); }
+    .primary:hover:not(:disabled) { background:#1937ad; color:white; }
+    h1,h2,h3,p { margin:0; }
+    h1 { font-size:clamp(2rem,4.5vw,3.5rem); letter-spacing:-.045em; line-height:1.12; margin:10px 0 14px; }
+    h2 { font-size:1.55rem; letter-spacing:-.025em; line-height:1.25; }
+    h3 { font-size:1.05rem; }
+    p + p { margin-top:10px; }
+    small,.small { font-size:.85rem; }
+    .muted { color:var(--muted); }
+    .wrap { max-width:1220px; margin:auto; padding:0 28px; }
+    .topbar { border-bottom:1px solid var(--line); background:#fffdf9; }
+    .topbar .wrap { min-height:82px; display:flex; align-items:center; justify-content:space-between; gap:16px; }
+    .brand { display:flex; align-items:center; gap:12px; font-weight:800; letter-spacing:-.025em; font-size:1.2rem; }
+    .brandmark { width:34px; height:34px; background:conic-gradient(var(--blue) 25%,#f2b43c 0 50%,#ee7459 0 75%,#91b5a5 0); border-radius:7px; }
+    .header-actions,.row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .badge { font-size:.75rem; letter-spacing:.08em; text-transform:uppercase; font-weight:750; }
+    .hero { padding:36px 0 28px; display:flex; justify-content:space-between; align-items:center; gap:30px; }
+    .hero p { max-width:650px; color:var(--muted); }
+    .hero-art { display:grid; grid-template-columns:repeat(5,17px); gap:5px; transform:rotate(-8deg); margin:0 45px; }
+    .hero-art i { width:17px; height:17px; border-radius:3px; background:#d9dfed; }
+    .hero-art i:nth-child(3n) { background:var(--blue); }
+    .hero-art i:nth-child(4n) { background:#ee7459; }
+    .tabs { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; padding:7px; background:#e9eaf0; border:1px solid var(--line); border-radius:16px; margin-bottom:25px; }
+    .tab { display:flex; align-items:center; gap:12px; background:transparent; border-color:transparent; text-align:left; padding:13px 17px; }
+    .tab[aria-selected="true"] { background:white; box-shadow:0 2px 5px #202b4010; border-color:#d5dced; color:var(--blue); }
+    .number { display:grid; place-items:center; width:30px; height:30px; border-radius:8px; background:#dfe4ef; flex-shrink:0; }
+    .tab[aria-selected="true"] .number { color:white; background:var(--blue); }
+    .tab small { display:block; font-weight:450; color:var(--muted); }
+    .section-head { display:flex; justify-content:space-between; align-items:center; gap:16px; margin:0 0 18px; }
+    .section-head p { margin-top:5px; color:var(--muted); }
+    .workspace { display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,1fr); gap:22px; align-items:start; }
+    .card { background:white; border:1px solid var(--line); border-radius:18px; padding:24px; }
+    .stack { display:grid; gap:18px; }
+    .card-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:18px; }
+    .eyebrow { color:var(--blue); text-transform:uppercase; letter-spacing:.09em; font-size:.72rem; font-weight:800; }
+    .pill { border-radius:99px; padding:4px 10px; background:var(--soft); color:#304c9e; font-size:.78rem; font-weight:650; }
+    .instruction { padding:14px 17px; border:1px solid #e9d6a5; background:#fff6df; border-radius:12px; margin-bottom:20px; }
+    .instruction strong { color:#765119; }
+    .grid-shell { width:100%; max-width:390px; margin:0 auto 18px; display:grid; grid-template-columns:20px minmax(0,1fr); gap:5px; }
+    .axis { font:12px ui-monospace,monospace; color:var(--muted); display:grid; text-align:center; align-items:center; }
+    .axis.cols { grid-template-columns:repeat(8,1fr); }
+    .axis.rows { grid-template-rows:repeat(8,1fr); }
+    .pixel-grid { display:grid; grid-template-columns:repeat(8,minmax(0,1fr)); gap:2px; padding:4px; background:#657188; border-radius:9px; aspect-ratio:1; }
+    .pixel { min-height:0; min-width:0; padding:0; border:0; border-radius:2px; background:#121a2b; }
+    .pixel.on { background:#fff; }
+    .pixel:hover:not(:disabled) { background:#303f5b; box-shadow:inset 0 0 0 3px #ebad31; }
+    .pixel.on:hover:not(:disabled) { background:#fff; }
+    .pixel:focus-visible { outline:3px solid #ffc642; outline-offset:-3px; z-index:1; }
+    .pixel:disabled { opacity:1; }
+    .legend { display:flex; justify-content:center; gap:22px; font-size:.85rem; margin-bottom:17px; }
+    .dot { width:12px; height:12px; display:inline-block; border:1px solid #657188; border-radius:3px; vertical-align:-1px; margin-right:5px; }
+    .dot.black { background:#121a2b; }
+    .dot.white { background:white; }
+    .templates { justify-content:center; }
+    .code-readout { padding:16px; background:#f4f6fb; border-radius:12px; text-align:center; font:clamp(17px,3vw,23px)/1.65 ui-monospace,"Courier New",monospace; letter-spacing:.24em; }
+    .code-readout span.active { background:#ffdf8b; color:#202b40; border-radius:3px; }
+    textarea { width:100%; resize:vertical; min-height:116px; border:1px solid #a8b3c5; border-radius:10px; padding:12px; background:#fff; color:var(--ink); font:16px/1.5 ui-monospace,monospace; margin-top:7px; }
+    textarea[aria-invalid="true"] { border:2px solid #af3224; }
+    .field { display:block; margin-top:17px; font-size:.9rem; font-weight:650; }
+    .feedback { margin-top:10px; min-height:25px; font-size:.9rem; color:var(--green); }
+    .feedback.error { color:#a3291d; }
+    .formula { font-size:1.23rem; font-weight:750; letter-spacing:-.02em; margin:8px 0; }
+    .data-card { background:var(--soft); border-color:#d9e0fb; }
+    .hint { color:var(--muted); font-size:.87rem; }
+    .challenge { margin-top:18px; border-top:1px solid var(--line); padding-top:18px; }
+    .challenge-line { display:flex; gap:18px; align-items:center; margin-top:12px; flex-wrap:wrap; }
+    .mini-grid { display:grid; grid-template-columns:repeat(8,1fr); gap:1px; background:#657188; padding:3px; aspect-ratio:1; border-radius:5px; }
+    .mini-grid i { background:#121a2b; }
+    .mini-grid i.on { background:white; }
+    #target-pattern { width:86px; flex-shrink:0; }
+    .memo { display:flex; gap:17px; align-items:start; padding:22px 25px; background:#e9f1ec; border:1px solid #cadcd0; border-radius:16px; margin:22px 0; }
+    .memo-mark { display:grid; place-items:center; background:#d0e5d6; border-radius:9px; width:34px; height:34px; font-weight:800; flex-shrink:0; color:var(--green); }
+    .memo h3 { color:var(--green); margin-bottom:4px; }
+    .memo .hint { margin-top:8px; }
+    .color-stage { height:175px; border-radius:12px; border:1px solid #a8b3c5; background:black; margin-bottom:12px; }
+    #rgb-label { font:14px ui-monospace,monospace; text-align:center; display:block; margin-bottom:18px; }
+    .channel { border-top:1px solid var(--line); padding-top:17px; margin-top:17px; }
+    .channel-head { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:10px; }
+    .channel-name { display:flex; gap:8px; align-items:center; font-weight:750; }
+    .swatch-dot { border-radius:50%; width:11px; height:11px; }
+    .bit-row { display:grid; grid-template-columns:repeat(8,minmax(0,1fr)); gap:5px; }
+    .bit-wrap { text-align:center; min-width:0; }
+    .weight { display:block; font:12px ui-monospace,monospace; color:var(--muted); margin-bottom:5px; }
+    .bit { padding:7px 0; width:100%; min-height:44px; font:700 18px ui-monospace,monospace; border-color:#adb7c8; }
+    .bit[aria-pressed="true"] { background:var(--blue); border-color:var(--blue); color:white; }
+    .channel-sum { font:13px/1.5 ui-monospace,monospace; color:var(--muted); margin-top:8px; overflow-wrap:anywhere; }
+    .target-color { width:88px; height:88px; border-radius:14px; border:1px solid #a8b3c5; flex-shrink:0; }
+    .color-task { display:flex; align-items:center; gap:17px; margin:17px 0; }
+    .exercise-count { color:var(--muted); font-size:.8rem; }
+    .task-controls { display:flex; gap:9px; flex-wrap:wrap; margin-top:15px; }
+    .timeline { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin:18px 0; }
+    .frame { padding:8px; font-size:.78rem; min-width:0; }
+    .frame .mini-grid { width:100%; margin-bottom:6px; }
+    .frame[aria-pressed="true"] { border:2px solid var(--blue); padding:7px; background:var(--soft); color:var(--blue); }
+    .frame.playing { box-shadow:0 0 0 3px #e9ac39; }
+    .video-stage { background:#eef1f7; padding:20px; border-radius:13px; margin-bottom:17px; }
+    #video-preview { max-width:240px; margin:auto; }
+    .playback-label { text-align:center; color:var(--muted); font-size:.82rem; margin-top:10px; }
+    .fps-head { display:flex; justify-content:space-between; gap:10px; align-items:center; margin-top:20px; }
+    #fps-value { font-size:1.2rem; color:var(--blue); font-weight:800; }
+    input[type="range"] { width:100%; min-height:44px; accent-color:var(--blue); cursor:pointer; }
+    .range-labels { display:flex; justify-content:space-between; color:var(--muted); font-size:.78rem; }
+    .metrics { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:15px 0; }
+    .metric { padding:12px; background:#f5f6fa; border-radius:10px; }
+    .metric b { display:block; font-size:1.2rem; margin-top:3px; }
+    details { border-top:1px solid var(--line); padding-top:13px; margin-top:16px; }
+    summary { cursor:pointer; font-weight:650; min-height:44px; }
+    details p,details ol { font-size:.9rem; color:var(--muted); }
+    li + li { margin-top:8px; }
+    .footer { border-top:1px solid var(--line); padding:21px 0 32px; margin-top:28px; }
+    .glossary { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin:15px 0; }
+    .glossary dt { font-size:.9rem; font-weight:750; }
+    .glossary dd { margin:3px 0 0; font-size:.85rem; color:var(--muted); }
+    .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+    .skip { position:absolute; top:-100px; left:12px; background:white; padding:10px; z-index:10; }
+    .skip:focus { top:10px; }
+    @media (max-width:980px) { .workspace { grid-template-columns:1fr; } .hero-art { display:none; } }
+    @media (max-width:850px) { .tab { padding:10px; gap:8px; } .tab small { display:none; } .glossary { grid-template-columns:repeat(2,1fr); } }
+    @media (pointer:coarse) {
+      button { min-height:48px; }
+      .pixel { min-height:0; }
+      .grid-shell { max-width:430px; }
+      .bit { min-height:48px; }
+      .row,.task-controls { gap:12px; }
+      input[type="range"] { min-height:52px; }
+      input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none; width:28px; height:28px; border:3px solid white; border-radius:50%; background:var(--blue); box-shadow:0 0 0 1px var(--blue); }
+      input[type="range"] { appearance:none; background:transparent; }
+      input[type="range"]::-webkit-slider-runnable-track { height:10px; border-radius:10px; background:#d8dff1; }
+      input[type="range"]::-webkit-slider-thumb { margin-top:-9px; }
+      input[type="range"]::-moz-range-track { height:10px; border-radius:10px; background:#d8dff1; }
+      input[type="range"]::-moz-range-thumb { width:24px; height:24px; border:3px solid white; border-radius:50%; background:var(--blue); box-shadow:0 0 0 1px var(--blue); }
+    }
+    @media (pointer:coarse) and (min-width:600px) {
+      .tabs { position:sticky; top:8px; z-index:5; box-shadow:0 4px 18px #202b4014; }
+      button,input,textarea,summary,.section-head { scroll-margin-top:120px; }
+      .tab { min-height:64px; }
+      .hero { padding:26px 0 24px; }
+    }
+    @media (max-width:480px) { .wrap { padding:0 14px; } .topbar .wrap { min-height:72px; } .header-actions .badge { display:none; } .brand { font-size:1rem; } .hero { padding:27px 0 23px; } .tabs { gap:3px; padding:4px; } .tab { flex-direction:column; gap:5px; font-size:.73rem; text-align:center; padding:9px 3px; } .number { width:25px; height:25px; } .card { padding:17px; } .section-head { align-items:start; } h2 { font-size:1.25rem; } .section-head button { padding:9px; font-size:.8rem; } .bit-row { gap:3px; } .metrics { grid-template-columns:1fr; } .memo { padding:18px; } }
+    @media (prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto !important; } }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Zum Lernspiel</a>
+  <header class="topbar"><div class="wrap">
+    <div class="brand"><span class="brandmark" aria-hidden="true"></span>Pixelwerkstatt</div>
+    <div class="header-actions"><span class="badge muted">Informatik · Klasse 8</span><button id="sound" aria-pressed="false">Ton: aus</button></div>
+  </div></header>
+  <main id="main" class="wrap" tabindex="-1">
+    <div class="hero"><div><div class="eyebrow">Bilder, Bits & Bewegung</div><h1>Aus 0 und 1 wird ein Bild.</h1><p>Baue Pixelbilder, mische Licht und bring deine Bilder in Bewegung. Entdecke Schritt für Schritt, wie ein Computer Bilder und Videos speichert und anzeigt.</p></div><div class="hero-art" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+    <nav class="tabs" role="tablist" aria-label="Lernmodule">
+      <button class="tab" id="tab-pixels" role="tab" aria-selected="true" aria-controls="panel-pixels"><span class="number">1</span><span>Schwarz-Weiß-Pixel<small>Ein Bild aus 64 Bits</small></span></button>
+      <button class="tab" id="tab-colors" role="tab" aria-selected="false" aria-controls="panel-colors" tabindex="-1"><span class="number">2</span><span>Bunte Farben<small>Licht mischen mit RGB</small></span></button>
+      <button class="tab" id="tab-video" role="tab" aria-selected="false" aria-controls="panel-video" tabindex="-1"><span class="number">3</span><span>Video-Daumenkino<small>Einzelbilder werden Bewegung</small></span></button>
+    </nav>
+
+    <section id="panel-pixels" role="tabpanel" aria-labelledby="tab-pixels">
+      <div class="section-head"><div><h2>Wie können Bits ein Bild beschreiben?</h2><p>Ein Pixel ist ein Bildpunkt. Du entscheidest: Schwarz oder Weiß?</p></div><button id="reset-pixels">Zurücksetzen</button></div>
+      <div class="instruction"><strong>Dein Auftrag:</strong> Lade das Herz. Ändere genau ein Pixel und beobachte seinen Code.</div>
+      <div class="workspace">
+        <div class="card"><div class="card-head"><h3>Deine Pixel-Leinwand</h3><span class="pill">8 × 8 Pixel</span></div>
+          <div id="pixel-editor"></div>
+          <div class="legend"><span><i class="dot black"></i>0 = Schwarz</span><span><i class="dot white"></i>1 = Weiß</span></div>
+          <div class="row templates"><button data-pattern="heart">Herz</button><button data-pattern="smiley">Smiley</button><button data-pattern="letter">Buchstabe A</button></div>
+          <p class="hint" style="margin-top:14px">Tippen schaltet ein Pixel um. Tastatur: mit Tab ins Raster, mit Pfeiltasten bewegen, mit Leertaste oder Eingabe umschalten.</p>
+          <div class="challenge"><div class="eyebrow">Pixel-Challenge</div><h3>Baue das Zielmuster nach.</h3><div class="challenge-line"><div id="target-pattern" class="mini-grid" role="img" aria-label="Pluszeichen: die mittleren zwei Spalten und die mittleren zwei Zeilen sind weiß, alle anderen Pixel schwarz."></div><div><button id="check-pattern" class="primary">Bild prüfen</button><p id="pattern-feedback" class="feedback" role="status"></p></div></div></div>
+        </div>
+        <div class="stack">
+          <div class="card"><div class="card-head"><h3>So liest der Computer dein Bild</h3><span class="pill">64 Bit</span></div>
+            <div id="code-readout" class="code-readout" aria-hidden="true"></div>
+            <p class="hint" style="margin-top:10px">Von links nach rechts, Zeile für Zeile von oben nach unten.</p>
+            <label class="field" for="binary-input">Probiere es umgekehrt: Gib 64 Bits ein.</label>
+            <textarea id="binary-input" rows="4" spellcheck="false" autocapitalize="off" aria-describedby="binary-help binary-feedback"></textarea>
+            <p id="binary-help" class="hint">0 und 1; Leerzeichen und Zeilenumbrüche sind erlaubt.</p>
+            <p id="binary-feedback" class="feedback" role="status"></p>
+          </div>
+          <div class="card data-card"><div class="eyebrow">Die Bilddaten</div><p class="formula">8 × 8 × 1 = 64 Bit = 8 Byte</p><p class="small">64 Pixel, jeweils 1 Bit. Schwarz und Weiß sind hier unsere vereinbarte Bedeutung von 0 und 1.</p><details><summary>Was muss der Computer noch wissen?</summary><p>Auch Breite, Höhe, Reihenfolge und Bedeutung der Bits müssen feststehen. Das ist in dieser Werkstatt bereits vereinbart. Wir zählen nur die Bilddaten, keine Zusatzinformationen einer Datei.</p></details></div>
+        </div>
+      </div>
+      <div class="memo"><span class="memo-mark" aria-hidden="true">!</span><div><h3>Mein Merksatz</h3><p>Ein Pixel ist ein Bildpunkt. In unserem Schwarz-Weiß-Bild steht 0 für Schwarz und 1 für Weiß. Das Bild hat 64 Pixel und benötigt 64 Bit für seine Bilddaten.</p><p class="hint">Dein Satzanfang: „Wenn ich dieses Bit ändere, …“</p></div></div>
+      <details><summary>Weiterforschen: ein geheimer Buchstabe</summary><p>Zeichne deinen Anfangsbuchstaben. Gib den Code an eine andere Person weiter. Kann sie daraus dein Bild herstellen?</p></details>
+    </section>
+
+    <section id="panel-colors" role="tabpanel" aria-labelledby="tab-colors" hidden>
+      <div class="section-head"><div><h2>Wie entsteht aus Bits eine Farbe?</h2><p>Rot, Grün und Blau: Drei Lichtkanäle, Millionen Möglichkeiten.</p></div><button id="reset-colors">Zurücksetzen</button></div>
+      <div class="instruction"><strong>Dein Auftrag:</strong> Schalte die Bits ein. Mische zuerst Gelb aus rotem und grünem Licht.</div>
+      <div class="workspace">
+        <div class="card"><div class="card-head"><h3>Dein Lupen-Pixel</h3><span class="pill">RGB · 24 Bit</span></div><div id="color-preview" class="color-stage" role="img" aria-label="Farbe: Rot 0, Grün 0, Blau 0"></div><output id="rgb-label">RGB (0, 0, 0)</output>
+          <div class="row templates"><button data-color="0,0,0">Schwarz</button><button data-color="255,0,0">Rot</button><button data-color="255,255,0">Gelb</button><button data-color="255,255,255">Weiß</button></div>
+          <div id="channels"></div>
+          <p class="hint" style="margin-top:15px">Addiere die Zahlen über den eingeschalteten Bits. 0 bis 255 sind 256 Werte – die 0 zählt mit!</p>
+        </div>
+        <div class="stack">
+          <div class="card"><div class="card-head"><h3>Farb-Mission</h3><span id="exercise-count" class="exercise-count"></span></div><div class="color-task"><div id="target-color" class="target-color" aria-hidden="true"></div><div><div class="eyebrow">Deine Zielfarbe</div><h2 id="target-name"></h2><p id="target-values" class="small muted"></p></div></div><p class="small">Stelle die drei Kanalwerte ein. Du kannst die Farbe mischen, ohne Farben unterscheiden zu müssen.</p><div class="task-controls"><button id="check-color" class="primary">Farbe prüfen</button><button id="next-color">Nächste Farbe →</button></div><p id="color-feedback" class="feedback" role="status"></p></div>
+          <div class="card data-card"><div class="eyebrow">Farbtiefe = Bits pro Pixel</div><p class="formula">8 + 8 + 8 = 24 Bit</p><p><strong>16.777.216</strong> mögliche RGB-Farbwerte</p><p class="hint">256 × 256 × 256. Die Farbtiefe bleibt 24 Bit, auch wenn du einzelne Bits ausschaltest.</p><details><summary>Und ein ganzes 8×8-Farbbild?</summary><p>64 × 24 = <strong>1.536 Bit = 192 Byte</strong>. Das sind 24-mal so viele reine Bilddaten wie bei 1 Bit pro Pixel.</p></details></div>
+          <div class="card"><h3>Wir mischen Licht, keine Wasserfarben.</h3><p class="small muted" style="margin-top:9px">Rotes und grünes Licht ergeben Gelb. Alle drei Kanäle auf 255 ergeben Weiß. Alle auf 0 ergeben Schwarz.</p></div>
+        </div>
+      </div>
+      <div class="memo"><span class="memo-mark" aria-hidden="true">!</span><div><h3>Mein Merksatz</h3><p>Der Computer beschreibt diese Farbe mit Rot, Grün und Blau. Jeder Kanal nutzt 8 Bit. Zusammen sind das 24 Bit pro Pixel.</p><p class="hint">Dein Satzanfang: „Gelb entsteht, wenn …“</p></div></div>
+    </section>
+
+    <section id="panel-video" role="tabpanel" aria-labelledby="tab-video" hidden>
+      <div class="section-head"><div><h2>Wie wird aus Bildern eine Bewegung?</h2><p>Ein Frame ist ein Einzelbild. Vier davon werden dein Daumenkino.</p></div><button id="reset-video">Zurücksetzen</button></div>
+      <div class="instruction"><strong>Dein Auftrag:</strong> Schau die Bilder einzeln an. Vergleiche dann 2, 8 und 24 FPS.</div>
+      <div class="workspace">
+        <div class="card"><div class="card-head"><h3 id="frame-heading">Bild 1 bearbeiten</h3><span class="pill">1 Bit pro Pixel</span></div><div id="frame-editor"></div><p class="hint">Wähle unten ein Bild. Ändere wenige Pixel, damit die Bewegung kleine Schritte macht.</p><div id="timeline" class="timeline" role="group" aria-label="Einzelbild zum Bearbeiten auswählen"></div><button id="copy-frame">Vorheriges Bild kopieren</button><p id="editor-status" class="feedback" role="status">Bild 1 ist zum Bearbeiten bereit.</p></div>
+        <div class="stack">
+          <div class="card"><div class="card-head"><h3>Dein Daumenkino</h3><span class="pill">Endlosschleife</span></div><div class="video-stage"><div id="video-preview" class="mini-grid" role="img" aria-label="Vorschau des aktuellen Einzelbilds"></div><p id="playback-label" class="playback-label" aria-hidden="true">Bild 1 von 4 · pausiert</p></div><div class="row"><button id="play" class="primary" aria-pressed="false">▶ Abspielen</button><button id="step">Ein Bild weiter</button></div><p class="hint" style="margin-top:10px">Vermeide stark blinkende Bildfolgen.</p><p id="reduced-motion" class="hint" hidden>Reduzierte Bewegung ist aktiv. Nutze „Ein Bild weiter“ oder starte die Wiedergabe bewusst.</p><div class="fps-head"><label for="fps"><strong>Bilder pro Sekunde (FPS)</strong></label><output id="fps-value" for="fps">2 FPS</output></div><input id="fps" type="range" min="1" max="24" step="1" value="2"><div class="range-labels"><span>1 · langsam</span><span>24 · schnell</span></div><div class="metrics"><div class="metric"><span class="small muted">Ein Durchlauf</span><b id="loop-duration"></b></div><div class="metric"><span class="small muted">Gespeichert: 4 Bilder</span><b>256 Bit · 32 Byte</b></div></div><p class="small muted">Mehr FPS spielt dieselben vier Bilder schneller ab. Für feinere Bewegungsschritte brauchst du zusätzliche unterschiedliche Bilder. 24 FPS wirken deshalb nicht immer flüssig.</p></div>
+          <div class="card data-card"><div class="eyebrow">Reine Bilddaten · ohne Kompression</div><p class="small" style="margin-top:8px">Ein Bild: 8 × 8 × 1 = <strong>64 Bit = 8 Byte</strong></p><p id="video-data" class="formula"></p><p id="video-bytes" class="small"></p><details><summary>Warum bleiben vier Bilder trotzdem 32 Byte?</summary><p>Abspielen erzeugt keine neuen gespeicherten Bilder. Der Sekundenwert gilt, wenn jedes gezeigte Bild vollständig gespeichert würde. Unsere vier Bilder werden nur wiederholt.</p></details><details><summary>Was wäre mit Farbe und echten Videos?</summary><p id="rgb-video-data"></p><p>Echte Videos haben meist viel mehr Pixel. Kompression nutzt zum Beispiel Ähnlichkeiten und spart Daten. Ton und Zusatzinformationen kommen hinzu. Unser Rechner sagt keine tatsächliche Videodateigröße voraus.</p></details></div>
+        </div>
+      </div>
+      <div class="memo"><span class="memo-mark" aria-hidden="true">!</span><div><h3>Mein Merksatz</h3><p id="video-memo"></p><p class="hint">Dein Satzanfang: „Bei höherer Bildrate …“</p></div></div>
+      <details><summary>Weiterforschen: Was bleibt gleich?</summary><ol><li>Gestalte vier eigene Bilder mit kleinen Veränderungen.</li><li>Wie ändert sich die Dauer eines Durchlaufs bei mehr FPS?</li><li>Brauchen die vier gespeicherten Bilder bei 24 FPS mehr Speicher als bei 2 FPS? Begründe.</li></ol></details>
+    </section>
+    <footer class="footer"><details><summary>Wörterwerkstatt · Die Fachbegriffe auf einen Blick</summary><dl class="glossary"><div><dt>Bit</dt><dd>Ein Wert: 0 oder 1.</dd></div><div><dt>Byte</dt><dd>Eine Gruppe aus 8 Bit.</dd></div><div><dt>Pixel</dt><dd>Ein Bildpunkt.</dd></div><div><dt>RGB</dt><dd>Rot, Grün und Blau.</dd></div><div><dt>Farbtiefe</dt><dd>Bits pro Pixel im verwendeten Farbmodell.</dd></div><div><dt>Frame</dt><dd>Ein Einzelbild.</dd></div><div><dt>FPS</dt><dd>Bilder pro Sekunde.</dd></div><div><dt>Kompression</dt><dd>Daten platzsparender darstellen.</dd></div></dl></details><p class="small muted" style="margin-top:14px">Deine Werkstatt läuft offline. Alles bleibt beim Wechsel der Module erhalten. Neuladen startet neu.</p></footer>
+  </main>
+  <noscript><p>Bitte aktiviere JavaScript, damit du Pixel zeichnen, Farben mischen und Bilder abspielen kannst.</p></noscript>
+  <script>
+    'use strict';
+    const $ = id => document.getElementById(id);
+    const number = value => value.toLocaleString('de-DE', { maximumFractionDigits:3 });
+    const bits = value => value.toString(2).padStart(8, '0');
+    const imageBits = (depth = 1) => 8 * 8 * depth;
+    const secondBits = (fps, depth = 1) => fps * imageBits(depth);
+    const pattern = rows => rows.join('').split('').map(Number);
+    const formatCode = values => Array.from({length:8}, (_, row) => values.slice(row * 8, row * 8 + 8).join('')).join('\n');
+    function parseCode(text) {
+      if (/[^01 \r\n]/u.test(text)) return { error:'Hier sind nur 0, 1, Leerzeichen und Zeilenumbrüche erlaubt.' };
+      const clean = text.replace(/[ \r\n]/gu, '');
+      if (clean.length !== 64) return { error:`Du hast ${clean.length} von 64 Bits eingegeben. Das letzte gültige Bild bleibt erhalten.` };
+      return { values:clean.split('').map(Number) };
+    }
+    const patterns = {
+      heart:pattern(['00000000','01100110','11111111','11111111','01111110','00111100','00011000','00000000']),
+      smiley:pattern(['00111100','01000010','10100101','10000001','10100101','10011001','01000010','00111100']),
+      letter:pattern(['00011000','00100100','01000010','01000010','01111110','01000010','01000010','00000000'])
+    };
+    const targetPattern = Array.from({length:64}, (_, i) => [3,4].includes(i % 8) || [3,4].includes(Math.floor(i / 8)) ? 1 : 0);
+    let pixels = Array(64).fill(0);
+    let rgb = [0,0,0];
+    const channelNames = ['Rot','Grün','Blau'];
+    const missions = [{name:'Gelb', rgb:[255,255,0]}, {name:'Magenta', rgb:[255,0,255]}, {name:'Cyan', rgb:[0,255,255]}, {name:'Violett', rgb:[128,0,128]}];
+    let mission = 0;
+    let sound = false;
+    let audio;
+    function successTone() {
+      if (!sound) return;
+      const Audio = window.AudioContext || window.webkitAudioContext;
+      if (!Audio) return;
+      try {
+        audio ||= new Audio();
+        audio.resume().then(() => {
+          const oscillator = audio.createOscillator();
+          const gain = audio.createGain();
+          oscillator.connect(gain); gain.connect(audio.destination);
+          oscillator.frequency.setValueAtTime(660, audio.currentTime);
+          oscillator.frequency.setValueAtTime(880, audio.currentTime + .09);
+          gain.gain.setValueAtTime(.07, audio.currentTime);
+          gain.gain.exponentialRampToValueAtTime(.001, audio.currentTime + .24);
+          oscillator.start(); oscillator.stop(audio.currentTime + .25);
+        }).catch(() => {});
+      } catch { /* Text-Rückmeldung funktioniert auch ohne Audio. */ }
+    }
+    $('sound').addEventListener('click', () => {
+      sound = !sound;
+      $('sound').textContent = `Ton: ${sound ? 'an' : 'aus'}`;
+      $('sound').setAttribute('aria-pressed', String(sound));
+    });
+    function feedback(id, text, error = false) {
+      $(id).textContent = text;
+      $(id).classList.toggle('error', error);
+    }
+    function makeMini(container) {
+      for (let i = 0; i < 64; i++) container.append(document.createElement('i'));
+    }
+    function drawMini(container, values) {
+      [...container.children].forEach((pixel, i) => pixel.classList.toggle('on', Boolean(values[i])));
+    }
+    function makeEditor(container, label, getValues, change, focusPixel = () => {}) {
+      const shell = document.createElement('div'); shell.className = 'grid-shell';
+      shell.append(document.createElement('span'));
+      const cols = document.createElement('div'); cols.className = 'axis cols'; cols.setAttribute('aria-hidden','true');
+      const rows = document.createElement('div'); rows.className = 'axis rows'; rows.setAttribute('aria-hidden','true');
+      for (let i = 1; i <= 8; i++) { const c = document.createElement('span'); c.textContent = i; cols.append(c); const r = c.cloneNode(true); rows.append(r); }
+      const grid = document.createElement('div'); grid.className = 'pixel-grid'; grid.setAttribute('role','group'); grid.setAttribute('aria-label',label);
+      const buttons = Array.from({length:64}, (_, i) => {
+        const button = document.createElement('button'); button.type = 'button'; button.className = 'pixel'; button.tabIndex = i === 0 ? 0 : -1;
+        button.addEventListener('click', () => { change(i); focusPixel(i); });
+        button.addEventListener('focus', () => { buttons.forEach((b, index) => { b.tabIndex = index === i ? 0 : -1; }); focusPixel(i); });
+        button.addEventListener('keydown', event => {
+          let next = i;
+          if (event.key === 'ArrowLeft') next = Math.floor(i / 8) * 8 + Math.max(0, i % 8 - 1);
+          else if (event.key === 'ArrowRight') next = Math.floor(i / 8) * 8 + Math.min(7, i % 8 + 1);
+          else if (event.key === 'ArrowUp') next = i >= 8 ? i - 8 : i;
+          else if (event.key === 'ArrowDown') next = i < 56 ? i + 8 : i;
+          else if (event.key === 'Home') next = Math.floor(i / 8) * 8;
+          else if (event.key === 'End') next = Math.floor(i / 8) * 8 + 7;
+          else return;
+          event.preventDefault(); buttons[next].focus();
+        });
+        grid.append(button); return button;
+      });
+      shell.append(cols, rows, grid); container.append(shell);
+      return { render(disabled = false) {
+        const values = getValues();
+        buttons.forEach((button, i) => {
+          button.classList.toggle('on', Boolean(values[i])); button.disabled = disabled;
+          button.setAttribute('aria-pressed', String(Boolean(values[i])));
+          button.setAttribute('aria-label', `Zeile ${Math.floor(i / 8) + 1}, Spalte ${i % 8 + 1}, ${values[i] ? 'Weiß' : 'Schwarz'}, Bit ${values[i]}`);
+        });
+      }};
+    }
+    const codeSpans = [];
+    for (let row = 0; row < 8; row++) {
+      const line = document.createElement('div');
+      for (let col = 0; col < 8; col++) { const span = document.createElement('span'); line.append(span); codeSpans.push(span); }
+      $('code-readout').append(line);
+    }
+    const pixelEditor = makeEditor($('pixel-editor'), 'Schwarz-Weiß-Pixelraster', () => pixels, i => {
+      pixels[i] ^= 1; renderPixels();
+    }, i => codeSpans.forEach((span, index) => span.classList.toggle('active', index === i)));
+    function renderPixels(syncInput = true) {
+      pixelEditor.render();
+      codeSpans.forEach((span, i) => { span.textContent = pixels[i]; });
+      if (syncInput) $('binary-input').value = formatCode(pixels);
+      $('binary-input').setAttribute('aria-invalid','false');
+      feedback('binary-feedback','64 von 64 Bits – Bild aktualisiert.');
+      feedback('pattern-feedback','');
+    }
+    $('binary-input').addEventListener('input', event => {
+      const result = parseCode(event.target.value);
+      if (result.error) {
+        event.target.setAttribute('aria-invalid','true'); feedback('binary-feedback',result.error,true); return;
+      }
+      pixels = result.values; renderPixels(false);
+    });
+    document.querySelectorAll('[data-pattern]').forEach(button => button.addEventListener('click', () => { pixels = [...patterns[button.dataset.pattern]]; renderPixels(); }));
+    $('reset-pixels').addEventListener('click', () => { pixels = Array(64).fill(0); renderPixels(); codeSpans.forEach(span => span.classList.remove('active')); });
+    makeMini($('target-pattern')); drawMini($('target-pattern'), targetPattern);
+    $('check-pattern').addEventListener('click', () => {
+      const matches = pixels.filter((value,i) => value === targetPattern[i]).length;
+      feedback('pattern-feedback', matches === 64 ? '✓ Geschafft! Alle 64 Pixel stimmen.' : `${matches} von 64 Pixeln stimmen. Versuche es weiter.`, matches !== 64);
+      if (matches === 64) successTone();
+    });
+    const channelButtons = [];
+    channelNames.forEach((name, channel) => {
+      const section = document.createElement('div'); section.className = 'channel';
+      const head = document.createElement('div'); head.className = 'channel-head';
+      const title = document.createElement('span'); title.className = 'channel-name';
+      const dot = document.createElement('i'); dot.className = 'swatch-dot'; dot.style.background = ['#c43f37','#258052','#305bc5'][channel];
+      title.append(dot, `${name} (${['R','G','B'][channel]})`);
+      const output = document.createElement('strong'); output.id = `channel-value-${channel}`; head.append(title,output);
+      const row = document.createElement('div'); row.className = 'bit-row'; row.setAttribute('role','group'); row.setAttribute('aria-label', `${name}-Kanal, 8 Bit`);
+      channelButtons[channel] = Array.from({length:8}, (_, i) => {
+        const weight = 128 >> i;
+        const wrap = document.createElement('div'); wrap.className = 'bit-wrap';
+        const caption = document.createElement('span'); caption.className = 'weight'; caption.textContent = weight;
+        const button = document.createElement('button'); button.className = 'bit'; button.setAttribute('aria-label',`${name}, Stellenwert ${weight}`);
+        button.addEventListener('click', () => { rgb[channel] ^= weight; renderColor(); });
+        wrap.append(caption,button); row.append(wrap); return button;
+      });
+      const sum = document.createElement('p'); sum.id = `channel-sum-${channel}`; sum.className = 'channel-sum';
+      section.append(head,row,sum); $('channels').append(section);
+    });
+    function renderColor() {
+      $('color-preview').style.backgroundColor = `rgb(${rgb.join(',')})`;
+      $('color-preview').setAttribute('aria-label',`Farbe: Rot ${rgb[0]}, Grün ${rgb[1]}, Blau ${rgb[2]}`);
+      $('rgb-label').textContent = `RGB (${rgb.join(', ')})`;
+      rgb.forEach((value, channel) => {
+        $(`channel-value-${channel}`).textContent = `${value} / 255`;
+        const binary = bits(value);
+        channelButtons[channel].forEach((button, i) => { button.textContent = binary[i]; button.setAttribute('aria-pressed',String(binary[i] === '1')); });
+        const weights = [...binary].flatMap((bit, i) => bit === '1' ? [128 >> i] : []);
+        $(`channel-sum-${channel}`).textContent = `${binary} = ${weights.join(' + ') || '0'} = ${value}`;
+      });
+      feedback('color-feedback','');
+    }
+    function renderMission() {
+      const target = missions[mission];
+      $('target-color').style.backgroundColor = `rgb(${target.rgb.join(',')})`;
+      $('target-name').textContent = target.name;
+      $('target-values').textContent = target.rgb.map((value, i) => `${channelNames[i]} ${value}`).join(' · ');
+      $('exercise-count').textContent = `${mission + 1} / ${missions.length}`;
+      $('next-color').textContent = mission === 3 ? 'Wieder zu Gelb ↻' : 'Nächste Farbe →';
+      feedback('color-feedback','');
+    }
+    document.querySelectorAll('[data-color]').forEach(button => button.addEventListener('click', () => { rgb = button.dataset.color.split(',').map(Number); renderColor(); }));
+    $('check-color').addEventListener('click', () => {
+      const target = missions[mission];
+      const correct = rgb.every((value, i) => value === target.rgb[i]);
+      feedback('color-feedback', correct ? `✓ Geschafft! Du hast ${target.name} gemischt.` : rgb.map((value, i) => value === target.rgb[i] ? `${channelNames[i]} stimmt.` : `${channelNames[i]} muss ${value < target.rgb[i] ? 'höher' : 'niedriger'}: Ziel ${target.rgb[i]}.`).join(' '), !correct);
+      if (correct) successTone();
+    });
+    $('next-color').addEventListener('click', () => { mission = (mission + 1) % missions.length; renderMission(); });
+    $('reset-colors').addEventListener('click', () => { rgb = [0,0,0]; mission = 0; renderColor(); renderMission(); });
+
+    const initialFrames = () => Array.from({length:4}, (_, frame) => Array.from({length:64}, (_, i) => i === 3 * 8 + frame + 2 ? 1 : 0));
+    let frames = initialFrames();
+    let selectedFrame = 0;
+    let shownFrame = 0;
+    let fps = 2;
+    let playing = false;
+    let animationId = 0;
+    let lastTime = 0;
+    const frameEditor = makeEditor($('frame-editor'), 'Ausgewähltes Einzelbild bearbeiten', () => frames[selectedFrame], i => {
+      frames[selectedFrame][i] ^= 1; renderFrames();
+    });
+    const frameButtons = frames.map((_, i) => {
+      const button = document.createElement('button'); button.className = 'frame'; button.setAttribute('aria-label',`Bild ${i + 1} bearbeiten`);
+      const mini = document.createElement('div'); mini.className = 'mini-grid'; mini.setAttribute('aria-hidden','true'); makeMini(mini);
+      button.append(mini, `Bild ${i + 1}`);
+      button.addEventListener('click', () => { selectedFrame = i; shownFrame = i; renderFrames(); });
+      $('timeline').append(button); return button;
+    });
+    makeMini($('video-preview'));
+    function renderPlayback() {
+      drawMini($('video-preview'), frames[shownFrame]);
+      $('video-preview').setAttribute('aria-label', `Bild ${shownFrame + 1} von 4, ${playing ? 'Wiedergabe läuft' : 'pausiert'}`);
+      $('playback-label').textContent = `Bild ${shownFrame + 1} von 4 · ${playing ? 'läuft' : 'pausiert'}`;
+      frameButtons.forEach((button, i) => button.classList.toggle('playing', playing && shownFrame === i));
+    }
+    function renderFrames() {
+      frameEditor.render(playing);
+      $('frame-heading').textContent = `Bild ${selectedFrame + 1} bearbeiten`;
+      frameButtons.forEach((button, i) => {
+        button.disabled = playing; button.setAttribute('aria-pressed', String(i === selectedFrame)); drawMini(button.firstElementChild, frames[i]);
+      });
+      $('copy-frame').disabled = playing || selectedFrame === 0;
+      $('step').disabled = playing;
+      $('play').textContent = playing ? 'Ⅱ Pause' : '▶ Abspielen';
+      $('play').setAttribute('aria-pressed', String(playing));
+      feedback('editor-status', playing ? 'Pause zum Bearbeiten.' : `Bild ${selectedFrame + 1} ist zum Bearbeiten bereit.`);
+      renderPlayback();
+    }
+    function pauseVideo() {
+      playing = false; cancelAnimationFrame(animationId); lastTime = 0;
+      selectedFrame = shownFrame; renderFrames();
+    }
+    function tick(time) {
+      if (!playing) return;
+      const interval = 1000 / fps;
+      const elapsed = time - lastTime;
+      if (elapsed >= interval) {
+        const steps = Math.floor(elapsed / interval);
+        shownFrame = (shownFrame + steps) % 4;
+        lastTime += steps * interval; renderPlayback();
+      }
+      animationId = requestAnimationFrame(tick);
+    }
+    $('play').addEventListener('click', () => {
+      if (playing) { pauseVideo(); return; }
+      playing = true; lastTime = performance.now(); renderFrames(); animationId = requestAnimationFrame(tick);
+    });
+    $('step').addEventListener('click', () => { shownFrame = (shownFrame + 1) % 4; selectedFrame = shownFrame; renderFrames(); });
+    $('copy-frame').addEventListener('click', () => {
+      if (selectedFrame === 0 || playing) return;
+      frames[selectedFrame] = [...frames[selectedFrame - 1]]; renderFrames();
+      feedback('editor-status',`Bild ${selectedFrame} wurde in Bild ${selectedFrame + 1} kopiert.`);
+    });
+    function renderFPS() {
+      const duration = number(4 / fps);
+      $('fps-value').textContent = `${fps} FPS`;
+      $('fps').setAttribute('aria-valuetext',`${fps} Bilder pro Sekunde`);
+      $('loop-duration').textContent = `≈ ${duration} Sekunden`;
+      $('video-data').textContent = `${fps} × 64 = ${number(secondBits(fps))} Bit / Sekunde`;
+      $('video-bytes').textContent = `= ${number(secondBits(fps) / 8)} Byte, wenn jedes Bild vollständig gespeichert wird.`;
+      $('rgb-video-data').textContent = `Mit 24-Bit-RGB bei ${fps} FPS: 8 × 8 × 24 × ${fps} = ${number(secondBits(fps,24))} Bit = ${number(secondBits(fps,24) / 8)} Byte pro Sekunde.`;
+      $('video-memo').textContent = `Ein Video zeigt Einzelbilder nacheinander. Bei ${fps} FPS ${fps === 1 ? 'wird 1 Bild' : `werden ${fps} Bilder`} pro Sekunde gezeigt. Unsere vier Bilder wiederholen sich nach ungefähr ${duration} Sekunden.`;
+    }
+    $('fps').addEventListener('input', event => { fps = Number(event.target.value); lastTime = performance.now(); renderFPS(); });
+    $('reset-video').addEventListener('click', () => {
+      pauseVideo(); frames = initialFrames(); selectedFrame = 0; shownFrame = 0; fps = 2; $('fps').value = 2; renderFrames(); renderFPS();
+    });
+    document.addEventListener('visibilitychange', () => { if (document.hidden && playing) pauseVideo(); });
+    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+    function updateMotion() { $('reduced-motion').hidden = !reducedMotion.matches; if (reducedMotion.matches && playing) pauseVideo(); }
+    reducedMotion.addEventListener('change', updateMotion); updateMotion();
+    const tabs = [...document.querySelectorAll('[role="tab"]')];
+    function selectTab(index) {
+      const scrolledPastIntro = document.querySelector('.hero').getBoundingClientRect().bottom < 0;
+      if (playing) pauseVideo();
+      tabs.forEach((tab, i) => { tab.setAttribute('aria-selected', String(i === index)); tab.tabIndex = i === index ? 0 : -1; $(tab.getAttribute('aria-controls')).hidden = i !== index; });
+      if (scrolledPastIntro) $(tabs[index].getAttribute('aria-controls')).querySelector('.section-head').scrollIntoView({block:'start'});
+    }
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => selectTab(i));
+      tab.addEventListener('keydown', event => {
+        let next;
+        if (event.key === 'ArrowRight') next = (i + 1) % tabs.length;
+        else if (event.key === 'ArrowLeft') next = (i + tabs.length - 1) % tabs.length;
+        else if (event.key === 'Home') next = 0;
+        else if (event.key === 'End') next = tabs.length - 1;
+        else return;
+        event.preventDefault(); selectTab(next); tabs[next].focus();
+      });
+    });
+    renderPixels(); renderColor(); renderMission(); renderFrames(); renderFPS();
+
+    // Ausführbarer Check: Datei mit ?selftest=1 öffnen oder runSelfChecks() in der Konsole aufrufen.
+    function runSelfChecks() {
+      const check = (condition, name) => { if (!condition) throw new Error(`Selbsttest fehlgeschlagen: ${name}`); };
+      const sample = Array(64).fill(0); sample[0] = 1; sample[15] = 1; sample[63] = 1;
+      check(formatCode(sample).split('\n')[1] === '00000001', 'Zeilenreihenfolge');
+      check(JSON.stringify(parseCode(formatCode(sample)).values) === JSON.stringify(sample), 'Code-Rundlauf');
+      check(Boolean(parseCode('0'.repeat(63)).error) && Boolean(parseCode('0'.repeat(65)).error), 'Codelänge');
+      check(Boolean(parseCode('x' + '0'.repeat(63)).error), 'Ungültige Zeichen');
+      check(bits(128) === '10000000' && bits(255) === '11111111', 'RGB-Stellenwerte');
+      check(imageBits() === 64 && imageBits(24) === 1536, 'Bilddaten');
+      check(secondBits(24) === 1536 && secondBits(24,24) === 36864 && imageBits() * 4 === 256, 'Videodaten');
+      check(initialFrames().every(frame => frame.length === 64 && frame.filter(Boolean).length === 1), 'Startframes');
+      return '8 Selbsttests bestanden: Code, Stellenwerte, Datenmengen und Frames.';
+    }
+    if (new URLSearchParams(location.search).has('selftest')) {
+      const result = document.createElement('p'); result.className = 'instruction'; result.textContent = runSelfChecks(); $('main').prepend(result);
+    }
+  </script>
+</body>
+</html>
