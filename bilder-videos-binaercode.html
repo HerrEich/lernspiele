@@ -6,185 +6,354 @@
   <meta name="theme-color" content="#f6f5f0">
   <title>Pixelwerkstatt · Bilder, Bits & Bewegung</title>
   <style>
-    :root { color-scheme: light; --ink:#202b40; --muted:#536078; --paper:#f6f5f0; --line:#dce1e8; --blue:#284dd4; --soft:#eef2ff; --green:#176342; }
-    * { box-sizing:border-box; }
-    [hidden] { display:none !important; }
-    body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif; }
-    button,input,textarea { font:inherit; }
-    button { cursor:pointer; touch-action:manipulation; }
-    button:disabled { cursor:default; opacity:.55; }
-    button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible { outline:3px solid #b33b09; outline-offset:4px; }
-    button { min-height:44px; border:1px solid var(--line); border-radius:10px; padding:9px 15px; background:white; color:var(--ink); font-weight:650; }
-    button:hover:not(:disabled) { border-color:var(--blue); background:var(--soft); }
-    .primary { background:var(--blue); color:white; border-color:var(--blue); }
-    .primary:hover:not(:disabled) { background:#1937ad; color:white; }
-    h1,h2,h3,p { margin:0; }
-    h1 { font-size:clamp(2rem,4.5vw,3.5rem); letter-spacing:-.045em; line-height:1.12; margin:10px 0 14px; }
-    h2 { font-size:1.55rem; letter-spacing:-.025em; line-height:1.25; }
-    h3 { font-size:1.05rem; }
-    p + p { margin-top:10px; }
-    small,.small { font-size:.85rem; }
-    .muted { color:var(--muted); }
-    .wrap { max-width:1220px; margin:auto; padding:0 28px; }
-    .topbar { border-bottom:1px solid var(--line); background:#fffdf9; }
-    .topbar .wrap { min-height:82px; display:flex; align-items:center; justify-content:space-between; gap:16px; }
-    .brand { display:flex; align-items:center; gap:12px; font-weight:800; letter-spacing:-.025em; font-size:1.2rem; }
-    .brandmark { width:34px; height:34px; background:conic-gradient(var(--blue) 25%,#f2b43c 0 50%,#ee7459 0 75%,#91b5a5 0); border-radius:7px; }
-    .header-actions,.row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
-    .badge { font-size:.75rem; letter-spacing:.08em; text-transform:uppercase; font-weight:750; }
-    .hero { padding:36px 0 28px; display:flex; justify-content:space-between; align-items:center; gap:30px; }
-    .hero p { max-width:650px; color:var(--muted); }
-    .hero-art { display:grid; grid-template-columns:repeat(5,17px); gap:5px; transform:rotate(-8deg); margin:0 45px; }
-    .hero-art i { width:17px; height:17px; border-radius:3px; background:#d9dfed; }
-    .hero-art i:nth-child(3n) { background:var(--blue); }
-    .hero-art i:nth-child(4n) { background:#ee7459; }
-    .tabs { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; padding:7px; background:#e9eaf0; border:1px solid var(--line); border-radius:16px; margin-bottom:25px; }
-    .tab { display:flex; align-items:center; gap:12px; background:transparent; border-color:transparent; text-align:left; padding:13px 17px; }
-    .tab[aria-selected="true"] { background:white; box-shadow:0 2px 5px #202b4010; border-color:#d5dced; color:var(--blue); }
-    .number { display:grid; place-items:center; width:30px; height:30px; border-radius:8px; background:#dfe4ef; flex-shrink:0; }
-    .tab[aria-selected="true"] .number { color:white; background:var(--blue); }
-    .tab small { display:block; font-weight:450; color:var(--muted); }
-    .section-head { display:flex; justify-content:space-between; align-items:center; gap:16px; margin:0 0 18px; }
-    .section-head p { margin-top:5px; color:var(--muted); }
-    .workspace { display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,1fr); gap:22px; align-items:start; }
-    .card { background:white; border:1px solid var(--line); border-radius:18px; padding:24px; }
-    .stack { display:grid; gap:18px; }
-    .card-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:18px; }
-    .eyebrow { color:var(--blue); text-transform:uppercase; letter-spacing:.09em; font-size:.72rem; font-weight:800; }
-    .pill { border-radius:99px; padding:4px 10px; background:var(--soft); color:#304c9e; font-size:.78rem; font-weight:650; }
-    .instruction { padding:14px 17px; border:1px solid #e9d6a5; background:#fff6df; border-radius:12px; margin-bottom:20px; }
-    .instruction strong { color:#765119; }
-    .grid-shell { width:100%; max-width:390px; margin:0 auto 18px; display:grid; grid-template-columns:20px minmax(0,1fr); gap:5px; }
-    .axis { font:12px ui-monospace,monospace; color:var(--muted); display:grid; text-align:center; align-items:center; }
-    .axis.cols { grid-template-columns:repeat(8,1fr); }
-    .axis.rows { grid-template-rows:repeat(8,1fr); }
-    .pixel-grid { display:grid; grid-template-columns:repeat(8,minmax(0,1fr)); gap:2px; padding:4px; background:#657188; border-radius:9px; aspect-ratio:1; }
-    .pixel { min-height:0; min-width:0; padding:0; border:0; border-radius:2px; background:#121a2b; }
-    .pixel.on { background:#fff; }
-    .pixel:hover:not(:disabled) { background:#303f5b; box-shadow:inset 0 0 0 3px #ebad31; }
-    .pixel.on:hover:not(:disabled) { background:#fff; }
-    .pixel:focus-visible { outline:3px solid #ffc642; outline-offset:-3px; z-index:1; }
-    .pixel:disabled { opacity:1; }
-    .legend { display:flex; justify-content:center; gap:22px; font-size:.85rem; margin-bottom:17px; }
-    .dot { width:12px; height:12px; display:inline-block; border:1px solid #657188; border-radius:3px; vertical-align:-1px; margin-right:5px; }
-    .dot.black { background:#121a2b; }
-    .dot.white { background:white; }
-    .templates { justify-content:center; }
-    .code-readout { padding:16px; background:#f4f6fb; border-radius:12px; text-align:center; font:clamp(17px,3vw,23px)/1.65 ui-monospace,"Courier New",monospace; letter-spacing:.24em; }
-    .code-readout span.active { background:#ffdf8b; color:#202b40; border-radius:3px; }
-    textarea { width:100%; resize:vertical; min-height:116px; border:1px solid #a8b3c5; border-radius:10px; padding:12px; background:#fff; color:var(--ink); font:16px/1.5 ui-monospace,monospace; margin-top:7px; }
-    textarea[aria-invalid="true"] { border:2px solid #af3224; }
-    .field { display:block; margin-top:17px; font-size:.9rem; font-weight:650; }
-    .feedback { margin-top:10px; min-height:25px; font-size:.9rem; color:var(--green); }
-    .feedback.error { color:#a3291d; }
-    .formula { font-size:1.23rem; font-weight:750; letter-spacing:-.02em; margin:8px 0; }
-    .data-card { background:var(--soft); border-color:#d9e0fb; }
-    .hint { color:var(--muted); font-size:.87rem; }
-    .challenge { margin-top:18px; border-top:1px solid var(--line); padding-top:18px; }
-    .challenge-line { display:flex; gap:18px; align-items:center; margin-top:12px; flex-wrap:wrap; }
-    .mini-grid { display:grid; grid-template-columns:repeat(8,1fr); gap:1px; background:#657188; padding:3px; aspect-ratio:1; border-radius:5px; }
-    .mini-grid i { background:#121a2b; }
-    .mini-grid i.on { background:white; }
-    #target-pattern { width:86px; flex-shrink:0; }
-    .memo { display:flex; gap:17px; align-items:start; padding:22px 25px; background:#e9f1ec; border:1px solid #cadcd0; border-radius:16px; margin:22px 0; }
-    .memo-mark { display:grid; place-items:center; background:#d0e5d6; border-radius:9px; width:34px; height:34px; font-weight:800; flex-shrink:0; color:var(--green); }
-    .memo h3 { color:var(--green); margin-bottom:4px; }
-    .memo .hint { margin-top:8px; }
-    .color-stage { height:175px; border-radius:12px; border:1px solid #a8b3c5; background:black; margin-bottom:12px; }
-    #rgb-label { font:14px ui-monospace,monospace; text-align:center; display:block; margin-bottom:18px; }
-    .channel { border-top:1px solid var(--line); padding-top:17px; margin-top:17px; }
-    .channel-head { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:10px; }
-    .channel-name { display:flex; gap:8px; align-items:center; font-weight:750; }
-    .swatch-dot { border-radius:50%; width:11px; height:11px; }
-    .bit-row { display:grid; grid-template-columns:repeat(8,minmax(0,1fr)); gap:5px; }
-    .bit-wrap { text-align:center; min-width:0; }
-    .weight { display:block; font:12px ui-monospace,monospace; color:var(--muted); margin-bottom:5px; }
-    .bit { padding:7px 0; width:100%; min-height:44px; font:700 18px ui-monospace,monospace; border-color:#adb7c8; }
-    .bit[aria-pressed="true"] { background:var(--blue); border-color:var(--blue); color:white; }
-    .channel-sum { font:13px/1.5 ui-monospace,monospace; color:var(--muted); margin-top:8px; overflow-wrap:anywhere; }
-    .target-color { width:88px; height:88px; border-radius:14px; border:1px solid #a8b3c5; flex-shrink:0; }
-    .color-task { display:flex; align-items:center; gap:17px; margin:17px 0; }
-    .exercise-count { color:var(--muted); font-size:.8rem; }
-    .task-controls { display:flex; gap:9px; flex-wrap:wrap; margin-top:15px; }
-    .timeline { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin:18px 0; }
-    .frame { padding:8px; font-size:.78rem; min-width:0; }
-    .frame .mini-grid { width:100%; margin-bottom:6px; }
-    .frame[aria-pressed="true"] { border:2px solid var(--blue); padding:7px; background:var(--soft); color:var(--blue); }
-    .frame.playing { box-shadow:0 0 0 3px #e9ac39; }
-    .video-stage { background:#eef1f7; padding:20px; border-radius:13px; margin-bottom:17px; }
-    #video-preview { max-width:240px; margin:auto; }
-    .playback-label { text-align:center; color:var(--muted); font-size:.82rem; margin-top:10px; }
-    .fps-head { display:flex; justify-content:space-between; gap:10px; align-items:center; margin-top:20px; }
-    #fps-value { font-size:1.2rem; color:var(--blue); font-weight:800; }
-    input[type="range"] { width:100%; min-height:44px; accent-color:var(--blue); cursor:pointer; }
-    .range-labels { display:flex; justify-content:space-between; color:var(--muted); font-size:.78rem; }
-    .metrics { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:15px 0; }
-    .metric { padding:12px; background:#f5f6fa; border-radius:10px; }
-    .metric b { display:block; font-size:1.2rem; margin-top:3px; }
-    details { border-top:1px solid var(--line); padding-top:13px; margin-top:16px; }
-    summary { cursor:pointer; font-weight:650; min-height:44px; }
-    details p,details ol { font-size:.9rem; color:var(--muted); }
-    li + li { margin-top:8px; }
-    .footer { border-top:1px solid var(--line); padding:21px 0 32px; margin-top:28px; }
-    .glossary { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin:15px 0; }
-    .glossary dt { font-size:.9rem; font-weight:750; }
-    .glossary dd { margin:3px 0 0; font-size:.85rem; color:var(--muted); }
-    .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
-    .skip { position:absolute; top:-100px; left:12px; background:white; padding:10px; z-index:10; }
-    .skip:focus { top:10px; }
-    @media (max-width:980px) { .workspace { grid-template-columns:1fr; } .hero-art { display:none; } }
-    @media (max-width:850px) { .tab { padding:10px; gap:8px; } .tab small { display:none; } .glossary { grid-template-columns:repeat(2,1fr); } }
-    @media (pointer:coarse) {
-      button { min-height:48px; }
-      .pixel { min-height:0; }
-      .grid-shell { max-width:430px; }
-      .bit { min-height:48px; }
-      .row,.task-controls { gap:12px; }
-      input[type="range"] { min-height:52px; }
-      input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none; width:28px; height:28px; border:3px solid white; border-radius:50%; background:var(--blue); box-shadow:0 0 0 1px var(--blue); }
-      input[type="range"] { appearance:none; background:transparent; }
-      input[type="range"]::-webkit-slider-runnable-track { height:10px; border-radius:10px; background:#d8dff1; }
-      input[type="range"]::-webkit-slider-thumb { margin-top:-9px; }
-      input[type="range"]::-moz-range-track { height:10px; border-radius:10px; background:#d8dff1; }
-      input[type="range"]::-moz-range-thumb { width:24px; height:24px; border:3px solid white; border-radius:50%; background:var(--blue); box-shadow:0 0 0 1px var(--blue); }
+    :root {
+      color-scheme: light;
+      --ink: #202b40;
+      --muted: #536078;
+      --paper: #f6f5f0;
+      --line: #dce1e8;
+      --blue: #284dd4;
+      --soft: #eef2ff;
+      --green: #176342;
+      --gold: #b45309;
+      --gold-bg: #fef3c7;
+      --gold-border: #fcd34d;
     }
-    @media (pointer:coarse) and (min-width:600px) {
-      .tabs { position:sticky; top:8px; z-index:5; box-shadow:0 4px 18px #202b4014; }
-      button,input,textarea,summary,.section-head { scroll-margin-top:120px; }
-      .tab { min-height:64px; }
-      .hero { padding:26px 0 24px; }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+    button, input, textarea { font: inherit; }
+    button { cursor: pointer; touch-action: manipulation; }
+    button:disabled { cursor: default; opacity: .55; }
+    button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 3px solid #b33b09; outline-offset: 4px; }
+    button { min-height: 44px; border: 1px solid var(--line); border-radius: 10px; padding: 9px 15px; background: white; color: var(--ink); font-weight: 650; }
+    button:hover:not(:disabled) { border-color: var(--blue); background: var(--soft); }
+    .primary { background: var(--blue); color: white; border-color: var(--blue); }
+    .primary:hover:not(:disabled) { background: #1937ad; color: white; }
+    h1, h2, h3, h4, p { margin: 0; }
+    h1 { font-size: clamp(2rem, 4.5vw, 3.5rem); letter-spacing: -.045em; line-height: 1.12; margin: 10px 0 14px; }
+    h2 { font-size: 1.55rem; letter-spacing: -.025em; line-height: 1.25; }
+    h3 { font-size: 1.1rem; }
+    h4 { font-size: 1rem; }
+    p + p { margin-top: 10px; }
+    small, .small { font-size: .85rem; }
+    .muted { color: var(--muted); }
+    .wrap { max-width: 1220px; margin: auto; padding: 0 28px; }
+    .topbar { border-bottom: 1px solid var(--line); background: #fffdf9; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+    .topbar .wrap { min-height: 82px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; padding-top: 6px; padding-bottom: 6px; }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 800; letter-spacing: -.025em; font-size: 1.2rem; }
+    .brandmark { width: 34px; height: 34px; background: conic-gradient(var(--blue) 25%, #f2b43c 0 50%, #ee7459 0 75%, #91b5a5 0); border-radius: 7px; flex-shrink: 0; }
+    .header-actions, .row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .badge { font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; font-weight: 750; }
+    
+    /* HUD Gamification Bar */
+    .hud-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .hud-pill { display: flex; align-items: center; gap: 9px; background: white; border: 1.5px solid var(--line); border-radius: 999px; padding: 6px 14px; font-size: .84rem; font-weight: 650; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+    .hud-level-icon { font-size: 1.15rem; line-height: 1; }
+    .hud-level-title { color: var(--ink); font-weight: 750; white-space: nowrap; }
+    .hud-xp-track { width: 72px; height: 8px; background: #e2e8f0; border-radius: 999px; overflow: hidden; }
+    .hud-xp-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--blue), #10b981); transition: width .35s ease; border-radius: 999px; }
+    .hud-xp-number { color: var(--muted); font-size: .78rem; font-family: ui-monospace, monospace; white-space: nowrap; }
+    .trophy-btn { background: #fffbeb; border-color: #fde68a; color: #92400e; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+    .trophy-btn:hover:not(:disabled) { background: #fef3c7; border-color: #f59e0b; }
+    
+    .hero { padding: 34px 0 26px; display: flex; justify-content: space-between; align-items: center; gap: 30px; }
+    .hero p { max-width: 650px; color: var(--muted); }
+    .hero-art { display: grid; grid-template-columns: repeat(5, 17px); gap: 5px; transform: rotate(-8deg); margin: 0 45px; }
+    .hero-art i { width: 17px; height: 17px; border-radius: 3px; background: #d9dfed; }
+    .hero-art i:nth-child(3n) { background: var(--blue); }
+    .hero-art i:nth-child(4n) { background: #ee7459; }
+    .tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 7px; background: #e9eaf0; border: 1px solid var(--line); border-radius: 16px; margin-bottom: 25px; }
+    .tab { display: flex; align-items: center; gap: 12px; background: transparent; border-color: transparent; text-align: left; padding: 13px 17px; }
+    .tab[aria-selected="true"] { background: white; box-shadow: 0 2px 5px #202b4010; border-color: #d5dced; color: var(--blue); }
+    .number { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; background: #dfe4ef; flex-shrink: 0; }
+    .tab[aria-selected="true"] .number { color: white; background: var(--blue); }
+    .tab small { display: block; font-weight: 450; color: var(--muted); }
+    .section-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin: 0 0 18px; }
+    .section-head p { margin-top: 5px; color: var(--muted); }
+    .workspace { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 22px; align-items: start; }
+    .card { background: white; border: 1px solid var(--line); border-radius: 18px; padding: 24px; }
+    .stack { display: grid; gap: 18px; }
+    .card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 18px; }
+    .eyebrow { color: var(--blue); text-transform: uppercase; letter-spacing: .09em; font-size: .72rem; font-weight: 800; }
+    .pill { border-radius: 99px; padding: 4px 10px; background: var(--soft); color: #304c9e; font-size: .78rem; font-weight: 650; }
+    .instruction { padding: 14px 17px; border: 1px solid #e9d6a5; background: #fff6df; border-radius: 12px; margin-bottom: 20px; }
+    .instruction strong { color: #765119; }
+    .grid-shell { width: 100%; max-width: 390px; margin: 0 auto 18px; display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 5px; }
+    .axis { font: 12px ui-monospace, monospace; color: var(--muted); display: grid; text-align: center; align-items: center; }
+    .axis.cols { grid-template-columns: repeat(8, 1fr); }
+    .axis.rows { grid-template-rows: repeat(8, 1fr); }
+    .pixel-grid { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 2px; padding: 4px; background: #657188; border-radius: 9px; aspect-ratio: 1; }
+    .pixel { min-height: 0; min-width: 0; padding: 0; border: 0; border-radius: 2px; background: #121a2b; }
+    .pixel.on { background: #fff; }
+    .pixel:hover:not(:disabled) { background: #303f5b; box-shadow: inset 0 0 0 3px #ebad31; }
+    .pixel.on:hover:not(:disabled) { background: #fff; }
+    .pixel:focus-visible { outline: 3px solid #ffc642; outline-offset: -3px; z-index: 1; }
+    .pixel:disabled { opacity: 1; }
+    .legend { display: flex; justify-content: center; gap: 22px; font-size: .85rem; margin-bottom: 17px; }
+    .dot { width: 12px; height: 12px; display: inline-block; border: 1px solid #657188; border-radius: 3px; vertical-align: -1px; margin-right: 5px; }
+    .dot.black { background: #121a2b; }
+    .dot.white { background: white; }
+    .templates { justify-content: center; }
+    .code-readout { padding: 16px; background: #f4f6fb; border-radius: 12px; text-align: center; font: clamp(17px, 3vw, 23px)/1.65 ui-monospace, "Courier New", monospace; letter-spacing: .24em; }
+    .code-readout span.active { background: #ffdf8b; color: #202b40; border-radius: 3px; }
+    textarea { width: 100%; resize: vertical; min-height: 116px; border: 1px solid #a8b3c5; border-radius: 10px; padding: 12px; background: #fff; color: var(--ink); font: 16px/1.5 ui-monospace, monospace; margin-top: 7px; }
+    textarea[aria-invalid="true"] { border: 2px solid #af3224; }
+    .field { display: block; margin-top: 17px; font-size: .9rem; font-weight: 650; }
+    .feedback { margin-top: 10px; min-height: 25px; font-size: .9rem; color: var(--green); }
+    .feedback.error { color: #a3291d; }
+    .formula { font-size: 1.23rem; font-weight: 750; letter-spacing: -.02em; margin: 8px 0; }
+    .data-card { background: var(--soft); border-color: #d9e0fb; }
+    .hint { color: var(--muted); font-size: .87rem; }
+    .challenge { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 18px; }
+    .challenge-line { display: flex; gap: 18px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+    .mini-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 1px; background: #657188; padding: 3px; aspect-ratio: 1; border-radius: 5px; }
+    .mini-grid i { background: #121a2b; }
+    .mini-grid i.on { background: white; }
+    #target-pattern { width: 86px; flex-shrink: 0; }
+    .memo { display: flex; gap: 17px; align-items: start; padding: 22px 25px; background: #e9f1ec; border: 1px solid #cadcd0; border-radius: 16px; margin: 22px 0; }
+    .memo-mark { display: grid; place-items: center; background: #d0e5d6; border-radius: 9px; width: 34px; height: 34px; font-weight: 800; flex-shrink: 0; color: var(--green); }
+    .memo h3 { color: var(--green); margin-bottom: 4px; }
+    .memo .hint { margin-top: 8px; }
+    .color-stage { height: 175px; border-radius: 12px; border: 1px solid #a8b3c5; background: black; margin-bottom: 12px; }
+    #rgb-label { font: 14px ui-monospace, monospace; text-align: center; display: block; margin-bottom: 18px; }
+    .channel { border-top: 1px solid var(--line); padding-top: 17px; margin-top: 17px; }
+    .channel-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .channel-name { display: flex; gap: 8px; align-items: center; font-weight: 750; }
+    .swatch-dot { border-radius: 50%; width: 11px; height: 11px; }
+    .bit-row { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 5px; }
+    .bit-wrap { text-align: center; min-width: 0; }
+    .weight { display: block; font: 12px ui-monospace, monospace; color: var(--muted); margin-bottom: 5px; }
+    .bit { padding: 7px 0; width: 100%; min-height: 44px; font: 700 18px ui-monospace, monospace; border-color: #adb7c8; }
+    .bit[aria-pressed="true"] { background: var(--blue); border-color: var(--blue); color: white; }
+    .channel-sum { font: 13px/1.5 ui-monospace, monospace; color: var(--muted); margin-top: 8px; overflow-wrap: anywhere; }
+    .target-color { width: 88px; height: 88px; border-radius: 14px; border: 1px solid #a8b3c5; flex-shrink: 0; }
+    .color-task { display: flex; align-items: center; gap: 17px; margin: 17px 0; }
+    .exercise-count { color: var(--muted); font-size: .8rem; }
+    .task-controls { display: flex; gap: 9px; flex-wrap: wrap; margin-top: 15px; }
+    .timeline { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 18px 0; }
+    .frame { padding: 8px; font-size: .78rem; min-width: 0; }
+    .frame .mini-grid { width: 100%; margin-bottom: 6px; }
+    .frame[aria-pressed="true"] { border: 2px solid var(--blue); padding: 7px; background: var(--soft); color: var(--blue); }
+    .frame.playing { box-shadow: 0 0 0 3px #e9ac39; }
+    .video-stage { background: #eef1f7; padding: 20px; border-radius: 13px; margin-bottom: 17px; }
+    #video-preview { max-width: 240px; margin: auto; }
+    .playback-label { text-align: center; color: var(--muted); font-size: .82rem; margin-top: 10px; }
+    .fps-head { display: flex; justify-content: space-between; gap: 10px; align-items: center; margin-top: 20px; }
+    #fps-value { font-size: 1.2rem; color: var(--blue); font-weight: 800; }
+    input[type="range"] { width: 100%; min-height: 44px; accent-color: var(--blue); cursor: pointer; }
+    .range-labels { display: flex; justify-content: space-between; color: var(--muted); font-size: .78rem; }
+    .metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
+    .metric { padding: 12px; background: #f5f6fa; border-radius: 10px; }
+    .metric b { display: block; font-size: 1.2rem; margin-top: 3px; }
+    details { border-top: 1px solid var(--line); padding-top: 13px; margin-top: 16px; }
+    summary { cursor: pointer; font-weight: 650; min-height: 44px; }
+    details p, details ol { font-size: .9rem; color: var(--muted); }
+    li + li { margin-top: 8px; }
+    .footer { border-top: 1px solid var(--line); padding: 21px 0 32px; margin-top: 28px; }
+    .glossary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 15px 0; }
+    .glossary dt { font-size: .9rem; font-weight: 750; }
+    .glossary dd { margin: 3px 0 0; font-size: .85rem; color: var(--muted); }
+    .skip { position: absolute; top: -100px; left: 12px; background: white; padding: 10px; z-index: 10; }
+    .skip:focus { top: 10px; }
+
+    /* Interactive Task Cards & Challenge Tabs */
+    .interactive-task-card { background: white; border: 1px solid var(--line); border-radius: 16px; padding: 20px; margin-top: 18px; }
+    .task-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+    .task-tag { font-size: .73rem; text-transform: uppercase; font-weight: 800; padding: 3px 9px; border-radius: 99px; letter-spacing: .05em; }
+    .task-tag.gold { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+    .task-tag.green { background: #dcfce7; color: #166534; }
+    .task-input-row { display: flex; align-items: center; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+    .task-number-input { width: 110px; min-height: 44px; padding: 8px 12px; font-size: 1.15rem; font-weight: 700; border: 1.5px solid #cbd5e1; border-radius: 10px; text-align: center; }
+    .task-number-input:focus { border-color: var(--blue); outline: none; }
+    .detective-code { font: 13px/1.6 ui-monospace, monospace; background: #0f172a; color: #38bdf8; padding: 12px 14px; border-radius: 10px; letter-spacing: .12em; word-break: break-all; user-select: all; }
+    .pattern-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+    .pattern-tab { padding: 7px 12px; font-size: .84rem; border-radius: 8px; border: 1px solid var(--line); background: white; }
+    .pattern-tab.active { background: var(--blue); color: white; border-color: var(--blue); }
+    .pattern-tab.solved::after { content: " ✓"; color: #10b981; font-weight: 800; }
+    .pattern-tab.active.solved::after { color: #6ee7b7; }
+
+    /* Quiz Sections */
+    .quiz-section { margin-top: 28px; background: linear-gradient(180deg, #f8faff 0%, #f1f5fd 100%); border: 2px solid #d5e0fc; border-radius: 20px; padding: 26px; }
+    .quiz-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; border-bottom: 1px solid #dce5fa; padding-bottom: 14px; }
+    .quiz-head-left h3 { font-size: 1.28rem; font-weight: 800; color: #1e3a8a; }
+    .quiz-head-left p { color: var(--muted); font-size: .88rem; margin-top: 3px; }
+    .quiz-score-pill { background: #dbeafe; color: #1e40af; font-size: .85rem; font-weight: 750; padding: 6px 14px; border-radius: 99px; }
+    .quiz-card { background: white; border: 1px solid #dce3f1; border-radius: 14px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 6px rgba(40,77,212,0.04); }
+    .quiz-q-num { font-size: .76rem; font-weight: 800; color: var(--blue); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 6px; }
+    .quiz-q-text { font-size: 1.05rem; font-weight: 750; line-height: 1.4; margin-bottom: 16px; color: var(--ink); }
+    .quiz-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    @media (max-width: 700px) { .quiz-opts { grid-template-columns: 1fr; } }
+    .quiz-opt-btn { text-align: left; padding: 12px 14px; border-radius: 10px; border: 1.5px solid var(--line); background: #f8fafc; font-size: .9rem; font-weight: 600; line-height: 1.35; transition: all .15s ease; display: flex; align-items: flex-start; gap: 10px; min-height: 48px; }
+    .quiz-opt-btn:hover:not(:disabled) { border-color: var(--blue); background: var(--soft); }
+    .quiz-opt-btn.correct { background: #ecfdf5 !important; border-color: #10b981 !important; color: #065f46 !important; font-weight: 750; }
+    .quiz-opt-btn.wrong { background: #fef2f2 !important; border-color: #ef4444 !important; color: #991b1b !important; opacity: 0.8; }
+    .quiz-explanation { margin-top: 14px; padding: 12px 16px; border-radius: 10px; font-size: .88rem; line-height: 1.45; }
+    .quiz-explanation.correct { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+    .quiz-explanation.wrong { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+    .quiz-result-card { background: white; border: 2px solid #a7f3d0; border-radius: 16px; padding: 26px 20px; text-align: center; box-shadow: 0 8px 24px rgba(16,185,129,0.1); margin-top: 14px; }
+    .quiz-stars { font-size: 2.3rem; margin: 10px 0; letter-spacing: 4px; }
+    .quiz-result-title { font-size: 1.4rem; font-weight: 800; color: var(--ink); }
+    .quiz-result-desc { color: var(--muted); font-size: .95rem; margin-top: 6px; max-width: 480px; margin-inline: auto; }
+
+    /* Toasts */
+    .toast-container { position: fixed; top: 24px; right: 24px; display: flex; flex-direction: column; gap: 10px; z-index: 10000; pointer-events: none; }
+    .toast { background: #1e293b; color: white; padding: 12px 18px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.22); display: flex; align-items: center; gap: 12px; font-size: .92rem; font-weight: 600; animation: toastIn .3s cubic-bezier(0.16,1,0.3,1) forwards; pointer-events: auto; max-width: 360px; }
+    .toast.xp { border-left: 5px solid #10b981; }
+    .toast.badge { border-left: 5px solid #f59e0b; background: #292015; color: #fef3c7; }
+    .toast.levelup { border-left: 5px solid var(--blue); background: #17223b; }
+    @keyframes toastIn { from { opacity: 0; transform: translateY(-14px) scale(0.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    .toast.fade-out { opacity: 0; transform: translateY(-10px) scale(0.95); transition: all .3s ease; }
+
+    /* Modal */
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(15,23,42,0.65); backdrop-filter: blur(4px); display: grid; place-items: center; padding: 18px; z-index: 10001; }
+    .modal-dialog { background: white; border-radius: 20px; max-width: 680px; width: 100%; max-height: 88vh; display: flex; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3); overflow: hidden; }
+    .modal-header { padding: 18px 24px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; background: #fafbfe; }
+    .modal-body { padding: 22px 24px; overflow-y: auto; }
+    .trophy-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+    .trophy-card { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border-radius: 12px; border: 1.5px solid #e2e8f0; background: #f8fafc; transition: all .2s; }
+    .trophy-card.unlocked { border-color: #f59e0b; background: #fffdf5; box-shadow: 0 2px 8px rgba(245,158,11,0.12); }
+    .trophy-card-icon { font-size: 1.8rem; filter: grayscale(1); opacity: 0.4; flex-shrink: 0; line-height: 1; }
+    .trophy-card.unlocked .trophy-card-icon { filter: none; opacity: 1; }
+    .trophy-card-content h4 { margin: 0; font-size: .95rem; font-weight: 750; color: var(--ink); }
+    .trophy-card-content p { margin: 3px 0 0; font-size: .8rem; color: var(--muted); line-height: 1.35; }
+    .trophy-status { display: inline-block; margin-top: 6px; font-size: .72rem; font-weight: 750; text-transform: uppercase; letter-spacing: .05em; padding: 2px 7px; border-radius: 4px; }
+    .trophy-card.unlocked .trophy-status { background: #dcfce7; color: #15803d; }
+    .trophy-card:not(.unlocked) .trophy-status { background: #f1f5f9; color: #64748b; }
+    .confetti-canvas { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; }
+
+    @media (max-width: 980px) { .workspace { grid-template-columns: 1fr; } .hero-art { display: none; } }
+    @media (max-width: 850px) { .tab { padding: 10px; gap: 8px; } .tab small { display: none; } .glossary { grid-template-columns: repeat(2, 1fr); } }
+    @media (pointer: coarse) {
+      button { min-height: 48px; }
+      .pixel { min-height: 0; }
+      .grid-shell { max-width: 430px; }
+      .bit { min-height: 48px; }
+      .row, .task-controls { gap: 12px; }
+      input[type="range"] { min-height: 52px; appearance: none; background: transparent; }
+      input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 28px; height: 28px; border: 3px solid white; border-radius: 50%; background: var(--blue); box-shadow: 0 0 0 1px var(--blue); margin-top: -9px; }
+      input[type="range"]::-webkit-slider-runnable-track { height: 10px; border-radius: 10px; background: #d8dff1; }
+      input[type="range"]::-moz-range-track { height: 10px; border-radius: 10px; background: #d8dff1; }
+      input[type="range"]::-moz-range-thumb { width: 24px; height: 24px; border: 3px solid white; border-radius: 50%; background: var(--blue); box-shadow: 0 0 0 1px var(--blue); }
     }
-    @media (max-width:480px) { .wrap { padding:0 14px; } .topbar .wrap { min-height:72px; } .header-actions .badge { display:none; } .brand { font-size:1rem; } .hero { padding:27px 0 23px; } .tabs { gap:3px; padding:4px; } .tab { flex-direction:column; gap:5px; font-size:.73rem; text-align:center; padding:9px 3px; } .number { width:25px; height:25px; } .card { padding:17px; } .section-head { align-items:start; } h2 { font-size:1.25rem; } .section-head button { padding:9px; font-size:.8rem; } .bit-row { gap:3px; } .metrics { grid-template-columns:1fr; } .memo { padding:18px; } }
-    @media (prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto !important; } }
+    @media (pointer: coarse) and (min-width: 600px) {
+      .tabs { position: sticky; top: 86px; z-index: 5; box-shadow: 0 4px 18px #202b4014; }
+      button, input, textarea, summary, .section-head { scroll-margin-top: 140px; }
+      .tab { min-height: 64px; }
+      .hero { padding: 26px 0 24px; }
+    }
+    @media (max-width: 480px) {
+      .wrap { padding: 0 14px; }
+      .topbar .wrap { min-height: 68px; }
+      .brand { font-size: 1rem; }
+      .hero { padding: 22px 0 18px; }
+      .tabs { gap: 3px; padding: 4px; }
+      .tab { flex-direction: column; gap: 5px; font-size: .73rem; text-align: center; padding: 9px 3px; }
+      .number { width: 25px; height: 25px; }
+      .card { padding: 17px; }
+      .section-head { align-items: start; }
+      h2 { font-size: 1.25rem; }
+      .section-head button { padding: 9px; font-size: .8rem; }
+      .bit-row { gap: 3px; }
+      .metrics { grid-template-columns: 1fr; }
+      .memo { padding: 18px; }
+      .hud-group { width: 100%; justify-content: space-between; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; } }
   </style>
 </head>
 <body>
   <a class="skip" href="#main">Zum Lernspiel</a>
-  <header class="topbar"><div class="wrap">
-    <div class="brand"><span class="brandmark" aria-hidden="true"></span>Pixelwerkstatt</div>
-    <div class="header-actions"><span class="badge muted">Informatik · Klasse 8</span><button id="sound" aria-pressed="false">Ton: aus</button></div>
-  </div></header>
+  
+  <!-- Canvas Confetti & Toast Container -->
+  <canvas id="confetti-canvas" class="confetti-canvas" aria-hidden="true"></canvas>
+  <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Header mit Gamification HUD -->
+  <header class="topbar">
+    <div class="wrap">
+      <div class="brand"><span class="brandmark" aria-hidden="true"></span>Pixelwerkstatt</div>
+      <div class="hud-group">
+        <div class="hud-pill" id="hud-level-pill" title="Dein aktueller Rang und Erfahrungspunkte">
+          <span class="hud-level-icon" id="hud-level-icon">🌱</span>
+          <span class="hud-level-title" id="hud-level-title">Lvl 1 · Pixel-Neuling</span>
+          <div class="hud-xp-track" aria-hidden="true">
+            <div class="hud-xp-fill" id="hud-xp-fill"></div>
+          </div>
+          <span class="hud-xp-number" id="hud-xp-number">0 / 100 XP</span>
+        </div>
+        <button id="btn-trophies" class="trophy-btn" aria-haspopup="dialog" aria-expanded="false" title="Alle Erfolge und Abzeichen ansehen">
+          🏆 <span id="trophy-count-label">0/9 Erfolge</span>
+        </button>
+        <button id="sound" aria-pressed="false">Ton: aus</button>
+      </div>
+    </div>
+  </header>
+
   <main id="main" class="wrap" tabindex="-1">
-    <div class="hero"><div><div class="eyebrow">Bilder, Bits & Bewegung</div><h1>Aus 0 und 1 wird ein Bild.</h1><p>Baue Pixelbilder, mische Licht und bring deine Bilder in Bewegung. Entdecke Schritt für Schritt, wie ein Computer Bilder und Videos speichert und anzeigt.</p></div><div class="hero-art" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+    <div class="hero">
+      <div>
+        <div class="eyebrow">Bilder, Bits & Bewegung</div>
+        <h1>Aus 0 und 1 wird ein Bild.</h1>
+        <p>Baue Pixelbilder, mische Licht und bring deine Bilder in Bewegung. Entdecke Schritt für Schritt, wie ein Computer Bilder und Videos speichert und anzeigt.</p>
+      </div>
+      <div class="hero-art" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    </div>
+
     <nav class="tabs" role="tablist" aria-label="Lernmodule">
       <button class="tab" id="tab-pixels" role="tab" aria-selected="true" aria-controls="panel-pixels"><span class="number">1</span><span>Schwarz-Weiß-Pixel<small>Ein Bild aus 64 Bits</small></span></button>
       <button class="tab" id="tab-colors" role="tab" aria-selected="false" aria-controls="panel-colors" tabindex="-1"><span class="number">2</span><span>Bunte Farben<small>Licht mischen mit RGB</small></span></button>
       <button class="tab" id="tab-video" role="tab" aria-selected="false" aria-controls="panel-video" tabindex="-1"><span class="number">3</span><span>Video-Daumenkino<small>Einzelbilder werden Bewegung</small></span></button>
     </nav>
 
+    <!-- KAPITEL 1: SCHWARZ-WEISS -->
     <section id="panel-pixels" role="tabpanel" aria-labelledby="tab-pixels">
-      <div class="section-head"><div><h2>Wie können Bits ein Bild beschreiben?</h2><p>Ein Pixel ist ein Bildpunkt. Du entscheidest: Schwarz oder Weiß?</p></div><button id="reset-pixels">Zurücksetzen</button></div>
+      <div class="section-head">
+        <div>
+          <h2>Wie können Bits ein Bild beschreiben?</h2>
+          <p>Ein Pixel ist ein Bildpunkt. Du entscheidest: Schwarz oder Weiß?</p>
+        </div>
+        <button id="reset-pixels">Zurücksetzen</button>
+      </div>
       <div class="instruction"><strong>Dein Auftrag:</strong> Lade das Herz. Ändere genau ein Pixel und beobachte seinen Code.</div>
+      
       <div class="workspace">
-        <div class="card"><div class="card-head"><h3>Deine Pixel-Leinwand</h3><span class="pill">8 × 8 Pixel</span></div>
+        <div class="card">
+          <div class="card-head"><h3>Deine Pixel-Leinwand</h3><span class="pill">8 × 8 Pixel</span></div>
           <div id="pixel-editor"></div>
           <div class="legend"><span><i class="dot black"></i>0 = Schwarz</span><span><i class="dot white"></i>1 = Weiß</span></div>
           <div class="row templates"><button data-pattern="heart">Herz</button><button data-pattern="smiley">Smiley</button><button data-pattern="letter">Buchstabe A</button></div>
           <p class="hint" style="margin-top:14px">Tippen schaltet ein Pixel um. Tastatur: mit Tab ins Raster, mit Pfeiltasten bewegen, mit Leertaste oder Eingabe umschalten.</p>
-          <div class="challenge"><div class="eyebrow">Pixel-Challenge</div><h3>Baue das Zielmuster nach.</h3><div class="challenge-line"><div id="target-pattern" class="mini-grid" role="img" aria-label="Pluszeichen: die mittleren zwei Spalten und die mittleren zwei Zeilen sind weiß, alle anderen Pixel schwarz."></div><div><button id="check-pattern" class="primary">Bild prüfen</button><p id="pattern-feedback" class="feedback" role="status"></p></div></div></div>
+          
+          <!-- Erweiterte Pixel-Challenge mit 5 Mustern -->
+          <div class="challenge">
+            <div class="card-head" style="margin-bottom:12px;">
+              <div>
+                <div class="eyebrow">Pixel-Challenges</div>
+                <h3>Baue das Zielmuster nach</h3>
+              </div>
+              <span class="pill" id="patterns-solved-pill">Gelöst: 0 / 5</span>
+            </div>
+            <div class="pattern-tabs" role="group" aria-label="Zielmuster auswählen">
+              <button class="pattern-tab active" data-pindex="0">➕ Plus</button>
+              <button class="pattern-tab" data-pindex="1">🏁 Schach</button>
+              <button class="pattern-tab" data-pindex="2">👾 Invader</button>
+              <button class="pattern-tab" data-pindex="3">❤️ Herz</button>
+              <button class="pattern-tab" data-pindex="4">💎 Diamant</button>
+            </div>
+            <div class="challenge-line">
+              <div id="target-pattern" class="mini-grid" role="img" aria-label="Aktuelles Zielmuster"></div>
+              <div>
+                <button id="check-pattern" class="primary">Bild prüfen</button>
+                <p id="pattern-feedback" class="feedback" role="status"></p>
+              </div>
+            </div>
+          </div>
         </div>
+
         <div class="stack">
-          <div class="card"><div class="card-head"><h3>So liest der Computer dein Bild</h3><span class="pill">64 Bit</span></div>
+          <div class="card">
+            <div class="card-head"><h3>So liest der Computer dein Bild</h3><span class="pill">64 Bit</span></div>
             <div id="code-readout" class="code-readout" aria-hidden="true"></div>
             <p class="hint" style="margin-top:10px">Von links nach rechts, Zeile für Zeile von oben nach unten.</p>
             <label class="field" for="binary-input">Probiere es umgekehrt: Gib 64 Bits ein.</label>
@@ -192,118 +361,704 @@
             <p id="binary-help" class="hint">0 und 1; Leerzeichen und Zeilenumbrüche sind erlaubt.</p>
             <p id="binary-feedback" class="feedback" role="status"></p>
           </div>
-          <div class="card data-card"><div class="eyebrow">Die Bilddaten</div><p class="formula">8 × 8 × 1 = 64 Bit = 8 Byte</p><p class="small">64 Pixel, jeweils 1 Bit. Schwarz und Weiß sind hier unsere vereinbarte Bedeutung von 0 und 1.</p><details><summary>Was muss der Computer noch wissen?</summary><p>Auch Breite, Höhe, Reihenfolge und Bedeutung der Bits müssen feststehen. Das ist in dieser Werkstatt bereits vereinbart. Wir zählen nur die Bilddaten, keine Zusatzinformationen einer Datei.</p></details></div>
+
+          <!-- Neue Aufgabe 1: Binär-Detektiv -->
+          <div class="card interactive-task-card">
+            <div class="task-header">
+              <div class="eyebrow">🕵️ Detektiv-Aufgabe</div>
+              <span class="task-tag gold">+30 XP</span>
+            </div>
+            <h3>Welches Bild versteckt sich hier?</h3>
+            <p class="small muted">Ein geheimer 64-Bit-Code wurde im Netzwerk abgefangen:</p>
+            <div class="detective-code" id="detective-code-preview">00011000 00111100 01111110 11111111 00011000 00011000 00011000 00011000</div>
+            <div class="row" style="margin-top:10px;">
+              <button id="btn-load-detective" class="small">In die Leinwand laden 🔍</button>
+            </div>
+            <p class="small" style="margin-top:12px; font-weight:650;">Welches Motiv stellt dieser Code dar?</p>
+            <div class="row" id="detective-options" style="margin-top:6px;">
+              <button class="detective-opt" data-answer="arrow">⬆️ Pfeil nach oben</button>
+              <button class="detective-opt" data-answer="house">🏠 Kleines Haus</button>
+              <button class="detective-opt" data-answer="boat">⛵ Segelboot</button>
+            </div>
+            <p id="detective-feedback" class="feedback" role="status"></p>
+          </div>
+
+          <!-- Neue Aufgabe 2: Speicherplatz-Praxis -->
+          <div class="card interactive-task-card">
+            <div class="task-header">
+              <div class="eyebrow">🧮 Speicherplatz-Praxis</div>
+              <span class="task-tag gold">+25 XP</span>
+            </div>
+            <h3>Schwarz-Weiß-Bilder berechnen</h3>
+            <p class="small">Ein 8×8-Schwarz-Weiß-Bild belegt genau 64 Bit = 8 Byte Bilddaten. Wie viele Bytes belegen <strong>5 solche Bilder</strong> zusammen im unkomprimierten Speicher?</p>
+            <div class="task-input-row">
+              <input type="number" id="calc-k1-input" class="task-number-input" placeholder="?" min="0" max="1000" aria-label="Bytes für 5 Schwarz-Weiß-Bilder">
+              <span>Byte</span>
+              <button id="btn-calc-k1" class="primary">Überprüfen</button>
+            </div>
+            <p id="calc-k1-feedback" class="feedback" role="status"></p>
+          </div>
+
+          <div class="card data-card">
+            <div class="eyebrow">Die Bilddaten</div>
+            <p class="formula">8 × 8 × 1 = 64 Bit = 8 Byte</p>
+            <p class="small">64 Pixel, jeweils 1 Bit. Schwarz und Weiß sind hier unsere vereinbarte Bedeutung von 0 und 1.</p>
+            <details>
+              <summary>Was muss der Computer noch wissen?</summary>
+              <p>Auch Breite, Höhe, Reihenfolge und Bedeutung der Bits müssen feststehen. Das ist in dieser Werkstatt bereits vereinbart. Wir zählen nur die Bilddaten, keine Zusatzinformationen einer Datei.</p>
+            </details>
+          </div>
         </div>
       </div>
-      <div class="memo"><span class="memo-mark" aria-hidden="true">!</span><div><h3>Mein Merksatz</h3><p>Ein Pixel ist ein Bildpunkt. In unserem Schwarz-Weiß-Bild steht 0 für Schwarz und 1 für Weiß. Das Bild hat 64 Pixel und benötigt 64 Bit für seine Bilddaten.</p><p class="hint">Dein Satzanfang: „Wenn ich dieses Bit ändere, …“</p></div></div>
-      <details><summary>Weiterforschen: ein geheimer Buchstabe</summary><p>Zeichne deinen Anfangsbuchstaben. Gib den Code an eine andere Person weiter. Kann sie daraus dein Bild herstellen?</p></details>
+
+      <div class="memo">
+        <span class="memo-mark" aria-hidden="true">!</span>
+        <div>
+          <h3>Mein Merksatz</h3>
+          <p>Ein Pixel ist ein Bildpunkt. In unserem Schwarz-Weiß-Bild steht 0 für Schwarz und 1 für Weiß. Das Bild hat 64 Pixel und benötigt 64 Bit für seine Bilddaten.</p>
+          <p class="hint">Dein Satzanfang: „Wenn ich dieses Bit ändere, …“</p>
+        </div>
+      </div>
+
+      <!-- Kapitel 1 Quiz -->
+      <div class="quiz-section" id="quiz-k1-section">
+        <div class="quiz-head">
+          <div class="quiz-head-left">
+            <h3>🎓 Kapitel-Check: Schwarz-Weiß & Bits</h3>
+            <p>Teste dein Wissen zu Pixeln, Bits und Bytes! (+20 XP pro richtiger Antwort)</p>
+          </div>
+          <span class="quiz-score-pill" id="quiz-k1-pill">Fortschritt: 0/4</span>
+        </div>
+        <div id="quiz-k1-body"></div>
+      </div>
+
+      <details style="margin-top:20px;"><summary>Weiterforschen: ein geheimer Buchstabe</summary><p>Zeichne deinen Anfangsbuchstaben. Gib den Code an eine andere Person weiter. Kann sie daraus dein Bild herstellen?</p></details>
     </section>
 
+    <!-- KAPITEL 2: BUNTE FARBEN & RGB -->
     <section id="panel-colors" role="tabpanel" aria-labelledby="tab-colors" hidden>
-      <div class="section-head"><div><h2>Wie entsteht aus Bits eine Farbe?</h2><p>Rot, Grün und Blau: Drei Lichtkanäle, Millionen Möglichkeiten.</p></div><button id="reset-colors">Zurücksetzen</button></div>
+      <div class="section-head">
+        <div>
+          <h2>Wie entsteht aus Bits eine Farbe?</h2>
+          <p>Rot, Grün und Blau: Drei Lichtkanäle, Millionen Möglichkeiten.</p>
+        </div>
+        <button id="reset-colors">Zurücksetzen</button>
+      </div>
       <div class="instruction"><strong>Dein Auftrag:</strong> Schalte die Bits ein. Mische zuerst Gelb aus rotem und grünem Licht.</div>
+      
       <div class="workspace">
-        <div class="card"><div class="card-head"><h3>Dein Lupen-Pixel</h3><span class="pill">RGB · 24 Bit</span></div><div id="color-preview" class="color-stage" role="img" aria-label="Farbe: Rot 0, Grün 0, Blau 0"></div><output id="rgb-label">RGB (0, 0, 0)</output>
+        <div class="card">
+          <div class="card-head"><h3>Dein Lupen-Pixel</h3><span class="pill">RGB · 24 Bit</span></div>
+          <div id="color-preview" class="color-stage" role="img" aria-label="Farbe: Rot 0, Grün 0, Blau 0"></div>
+          <output id="rgb-label">RGB (0, 0, 0)</output>
           <div class="row templates"><button data-color="0,0,0">Schwarz</button><button data-color="255,0,0">Rot</button><button data-color="255,255,0">Gelb</button><button data-color="255,255,255">Weiß</button></div>
           <div id="channels"></div>
           <p class="hint" style="margin-top:15px">Addiere die Zahlen über den eingeschalteten Bits. 0 bis 255 sind 256 Werte – die 0 zählt mit!</p>
         </div>
+
         <div class="stack">
-          <div class="card"><div class="card-head"><h3>Farb-Mission</h3><span id="exercise-count" class="exercise-count"></span></div><div class="color-task"><div id="target-color" class="target-color" aria-hidden="true"></div><div><div class="eyebrow">Deine Zielfarbe</div><h2 id="target-name"></h2><p id="target-values" class="small muted"></p></div></div><p class="small">Stelle die drei Kanalwerte ein. Du kannst die Farbe mischen, ohne Farben unterscheiden zu müssen.</p><div class="task-controls"><button id="check-color" class="primary">Farbe prüfen</button><button id="next-color">Nächste Farbe →</button></div><p id="color-feedback" class="feedback" role="status"></p></div>
-          <div class="card data-card"><div class="eyebrow">Farbtiefe = Bits pro Pixel</div><p class="formula">8 + 8 + 8 = 24 Bit</p><p><strong>16.777.216</strong> mögliche RGB-Farbwerte</p><p class="hint">256 × 256 × 256. Die Farbtiefe bleibt 24 Bit, auch wenn du einzelne Bits ausschaltest.</p><details><summary>Und ein ganzes 8×8-Farbbild?</summary><p>64 × 24 = <strong>1.536 Bit = 192 Byte</strong>. Das sind 24-mal so viele reine Bilddaten wie bei 1 Bit pro Pixel.</p></details></div>
-          <div class="card"><h3>Wir mischen Licht, keine Wasserfarben.</h3><p class="small muted" style="margin-top:9px">Rotes und grünes Licht ergeben Gelb. Alle drei Kanäle auf 255 ergeben Weiß. Alle auf 0 ergeben Schwarz.</p></div>
+          <!-- Erweiterte Farb-Mission mit 8 Farben -->
+          <div class="card">
+            <div class="card-head">
+              <h3>Farb-Mission</h3>
+              <span id="exercise-count" class="exercise-count"></span>
+            </div>
+            <div class="color-task">
+              <div id="target-color" class="target-color" aria-hidden="true"></div>
+              <div>
+                <div class="eyebrow">Deine Zielfarbe</div>
+                <h2 id="target-name"></h2>
+                <p id="target-values" class="small muted"></p>
+              </div>
+            </div>
+            <p class="small">Stelle die drei Kanalwerte mit den Bits ein. Du kannst die Farbe mischen, ohne Farben unterscheiden zu müssen.</p>
+            <div class="task-controls">
+              <button id="check-color" class="primary">Farbe prüfen</button>
+              <button id="next-color">Nächste Farbe →</button>
+            </div>
+            <p id="color-feedback" class="feedback" role="status"></p>
+          </div>
+
+          <!-- Neue Aufgabe 1: Stellenwert-Trainer -->
+          <div class="card interactive-task-card">
+            <div class="task-header">
+              <div class="eyebrow">💡 Stellenwert-Trainer</div>
+              <span class="task-tag gold">+30 XP</span>
+            </div>
+            <h3>Triff den genauen Kanal-Wert!</h3>
+            <p class="small">Nutze die Bits im <strong>Rot-Kanal</strong> (128, 64, 32, 16, 8, 4, 2, 1), um exakt den Dezimalwert <strong>168</strong> einzustellen!</p>
+            <p class="hint">Tipp: Welche Zahlen ergeben zusammen 168? (128 + 32 + ...)</p>
+            <div class="row" style="margin-top:10px;">
+              <button id="btn-check-trainer" class="primary">Rot-Wert prüfen</button>
+            </div>
+            <p id="trainer-feedback" class="feedback" role="status"></p>
+          </div>
+
+          <!-- Neue Aufgabe 2: Farbbild-Speicherrechner -->
+          <div class="card interactive-task-card">
+            <div class="task-header">
+              <div class="eyebrow">🧮 Farbbild-Speicherplatz</div>
+              <span class="task-tag gold">+25 XP</span>
+            </div>
+            <h3>24-Bit-Farbbild berechnen</h3>
+            <p class="small">Unser 8×8-Bild hat 64 Pixel. Jedes Farbpixel nutzt 24 Bit (3 Byte für R, G, B). Wie viele Bytes reine Bilddaten belegt das gesamte 8×8 Farbbild?</p>
+            <div class="task-input-row">
+              <input type="number" id="calc-k2-input" class="task-number-input" placeholder="?" min="0" max="5000" aria-label="Bytes für 8x8 Farbbild mit 24 Bit">
+              <span>Byte</span>
+              <button id="btn-calc-k2" class="primary">Überprüfen</button>
+            </div>
+            <p id="calc-k2-feedback" class="feedback" role="status"></p>
+          </div>
+
+          <div class="card data-card">
+            <div class="eyebrow">Farbtiefe = Bits pro Pixel</div>
+            <p class="formula">8 + 8 + 8 = 24 Bit</p>
+            <p><strong>16.777.216</strong> mögliche RGB-Farbwerte</p>
+            <p class="hint">256 × 256 × 256. Die Farbtiefe bleibt 24 Bit, auch wenn du einzelne Bits ausschaltest.</p>
+            <details>
+              <summary>Und ein ganzes 8×8-Farbbild?</summary>
+              <p>64 × 24 = <strong>1.536 Bit = 192 Byte</strong>. Das sind 24-mal so viele reine Bilddaten wie bei 1 Bit pro Pixel.</p>
+            </details>
+          </div>
+
+          <div class="card">
+            <h3>Wir mischen Licht, keine Wasserfarben.</h3>
+            <p class="small muted" style="margin-top:9px">Rotes und grünes Licht ergeben Gelb. Alle drei Kanäle auf 255 ergeben Weiß. Alle auf 0 ergeben Schwarz.</p>
+          </div>
         </div>
       </div>
-      <div class="memo"><span class="memo-mark" aria-hidden="true">!</span><div><h3>Mein Merksatz</h3><p>Der Computer beschreibt diese Farbe mit Rot, Grün und Blau. Jeder Kanal nutzt 8 Bit. Zusammen sind das 24 Bit pro Pixel.</p><p class="hint">Dein Satzanfang: „Gelb entsteht, wenn …“</p></div></div>
+
+      <div class="memo">
+        <span class="memo-mark" aria-hidden="true">!</span>
+        <div>
+          <h3>Mein Merksatz</h3>
+          <p>Der Computer beschreibt diese Farbe mit Rot, Grün und Blau. Jeder Kanal nutzt 8 Bit. Zusammen sind das 24 Bit pro Pixel.</p>
+          <p class="hint">Dein Satzanfang: „Gelb entsteht, wenn …“</p>
+        </div>
+      </div>
+
+      <!-- Kapitel 2 Quiz -->
+      <div class="quiz-section" id="quiz-k2-section">
+        <div class="quiz-head">
+          <div class="quiz-head-left">
+            <h3>🎓 Kapitel-Check: Bunte Farben & RGB</h3>
+            <p>Teste dein Wissen zu RGB, Lichtmischung und Farbtiefe! (+20 XP pro richtiger Antwort)</p>
+          </div>
+          <span class="quiz-score-pill" id="quiz-k2-pill">Fortschritt: 0/4</span>
+        </div>
+        <div id="quiz-k2-body"></div>
+      </div>
     </section>
 
+    <!-- KAPITEL 3: VIDEO-DAUMENKINO -->
     <section id="panel-video" role="tabpanel" aria-labelledby="tab-video" hidden>
-      <div class="section-head"><div><h2>Wie wird aus Bildern eine Bewegung?</h2><p>Ein Frame ist ein Einzelbild. Vier davon werden dein Daumenkino.</p></div><button id="reset-video">Zurücksetzen</button></div>
+      <div class="section-head">
+        <div>
+          <h2>Wie wird aus Bildern eine Bewegung?</h2>
+          <p>Ein Frame ist ein Einzelbild. Vier davon werden dein Daumenkino.</p>
+        </div>
+        <button id="reset-video">Zurücksetzen</button>
+      </div>
       <div class="instruction"><strong>Dein Auftrag:</strong> Schau die Bilder einzeln an. Vergleiche dann 2, 8 und 24 FPS.</div>
+      
       <div class="workspace">
-        <div class="card"><div class="card-head"><h3 id="frame-heading">Bild 1 bearbeiten</h3><span class="pill">1 Bit pro Pixel</span></div><div id="frame-editor"></div><p class="hint">Wähle unten ein Bild. Ändere wenige Pixel, damit die Bewegung kleine Schritte macht.</p><div id="timeline" class="timeline" role="group" aria-label="Einzelbild zum Bearbeiten auswählen"></div><button id="copy-frame">Vorheriges Bild kopieren</button><p id="editor-status" class="feedback" role="status">Bild 1 ist zum Bearbeiten bereit.</p></div>
+        <div class="card">
+          <div class="card-head"><h3 id="frame-heading">Bild 1 bearbeiten</h3><span class="pill">1 Bit pro Pixel</span></div>
+          <div id="frame-editor"></div>
+          <p class="hint">Wähle unten ein Bild. Ändere wenige Pixel, damit die Bewegung kleine Schritte macht.</p>
+          <div id="timeline" class="timeline" role="group" aria-label="Einzelbild zum Bearbeiten auswählen"></div>
+          <button id="copy-frame">Vorheriges Bild kopieren</button>
+          <p id="editor-status" class="feedback" role="status">Bild 1 ist zum Bearbeiten bereit.</p>
+
+          <!-- Animations-Labor -->
+          <div class="interactive-task-card" style="margin-top:18px;">
+            <div class="task-header">
+              <div class="eyebrow">🎬 Animations-Labor</div>
+              <span class="task-tag gold">+30 XP</span>
+            </div>
+            <h3>Animations-Vorlagen</h3>
+            <p class="small muted" style="margin-bottom:10px;">Lade eine fertige Bildfolge oder gestalte deine eigene:</p>
+            <div class="row templates" style="justify-content:flex-start; margin-bottom:12px;">
+              <button data-video-tpl="dot">🔵 Punkt</button>
+              <button data-video-tpl="ball">🏀 Hüpfball</button>
+              <button data-video-tpl="heart">💓 Herzschlag</button>
+              <button data-video-tpl="bar">⏳ Ladebalken</button>
+            </div>
+            <div class="row" style="margin-top:8px;">
+              <button id="btn-check-custom-animation" class="primary">Eigene Animation bewerten</button>
+            </div>
+            <p id="custom-anim-feedback" class="feedback" role="status"></p>
+          </div>
+        </div>
+
         <div class="stack">
-          <div class="card"><div class="card-head"><h3>Dein Daumenkino</h3><span class="pill">Endlosschleife</span></div><div class="video-stage"><div id="video-preview" class="mini-grid" role="img" aria-label="Vorschau des aktuellen Einzelbilds"></div><p id="playback-label" class="playback-label" aria-hidden="true">Bild 1 von 4 · pausiert</p></div><div class="row"><button id="play" class="primary" aria-pressed="false">▶ Abspielen</button><button id="step">Ein Bild weiter</button></div><p class="hint" style="margin-top:10px">Vermeide stark blinkende Bildfolgen.</p><p id="reduced-motion" class="hint" hidden>Reduzierte Bewegung ist aktiv. Nutze „Ein Bild weiter“ oder starte die Wiedergabe bewusst.</p><div class="fps-head"><label for="fps"><strong>Bilder pro Sekunde (FPS)</strong></label><output id="fps-value" for="fps">2 FPS</output></div><input id="fps" type="range" min="1" max="24" step="1" value="2"><div class="range-labels"><span>1 · langsam</span><span>24 · schnell</span></div><div class="metrics"><div class="metric"><span class="small muted">Ein Durchlauf</span><b id="loop-duration"></b></div><div class="metric"><span class="small muted">Gespeichert: 4 Bilder</span><b>256 Bit · 32 Byte</b></div></div><p class="small muted">Mehr FPS spielt dieselben vier Bilder schneller ab. Für feinere Bewegungsschritte brauchst du zusätzliche unterschiedliche Bilder. 24 FPS wirken deshalb nicht immer flüssig.</p></div>
-          <div class="card data-card"><div class="eyebrow">Reine Bilddaten · ohne Kompression</div><p class="small" style="margin-top:8px">Ein Bild: 8 × 8 × 1 = <strong>64 Bit = 8 Byte</strong></p><p id="video-data" class="formula"></p><p id="video-bytes" class="small"></p><details><summary>Warum bleiben vier Bilder trotzdem 32 Byte?</summary><p>Abspielen erzeugt keine neuen gespeicherten Bilder. Der Sekundenwert gilt, wenn jedes gezeigte Bild vollständig gespeichert würde. Unsere vier Bilder werden nur wiederholt.</p></details><details><summary>Was wäre mit Farbe und echten Videos?</summary><p id="rgb-video-data"></p><p>Echte Videos haben meist viel mehr Pixel. Kompression nutzt zum Beispiel Ähnlichkeiten und spart Daten. Ton und Zusatzinformationen kommen hinzu. Unser Rechner sagt keine tatsächliche Videodateigröße voraus.</p></details></div>
+          <div class="card">
+            <div class="card-head"><h3>Dein Daumenkino</h3><span class="pill">Endlosschleife</span></div>
+            <div class="video-stage">
+              <div id="video-preview" class="mini-grid" role="img" aria-label="Vorschau des aktuellen Einzelbilds"></div>
+              <p id="playback-label" class="playback-label" aria-hidden="true">Bild 1 von 4 · pausiert</p>
+            </div>
+            <div class="row">
+              <button id="play" class="primary" aria-pressed="false">▶ Abspielen</button>
+              <button id="step">Ein Bild weiter</button>
+            </div>
+            <p class="hint" style="margin-top:10px">Vermeide stark blinkende Bildfolgen.</p>
+            <p id="reduced-motion" class="hint" hidden>Reduzierte Bewegung ist aktiv. Nutze „Ein Bild weiter“ oder starte die Wiedergabe bewusst.</p>
+            <div class="fps-head">
+              <label for="fps"><strong>Bilder pro Sekunde (FPS)</strong></label>
+              <output id="fps-value" for="fps">2 FPS</output>
+            </div>
+            <input id="fps" type="range" min="1" max="24" step="1" value="2">
+            <div class="range-labels"><span>1 · langsam</span><span>24 · schnell</span></div>
+            <div class="metrics">
+              <div class="metric"><span class="small muted">Ein Durchlauf</span><b id="loop-duration"></b></div>
+              <div class="metric"><span class="small muted">Gespeichert: 4 Bilder</span><b>256 Bit · 32 Byte</b></div>
+            </div>
+            <p class="small muted">Mehr FPS spielt dieselben vier Bilder schneller ab. Für feinere Bewegungsschritte brauchst du zusätzliche unterschiedliche Bilder. 24 FPS wirken deshalb nicht immer flüssig.</p>
+          </div>
+
+          <!-- Neue Aufgabe 1: Timing-Labor -->
+          <div class="card interactive-task-card">
+            <div class="task-header">
+              <div class="eyebrow">⏱️ Timing-Challenge</div>
+              <span class="task-tag gold">+30 XP</span>
+            </div>
+            <h3>Treffe genau 1,00 Sekunde!</h3>
+            <p class="small">Unser Daumenkino hat 4 Bilder. Auf wie viele FPS musst du den Regler einstellen, damit ein Durchlauf genau <strong>1,00 Sekunde</strong> dauert?</p>
+            <div class="row" style="margin-top:10px;">
+              <button id="btn-check-timing" class="primary">Aktuelle FPS prüfen</button>
+            </div>
+            <p id="timing-feedback" class="feedback" role="status"></p>
+          </div>
+
+          <!-- Neue Aufgabe 2: Video-Datenmengen-Rechner -->
+          <div class="card interactive-task-card">
+            <div class="task-header">
+              <div class="eyebrow">🧮 Video-Datenmenge</div>
+              <span class="task-tag gold">+25 XP</span>
+            </div>
+            <h3>Datenstrom berechnen</h3>
+            <p class="small">Ein Schwarz-Weiß-Video läuft mit <strong>10 FPS</strong> (10 Bilder pro Sekunde). Jedes Bild belegt <strong>8 Byte</strong>. Wie viele Bytes unkomprimierte Bilddaten fallen an, wenn dieses Video <strong>5 Sekunden</strong> lang läuft?</p>
+            <div class="task-input-row">
+              <input type="number" id="calc-k3-input" class="task-number-input" placeholder="?" min="0" max="10000" aria-label="Bytes für 10 FPS über 5 Sekunden">
+              <span>Byte</span>
+              <button id="btn-calc-k3" class="primary">Überprüfen</button>
+            </div>
+            <p id="calc-k3-feedback" class="feedback" role="status"></p>
+          </div>
+
+          <div class="card data-card">
+            <div class="eyebrow">Reine Bilddaten · ohne Kompression</div>
+            <p class="small" style="margin-top:8px">Ein Bild: 8 × 8 × 1 = <strong>64 Bit = 8 Byte</strong></p>
+            <p id="video-data" class="formula"></p>
+            <p id="video-bytes" class="small"></p>
+            <details>
+              <summary>Warum bleiben vier Bilder trotzdem 32 Byte?</summary>
+              <p>Abspielen erzeugt keine neuen gespeicherten Bilder. Der Sekundenwert gilt, wenn jedes gezeigte Bild vollständig gespeichert würde. Unsere vier Bilder werden nur wiederholt.</p>
+            </details>
+            <details>
+              <summary>Was wäre mit Farbe und echten Videos?</summary>
+              <p id="rgb-video-data"></p>
+              <p>Echte Videos haben meist viel mehr Pixel. Kompression nutzt zum Beispiel Ähnlichkeiten und spart Daten. Ton und Zusatzinformationen kommen hinzu. Unser Rechner sagt keine tatsächliche Videodateigröße voraus.</p>
+            </details>
+          </div>
         </div>
       </div>
-      <div class="memo"><span class="memo-mark" aria-hidden="true">!</span><div><h3>Mein Merksatz</h3><p id="video-memo"></p><p class="hint">Dein Satzanfang: „Bei höherer Bildrate …“</p></div></div>
-      <details><summary>Weiterforschen: Was bleibt gleich?</summary><ol><li>Gestalte vier eigene Bilder mit kleinen Veränderungen.</li><li>Wie ändert sich die Dauer eines Durchlaufs bei mehr FPS?</li><li>Brauchen die vier gespeicherten Bilder bei 24 FPS mehr Speicher als bei 2 FPS? Begründe.</li></ol></details>
+
+      <div class="memo">
+        <span class="memo-mark" aria-hidden="true">!</span>
+        <div>
+          <h3>Mein Merksatz</h3>
+          <p id="video-memo"></p>
+          <p class="hint">Dein Satzanfang: „Bei höherer Bildrate …“</p>
+        </div>
+      </div>
+
+      <!-- Kapitel 3 Quiz -->
+      <div class="quiz-section" id="quiz-k3-section">
+        <div class="quiz-head">
+          <div class="quiz-head-left">
+            <h3>🎓 Kapitel-Check: Daumenkino & Video</h3>
+            <p>Teste dein Wissen zu Frames, FPS und Datenmengen! (+20 XP pro richtiger Antwort)</p>
+          </div>
+          <span class="quiz-score-pill" id="quiz-k3-pill">Fortschritt: 0/4</span>
+        </div>
+        <div id="quiz-k3-body"></div>
+      </div>
+
+      <details style="margin-top:20px;"><summary>Weiterforschen: Was bleibt gleich?</summary><ol><li>Gestalte vier eigene Bilder mit kleinen Veränderungen.</li><li>Wie ändert sich die Dauer eines Durchlaufs bei mehr FPS?</li><li>Brauchen die vier gespeicherten Bilder bei 24 FPS mehr Speicher als bei 2 FPS? Begründe.</li></ol></details>
     </section>
-    <footer class="footer"><details><summary>Wörterwerkstatt · Die Fachbegriffe auf einen Blick</summary><dl class="glossary"><div><dt>Bit</dt><dd>Ein Wert: 0 oder 1.</dd></div><div><dt>Byte</dt><dd>Eine Gruppe aus 8 Bit.</dd></div><div><dt>Pixel</dt><dd>Ein Bildpunkt.</dd></div><div><dt>RGB</dt><dd>Rot, Grün und Blau.</dd></div><div><dt>Farbtiefe</dt><dd>Bits pro Pixel im verwendeten Farbmodell.</dd></div><div><dt>Frame</dt><dd>Ein Einzelbild.</dd></div><div><dt>FPS</dt><dd>Bilder pro Sekunde.</dd></div><div><dt>Kompression</dt><dd>Daten platzsparender darstellen.</dd></div></dl></details><p class="small muted" style="margin-top:14px">Deine Werkstatt läuft offline. Alles bleibt beim Wechsel der Module erhalten. Neuladen startet neu.</p></footer>
+
+    <!-- Trophäen & Erfolge Modal -->
+    <div id="trophy-modal" class="modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="modal-trophy-title">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3 id="modal-trophy-title">🏆 Deine Erfolge & Abzeichen</h3>
+          <button id="modal-trophy-close" aria-label="Schließen">✕ Schließen</button>
+        </div>
+        <div class="modal-body">
+          <p class="small muted" style="margin-bottom:16px;">Sammle Abzeichen durch Lösen von Aufgaben, Mischen von Farben und Abschließen der Kapitel-Quizzes!</p>
+          <div class="trophy-grid" id="trophy-grid-container"></div>
+          <div style="margin-top:24px; border-top:1px solid var(--line); padding-top:16px; display:flex; justify-content:space-between; align-items:center;">
+            <span class="small muted">Möchtest du von vorne beginnen?</span>
+            <button id="btn-reset-game" class="small">Fortschritt zurücksetzen ↺</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <details>
+        <summary>Wörterwerkstatt · Die Fachbegriffe auf einen Blick</summary>
+        <dl class="glossary">
+          <div><dt>Bit</dt><dd>Ein Wert: 0 oder 1.</dd></div>
+          <div><dt>Byte</dt><dd>Eine Gruppe aus 8 Bit.</dd></div>
+          <div><dt>Pixel</dt><dd>Ein Bildpunkt.</dd></div>
+          <div><dt>RGB</dt><dd>Rot, Grün und Blau.</dd></div>
+          <div><dt>Farbtiefe</dt><dd>Bits pro Pixel im verwendeten Farbmodell.</dd></div>
+          <div><dt>Frame</dt><dd>Ein Einzelbild.</dd></div>
+          <div><dt>FPS</dt><dd>Bilder pro Sekunde.</dd></div>
+          <div><dt>Kompression</dt><dd>Daten platzsparender darstellen.</dd></div>
+        </dl>
+      </details>
+      <p class="small muted" style="margin-top:14px">Deine Werkstatt läuft offline. Alles bleibt beim Wechsel der Module erhalten. Neuladen behält deinen Spielstand.</p>
+    </footer>
   </main>
+
   <noscript><p>Bitte aktiviere JavaScript, damit du Pixel zeichnen, Farben mischen und Bilder abspielen kannst.</p></noscript>
+
   <script>
     'use strict';
     const $ = id => document.getElementById(id);
-    const number = value => value.toLocaleString('de-DE', { maximumFractionDigits:3 });
+    const number = value => value.toLocaleString('de-DE', { maximumFractionDigits: 3 });
     const bits = value => value.toString(2).padStart(8, '0');
     const imageBits = (depth = 1) => 8 * 8 * depth;
     const secondBits = (fps, depth = 1) => fps * imageBits(depth);
     const pattern = rows => rows.join('').split('').map(Number);
-    const formatCode = values => Array.from({length:8}, (_, row) => values.slice(row * 8, row * 8 + 8).join('')).join('\n');
+    const formatCode = values => Array.from({ length: 8 }, (_, row) => values.slice(row * 8, row * 8 + 8).join('')).join('\n');
+    
     function parseCode(text) {
-      if (/[^01 \r\n]/u.test(text)) return { error:'Hier sind nur 0, 1, Leerzeichen und Zeilenumbrüche erlaubt.' };
+      if (/[^01 \r\n]/u.test(text)) return { error: 'Hier sind nur 0, 1, Leerzeichen und Zeilenumbrüche erlaubt.' };
       const clean = text.replace(/[ \r\n]/gu, '');
-      if (clean.length !== 64) return { error:`Du hast ${clean.length} von 64 Bits eingegeben. Das letzte gültige Bild bleibt erhalten.` };
-      return { values:clean.split('').map(Number) };
+      if (clean.length !== 64) return { error: `Du hast ${clean.length} von 64 Bits eingegeben. Das letzte gültige Bild bleibt erhalten.` };
+      return { values: clean.split('').map(Number) };
     }
-    const patterns = {
-      heart:pattern(['00000000','01100110','11111111','11111111','01111110','00111100','00011000','00000000']),
-      smiley:pattern(['00111100','01000010','10100101','10000001','10100101','10011001','01000010','00111100']),
-      letter:pattern(['00011000','00100100','01000010','01000010','01111110','01000010','01000010','00000000'])
-    };
-    const targetPattern = Array.from({length:64}, (_, i) => [3,4].includes(i % 8) || [3,4].includes(Math.floor(i / 8)) ? 1 : 0);
-    let pixels = Array(64).fill(0);
-    let rgb = [0,0,0];
-    const channelNames = ['Rot','Grün','Blau'];
-    const missions = [{name:'Gelb', rgb:[255,255,0]}, {name:'Magenta', rgb:[255,0,255]}, {name:'Cyan', rgb:[0,255,255]}, {name:'Violett', rgb:[128,0,128]}];
-    let mission = 0;
+
+    // ==========================================
+    // GAMIFICATION STATE & CONSTANTS
+    // ==========================================
+    const LEVELS = [
+      { level: 1, title: 'Pixel-Neuling', minXP: 0, nextXP: 100, icon: '🌱' },
+      { level: 2, title: 'Bit-Forscher', minXP: 100, nextXP: 250, icon: '🔍' },
+      { level: 3, title: 'RGB-Künstler', minXP: 250, nextXP: 450, icon: '🎨' },
+      { level: 4, title: 'Frame-Animator', minXP: 450, nextXP: 700, icon: '🎬' },
+      { level: 5, title: 'Daumenkino-Regisseur', minXP: 700, nextXP: 1000, icon: '🚀' },
+      { level: 6, title: 'Informatik-Großmeister', minXP: 1000, nextXP: 1000, icon: '👑' }
+    ];
+
+    const BADGES = [
+      { id: 'first_click', icon: '🖌️', title: 'Erster Klick', desc: 'Schalte dein erstes Pixel oder einen Bit-Schalter um.' },
+      { id: 'pattern_master', icon: '🧩', title: 'Muster-Meister', desc: 'Löse mindestens 3 Zielmuster in Kapitel 1.' },
+      { id: 'binary_detective', icon: '🕵️', title: 'Binär-Detektiv', desc: 'Entschlüssele den geheimen Binärcode in Kapitel 1.' },
+      { id: 'color_alchemist', icon: '🌈', title: 'Farb-Alchemist', desc: 'Mische mindestens 5 Zielfarben in Kapitel 2.' },
+      { id: 'value_genius', icon: '💡', title: 'Stellenwert-Genie', desc: 'Triff den genauen Kanal-Zielwert im Stellenwert-Trainer.' },
+      { id: 'cinema_pioneer', icon: '🎬', title: 'Kino-Pionier', desc: 'Spiele dein Daumenkino mit 8 FPS oder mehr ab.' },
+      { id: 'timing_pro', icon: '⏱️', title: 'Timing-Profi', desc: 'Stelle die Bildrate auf exakt 1 Sekunde Durchlaufdauer ein.' },
+      { id: 'math_wizard', icon: '🧮', title: 'Daten-Mathematiker', desc: 'Löse alle drei Speicherplatz-Rechenaufgaben.' },
+      { id: 'quiz_diploma', icon: '🏆', title: 'Informatik-Diplom', desc: 'Bestehe alle drei Kapitel-Quizzes erfolgreich!' }
+    ];
+
+    const defaultGameState = () => ({
+      xp: 0,
+      badges: [],
+      completedActions: {},
+      solvedPatterns: [],
+      solvedColors: [],
+      quizzes: {
+        k1: { completed: false, score: 0 },
+        k2: { completed: false, score: 0 },
+        k3: { completed: false, score: 0 }
+      }
+    });
+
+    let gameState = defaultGameState();
+    try {
+      const saved = localStorage.getItem('pixelwerkstatt_gamestate');
+      if (saved) gameState = { ...defaultGameState(), ...JSON.parse(saved) };
+    } catch { /* LocalStorage may be unavailable */ }
+
+    function saveGameState() {
+      try { localStorage.setItem('pixelwerkstatt_gamestate', JSON.stringify(gameState)); } catch {}
+    }
+
+    function getCurrentLevel(xp) {
+      for (let i = LEVELS.length - 1; i >= 0; i--) {
+        if (xp >= LEVELS[i].minXP) return LEVELS[i];
+      }
+      return LEVELS[0];
+    }
+
+    // ==========================================
+    // SOUND & AUDIO SYNTHESIS
+    // ==========================================
     let sound = false;
-    let audio;
-    function successTone() {
+    let audioCtx = null;
+
+    function playTone(type) {
       if (!sound) return;
       const Audio = window.AudioContext || window.webkitAudioContext;
       if (!Audio) return;
       try {
-        audio ||= new Audio();
-        audio.resume().then(() => {
-          const oscillator = audio.createOscillator();
-          const gain = audio.createGain();
-          oscillator.connect(gain); gain.connect(audio.destination);
-          oscillator.frequency.setValueAtTime(660, audio.currentTime);
-          oscillator.frequency.setValueAtTime(880, audio.currentTime + .09);
-          gain.gain.setValueAtTime(.07, audio.currentTime);
-          gain.gain.exponentialRampToValueAtTime(.001, audio.currentTime + .24);
-          oscillator.start(); oscillator.stop(audio.currentTime + .25);
+        audioCtx ||= new Audio();
+        audioCtx.resume().then(() => {
+          const now = audioCtx.currentTime;
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+
+          if (type === 'correct') {
+            osc.frequency.setValueAtTime(523.25, now); // C5
+            osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+            osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
+            gain.gain.setValueAtTime(0.08, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+            osc.start(now); osc.stop(now + 0.36);
+          } else if (type === 'wrong') {
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(220, now);
+            osc.frequency.setValueAtTime(174.6, now + 0.1);
+            gain.gain.setValueAtTime(0.06, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+            osc.start(now); osc.stop(now + 0.3);
+          } else if (type === 'levelup') {
+            osc.type = 'triangle';
+            [261.63, 329.63, 392.00, 523.25, 659.25].forEach((f, idx) => {
+              osc.frequency.setValueAtTime(f, now + idx * 0.07);
+            });
+            gain.gain.setValueAtTime(0.12, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
+            osc.start(now); osc.stop(now + 0.56);
+          } else if (type === 'badge') {
+            osc.type = 'sine';
+            [587.33, 880, 1174.66, 1760].forEach((f, idx) => {
+              osc.frequency.setValueAtTime(f, now + idx * 0.06);
+            });
+            gain.gain.setValueAtTime(0.1, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+            osc.start(now); osc.stop(now + 0.46);
+          } else {
+            osc.frequency.setValueAtTime(660, now);
+            gain.gain.setValueAtTime(0.05, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+            osc.start(now); osc.stop(now + 0.12);
+          }
         }).catch(() => {});
-      } catch { /* Text-Rückmeldung funktioniert auch ohne Audio. */ }
+      } catch {}
     }
+
     $('sound').addEventListener('click', () => {
       sound = !sound;
       $('sound').textContent = `Ton: ${sound ? 'an' : 'aus'}`;
       $('sound').setAttribute('aria-pressed', String(sound));
+      if (sound) playTone('correct');
     });
+
+    // ==========================================
+    // TOASTS & CONFETTI
+    // ==========================================
+    function showToast(msg, type = 'xp') {
+      const container = $('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = msg;
+      container.append(toast);
+      setTimeout(() => {
+        toast.classList.add('fade-out');
+        setTimeout(() => toast.remove(), 350);
+      }, 3500);
+    }
+
+    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+
+    function triggerConfetti() {
+      if (reducedMotion.matches) return;
+      const canvas = $('confetti-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      const particles = Array.from({ length: 65 }, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * -40,
+        w: 8 + Math.random() * 8,
+        h: 8 + Math.random() * 8,
+        vx: (Math.random() - 0.5) * 4,
+        vy: 2.5 + Math.random() * 4,
+        rot: Math.random() * 360,
+        vrot: (Math.random() - 0.5) * 12,
+        color: ['#284dd4', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4', '#e11d48'][Math.floor(Math.random() * 7)]
+      }));
+      let start = performance.now();
+      function loop(now) {
+        if (now - start > 2200) {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          return;
+        }
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+          p.x += p.vx; p.y += p.vy; p.rot += p.vrot;
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.rot * Math.PI / 180);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+          ctx.restore();
+        });
+        requestAnimationFrame(loop);
+      }
+      requestAnimationFrame(loop);
+    }
+
+    // ==========================================
+    // GAMIFICATION PROGRESSION LOGIC
+    // ==========================================
+    function addXP(amount, reason = '') {
+      const prevLevel = getCurrentLevel(gameState.xp);
+      gameState.xp += amount;
+      const newLevel = getCurrentLevel(gameState.xp);
+      
+      showToast(`+${amount} XP${reason ? `: ${reason}` : ''}`, 'xp');
+      
+      if (newLevel.level > prevLevel.level) {
+        playTone('levelup');
+        triggerConfetti();
+        showToast(`⭐ LEVEL UP! Du bist jetzt ${newLevel.title} (Level ${newLevel.level})!`, 'levelup');
+      }
+      
+      updateHUD();
+      saveGameState();
+    }
+
+    function unlockBadge(id) {
+      if (gameState.badges.includes(id)) return;
+      const badge = BADGES.find(b => b.id === id);
+      if (!badge) return;
+      gameState.badges.push(id);
+      playTone('badge');
+      triggerConfetti();
+      showToast(`🏆 Abzeichen freigeschaltet: ${badge.title}!`, 'badge');
+      addXP(40, `Erfolg "${badge.title}"`);
+      updateBadgesUI();
+      saveGameState();
+    }
+
+    function updateHUD() {
+      const current = getCurrentLevel(gameState.xp);
+      $('hud-level-icon').textContent = current.icon;
+      $('hud-level-title').textContent = `Lvl ${current.level} · ${current.title}`;
+      
+      if (current.level === 6) {
+        $('hud-xp-fill').style.width = '100%';
+        $('hud-xp-number').textContent = `${gameState.xp} XP (Max)`;
+      } else {
+        const nextLvl = LEVELS[current.level];
+        const currentTierXP = gameState.xp - current.minXP;
+        const tierGoal = nextLvl.minXP - current.minXP;
+        const pct = Math.min(100, Math.max(0, (currentTierXP / tierGoal) * 100));
+        $('hud-xp-fill').style.width = `${pct}%`;
+        $('hud-xp-number').textContent = `${gameState.xp} / ${nextLvl.minXP} XP`;
+      }
+      $('trophy-count-label').textContent = `${gameState.badges.length}/${BADGES.length} Erfolge`;
+    }
+
+    function updateBadgesUI() {
+      const container = $('trophy-grid-container');
+      if (!container) return;
+      container.innerHTML = '';
+      BADGES.forEach(b => {
+        const isUnlocked = gameState.badges.includes(b.id);
+        const card = document.createElement('div');
+        card.className = `trophy-card ${isUnlocked ? 'unlocked' : ''}`;
+        card.innerHTML = `
+          <div class="trophy-card-icon" aria-hidden="true">${b.icon}</div>
+          <div class="trophy-card-content">
+            <h4>${b.title}</h4>
+            <p>${b.desc}</p>
+            <span class="trophy-status">${isUnlocked ? '✓ Freigeschaltet' : '🔒 Gesperrt'}</span>
+          </div>
+        `;
+        container.append(card);
+      });
+      $('trophy-count-label').textContent = `${gameState.badges.length}/${BADGES.length} Erfolge`;
+    }
+
+    // Modal Events
+    $('btn-trophies').addEventListener('click', () => {
+      updateBadgesUI();
+      $('trophy-modal').hidden = false;
+      $('btn-trophies').setAttribute('aria-expanded', 'true');
+      $('modal-trophy-close').focus();
+    });
+    $('modal-trophy-close').addEventListener('click', () => {
+      $('trophy-modal').hidden = true;
+      $('btn-trophies').setAttribute('aria-expanded', 'false');
+      $('btn-trophies').focus();
+    });
+    $('trophy-modal').addEventListener('click', e => {
+      if (e.target === $('trophy-modal')) {
+        $('trophy-modal').hidden = true;
+        $('btn-trophies').setAttribute('aria-expanded', 'false');
+      }
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && !$('trophy-modal').hidden) {
+        $('trophy-modal').hidden = true;
+        $('btn-trophies').setAttribute('aria-expanded', 'false');
+      }
+    });
+    $('btn-reset-game').addEventListener('click', () => {
+      if (confirm('Möchtest du deinen gesamten Spielfortschritt wirklich zurücksetzen?')) {
+        gameState = defaultGameState();
+        saveGameState();
+        updateHUD();
+        updateBadgesUI();
+        showToast('Spielstand zurückgesetzt.', 'xp');
+        location.reload();
+      }
+    });
+
     function feedback(id, text, error = false) {
       $(id).textContent = text;
       $(id).classList.toggle('error', error);
     }
     function makeMini(container) {
+      container.innerHTML = '';
       for (let i = 0; i < 64; i++) container.append(document.createElement('i'));
     }
     function drawMini(container, values) {
       [...container.children].forEach((pixel, i) => pixel.classList.toggle('on', Boolean(values[i])));
     }
+
+    // ==========================================
+    // EDITOR CREATION
+    // ==========================================
     function makeEditor(container, label, getValues, change, focusPixel = () => {}) {
       const shell = document.createElement('div'); shell.className = 'grid-shell';
       shell.append(document.createElement('span'));
-      const cols = document.createElement('div'); cols.className = 'axis cols'; cols.setAttribute('aria-hidden','true');
-      const rows = document.createElement('div'); rows.className = 'axis rows'; rows.setAttribute('aria-hidden','true');
-      for (let i = 1; i <= 8; i++) { const c = document.createElement('span'); c.textContent = i; cols.append(c); const r = c.cloneNode(true); rows.append(r); }
-      const grid = document.createElement('div'); grid.className = 'pixel-grid'; grid.setAttribute('role','group'); grid.setAttribute('aria-label',label);
-      const buttons = Array.from({length:64}, (_, i) => {
+      const cols = document.createElement('div'); cols.className = 'axis cols'; cols.setAttribute('aria-hidden', 'true');
+      const rows = document.createElement('div'); rows.className = 'axis rows'; rows.setAttribute('aria-hidden', 'true');
+      for (let i = 1; i <= 8; i++) {
+        const c = document.createElement('span'); c.textContent = i; cols.append(c);
+        const r = c.cloneNode(true); rows.append(r);
+      }
+      const grid = document.createElement('div'); grid.className = 'pixel-grid'; grid.setAttribute('role', 'group'); grid.setAttribute('aria-label', label);
+      const buttons = Array.from({ length: 64 }, (_, i) => {
         const button = document.createElement('button'); button.type = 'button'; button.className = 'pixel'; button.tabIndex = i === 0 ? 0 : -1;
-        button.addEventListener('click', () => { change(i); focusPixel(i); });
+        button.addEventListener('click', () => {
+          unlockBadge('first_click');
+          change(i); focusPixel(i);
+        });
         button.addEventListener('focus', () => { buttons.forEach((b, index) => { b.tabIndex = index === i ? 0 : -1; }); focusPixel(i); });
         button.addEventListener('keydown', event => {
           let next = i;
@@ -319,15 +1074,38 @@
         grid.append(button); return button;
       });
       shell.append(cols, rows, grid); container.append(shell);
-      return { render(disabled = false) {
-        const values = getValues();
-        buttons.forEach((button, i) => {
-          button.classList.toggle('on', Boolean(values[i])); button.disabled = disabled;
-          button.setAttribute('aria-pressed', String(Boolean(values[i])));
-          button.setAttribute('aria-label', `Zeile ${Math.floor(i / 8) + 1}, Spalte ${i % 8 + 1}, ${values[i] ? 'Weiß' : 'Schwarz'}, Bit ${values[i]}`);
-        });
-      }};
+      return {
+        render(disabled = false) {
+          const values = getValues();
+          buttons.forEach((button, i) => {
+            button.classList.toggle('on', Boolean(values[i])); button.disabled = disabled;
+            button.setAttribute('aria-pressed', String(Boolean(values[i])));
+            button.setAttribute('aria-label', `Zeile ${Math.floor(i / 8) + 1}, Spalte ${i % 8 + 1}, ${values[i] ? 'Weiß' : 'Schwarz'}, Bit ${values[i]}`);
+          });
+        }
+      };
     }
+
+    // ==========================================
+    // KAPITEL 1: PIXEL, PATTERNS & AUFGABEN
+    // ==========================================
+    const patterns = {
+      heart: pattern(['00000000','01100110','11111111','11111111','01111110','00111100','00011000','00000000']),
+      smiley: pattern(['00111100','01000010','10100101','10000001','10100101','10011001','01000010','00111100']),
+      letter: pattern(['00011000','00100100','01000010','01000010','01111110','01000010','01000010','00000000'])
+    };
+
+    // 5 Target Challenge Patterns
+    const challengePatterns = [
+      { name: 'Plus', bits: Array.from({ length: 64 }, (_, i) => [3,4].includes(i % 8) || [3,4].includes(Math.floor(i / 8)) ? 1 : 0) },
+      { name: 'Schach', bits: Array.from({ length: 64 }, (_, i) => ((Math.floor(i / 8) % 2) ^ (i % 2)) ? 1 : 0) },
+      { name: 'Invader', bits: pattern(['00100100','00011000','01111110','11011011','11111111','10100101','01000010','00100100']) },
+      { name: 'Herz', bits: pattern(['00000000','01100110','10011001','10000001','01000010','00100100','00011000','00000000']) },
+      { name: 'Diamant', bits: pattern(['00011000','00100100','01000010','10000001','10000001','01000010','00100100','00011000']) }
+    ];
+    let currentChallengeIndex = 0;
+
+    let pixels = Array(64).fill(0);
     const codeSpans = [];
     for (let row = 0; row < 8; row++) {
       const line = document.createElement('div');
@@ -337,29 +1115,130 @@
     const pixelEditor = makeEditor($('pixel-editor'), 'Schwarz-Weiß-Pixelraster', () => pixels, i => {
       pixels[i] ^= 1; renderPixels();
     }, i => codeSpans.forEach((span, index) => span.classList.toggle('active', index === i)));
+
     function renderPixels(syncInput = true) {
       pixelEditor.render();
       codeSpans.forEach((span, i) => { span.textContent = pixels[i]; });
       if (syncInput) $('binary-input').value = formatCode(pixels);
-      $('binary-input').setAttribute('aria-invalid','false');
-      feedback('binary-feedback','64 von 64 Bits – Bild aktualisiert.');
-      feedback('pattern-feedback','');
+      $('binary-input').setAttribute('aria-invalid', 'false');
+      feedback('binary-feedback', '64 von 64 Bits – Bild aktualisiert.');
+      feedback('pattern-feedback', '');
     }
+
     $('binary-input').addEventListener('input', event => {
       const result = parseCode(event.target.value);
       if (result.error) {
-        event.target.setAttribute('aria-invalid','true'); feedback('binary-feedback',result.error,true); return;
+        event.target.setAttribute('aria-invalid', 'true'); feedback('binary-feedback', result.error, true); return;
       }
       pixels = result.values; renderPixels(false);
     });
-    document.querySelectorAll('[data-pattern]').forEach(button => button.addEventListener('click', () => { pixels = [...patterns[button.dataset.pattern]]; renderPixels(); }));
-    $('reset-pixels').addEventListener('click', () => { pixels = Array(64).fill(0); renderPixels(); codeSpans.forEach(span => span.classList.remove('active')); });
-    makeMini($('target-pattern')); drawMini($('target-pattern'), targetPattern);
-    $('check-pattern').addEventListener('click', () => {
-      const matches = pixels.filter((value,i) => value === targetPattern[i]).length;
-      feedback('pattern-feedback', matches === 64 ? '✓ Geschafft! Alle 64 Pixel stimmen.' : `${matches} von 64 Pixeln stimmen. Versuche es weiter.`, matches !== 64);
-      if (matches === 64) successTone();
+
+    document.querySelectorAll('[data-pattern]').forEach(button => button.addEventListener('click', () => {
+      pixels = [...patterns[button.dataset.pattern]]; renderPixels();
+    }));
+
+    $('reset-pixels').addEventListener('click', () => {
+      pixels = Array(64).fill(0); renderPixels(); codeSpans.forEach(span => span.classList.remove('active'));
     });
+
+    // Setup Challenge Selector
+    makeMini($('target-pattern'));
+    function updateChallengeTarget() {
+      drawMini($('target-pattern'), challengePatterns[currentChallengeIndex].bits);
+      document.querySelectorAll('.pattern-tab').forEach((tab, idx) => {
+        tab.classList.toggle('active', idx === currentChallengeIndex);
+        tab.classList.toggle('solved', gameState.solvedPatterns.includes(idx));
+      });
+      $('patterns-solved-pill').textContent = `Gelöst: ${gameState.solvedPatterns.length} / ${challengePatterns.length}`;
+    }
+    document.querySelectorAll('.pattern-tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        currentChallengeIndex = Number(btn.dataset.pindex);
+        updateChallengeTarget();
+        feedback('pattern-feedback', '');
+      });
+    });
+
+    $('check-pattern').addEventListener('click', () => {
+      const target = challengePatterns[currentChallengeIndex].bits;
+      const matches = pixels.filter((value, i) => value === target[i]).length;
+      if (matches === 64) {
+        feedback('pattern-feedback', '✓ Geschafft! Alle 64 Pixel stimmen überein.', false);
+        playTone('correct');
+        if (!gameState.solvedPatterns.includes(currentChallengeIndex)) {
+          gameState.solvedPatterns.push(currentChallengeIndex);
+          addXP(30, `Muster "${challengePatterns[currentChallengeIndex].name}"`);
+          updateChallengeTarget();
+          if (gameState.solvedPatterns.length >= 3) unlockBadge('pattern_master');
+          if (gameState.solvedPatterns.length === 5) addXP(50, 'Alle 5 Muster gemeistert!');
+        }
+      } else {
+        feedback('pattern-feedback', `${matches} von 64 Pixeln stimmen. Versuche es weiter.`, true);
+        playTone('wrong');
+      }
+    });
+
+    // Aufgabe: Binär-Detektiv
+    const detectiveCodeRaw = '0001100000111100011111101111111100011000000110000001100000011000';
+    $('btn-load-detective').addEventListener('click', () => {
+      pixels = detectiveCodeRaw.split('').map(Number);
+      renderPixels(true);
+      showToast('Geheimcode in Leinwand geladen!', 'xp');
+    });
+
+    document.querySelectorAll('.detective-opt').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (btn.dataset.answer === 'arrow') {
+          feedback('detective-feedback', '✓ Genial gelöst! Es ist ein Pfeil nach oben.', false);
+          playTone('correct');
+          if (!gameState.completedActions['detective']) {
+            gameState.completedActions['detective'] = true;
+            addXP(30, 'Binär-Detektiv');
+            unlockBadge('binary_detective');
+          }
+        } else {
+          feedback('detective-feedback', 'Das stimmt noch nicht ganz. Klicke auf "In die Leinwand laden", um das Bild genau zu sehen!', true);
+          playTone('wrong');
+        }
+      });
+    });
+
+    // Aufgabe: Speicherplatz K1
+    $('btn-calc-k1').addEventListener('click', () => {
+      const val = parseInt($('calc-k1-input').value, 10);
+      if (val === 40) {
+        feedback('calc-k1-feedback', '✓ Richtig! 5 Bilder × 8 Byte = 40 Byte unkomprimiert.', false);
+        playTone('correct');
+        if (!gameState.completedActions['calc_k1']) {
+          gameState.completedActions['calc_k1'] = true;
+          addXP(25, 'SW-Speicherplatz');
+          checkAllMathDone();
+        }
+      } else {
+        feedback('calc-k1-feedback', 'Noch nicht richtig. Tipp: Ein Bild hat 8 Byte. Wie viel sind 5 × 8?', true);
+        playTone('wrong');
+      }
+    });
+
+    // ==========================================
+    // KAPITEL 2: BUNTE FARBEN, RGB & MISSIONEN
+    // ==========================================
+    let rgb = [0, 0, 0];
+    const channelNames = ['Rot', 'Grün', 'Blau'];
+    
+    // 8 Expanded Missions
+    const missions = [
+      { name: 'Gelb', rgb: [255, 255, 0] },
+      { name: 'Magenta', rgb: [255, 0, 255] },
+      { name: 'Cyan', rgb: [0, 255, 255] },
+      { name: 'Reines Grün', rgb: [0, 255, 0] },
+      { name: 'Orange', rgb: [255, 128, 0] },
+      { name: 'Violett', rgb: [128, 0, 128] },
+      { name: 'Mittelgrau', rgb: [128, 128, 128] },
+      { name: 'Himmelblau', rgb: [0, 128, 255] }
+    ];
+    let mission = 0;
+
     const channelButtons = [];
     channelNames.forEach((name, channel) => {
       const section = document.createElement('div'); section.className = 'channel';
@@ -367,76 +1246,164 @@
       const title = document.createElement('span'); title.className = 'channel-name';
       const dot = document.createElement('i'); dot.className = 'swatch-dot'; dot.style.background = ['#c43f37','#258052','#305bc5'][channel];
       title.append(dot, `${name} (${['R','G','B'][channel]})`);
-      const output = document.createElement('strong'); output.id = `channel-value-${channel}`; head.append(title,output);
-      const row = document.createElement('div'); row.className = 'bit-row'; row.setAttribute('role','group'); row.setAttribute('aria-label', `${name}-Kanal, 8 Bit`);
-      channelButtons[channel] = Array.from({length:8}, (_, i) => {
+      const output = document.createElement('strong'); output.id = `channel-value-${channel}`; head.append(title, output);
+      const row = document.createElement('div'); row.className = 'bit-row'; row.setAttribute('role', 'group'); row.setAttribute('aria-label', `${name}-Kanal, 8 Bit`);
+      channelButtons[channel] = Array.from({ length: 8 }, (_, i) => {
         const weight = 128 >> i;
         const wrap = document.createElement('div'); wrap.className = 'bit-wrap';
         const caption = document.createElement('span'); caption.className = 'weight'; caption.textContent = weight;
-        const button = document.createElement('button'); button.className = 'bit'; button.setAttribute('aria-label',`${name}, Stellenwert ${weight}`);
-        button.addEventListener('click', () => { rgb[channel] ^= weight; renderColor(); });
-        wrap.append(caption,button); row.append(wrap); return button;
+        const button = document.createElement('button'); button.className = 'bit'; button.setAttribute('aria-label', `${name}, Stellenwert ${weight}`);
+        button.addEventListener('click', () => {
+          unlockBadge('first_click');
+          rgb[channel] ^= weight; renderColor();
+        });
+        wrap.append(caption, button); row.append(wrap); return button;
       });
       const sum = document.createElement('p'); sum.id = `channel-sum-${channel}`; sum.className = 'channel-sum';
-      section.append(head,row,sum); $('channels').append(section);
+      section.append(head, row, sum); $('channels').append(section);
     });
+
     function renderColor() {
       $('color-preview').style.backgroundColor = `rgb(${rgb.join(',')})`;
-      $('color-preview').setAttribute('aria-label',`Farbe: Rot ${rgb[0]}, Grün ${rgb[1]}, Blau ${rgb[2]}`);
+      $('color-preview').setAttribute('aria-label', `Farbe: Rot ${rgb[0]}, Grün ${rgb[1]}, Blau ${rgb[2]}`);
       $('rgb-label').textContent = `RGB (${rgb.join(', ')})`;
       rgb.forEach((value, channel) => {
         $(`channel-value-${channel}`).textContent = `${value} / 255`;
         const binary = bits(value);
-        channelButtons[channel].forEach((button, i) => { button.textContent = binary[i]; button.setAttribute('aria-pressed',String(binary[i] === '1')); });
+        channelButtons[channel].forEach((button, i) => { button.textContent = binary[i]; button.setAttribute('aria-pressed', String(binary[i] === '1')); });
         const weights = [...binary].flatMap((bit, i) => bit === '1' ? [128 >> i] : []);
         $(`channel-sum-${channel}`).textContent = `${binary} = ${weights.join(' + ') || '0'} = ${value}`;
       });
-      feedback('color-feedback','');
+      feedback('color-feedback', '');
     }
+
     function renderMission() {
       const target = missions[mission];
       $('target-color').style.backgroundColor = `rgb(${target.rgb.join(',')})`;
       $('target-name').textContent = target.name;
       $('target-values').textContent = target.rgb.map((value, i) => `${channelNames[i]} ${value}`).join(' · ');
-      $('exercise-count').textContent = `${mission + 1} / ${missions.length}`;
-      $('next-color').textContent = mission === 3 ? 'Wieder zu Gelb ↻' : 'Nächste Farbe →';
-      feedback('color-feedback','');
+      $('exercise-count').textContent = `Mission ${mission + 1} / ${missions.length} (${gameState.solvedColors.length} gelöst)`;
+      $('next-color').textContent = mission === missions.length - 1 ? 'Wieder zu Gelb ↻' : 'Nächste Farbe →';
+      feedback('color-feedback', '');
     }
-    document.querySelectorAll('[data-color]').forEach(button => button.addEventListener('click', () => { rgb = button.dataset.color.split(',').map(Number); renderColor(); }));
+
+    document.querySelectorAll('[data-color]').forEach(button => button.addEventListener('click', () => {
+      rgb = button.dataset.color.split(',').map(Number); renderColor();
+    }));
+
     $('check-color').addEventListener('click', () => {
       const target = missions[mission];
       const correct = rgb.every((value, i) => value === target.rgb[i]);
-      feedback('color-feedback', correct ? `✓ Geschafft! Du hast ${target.name} gemischt.` : rgb.map((value, i) => value === target.rgb[i] ? `${channelNames[i]} stimmt.` : `${channelNames[i]} muss ${value < target.rgb[i] ? 'höher' : 'niedriger'}: Ziel ${target.rgb[i]}.`).join(' '), !correct);
-      if (correct) successTone();
+      if (correct) {
+        feedback('color-feedback', `✓ Geschafft! Du hast ${target.name} perfekt gemischt.`, false);
+        playTone('correct');
+        if (!gameState.solvedColors.includes(mission)) {
+          gameState.solvedColors.push(mission);
+          addXP(25, `Farbe "${target.name}"`);
+          renderMission();
+          if (gameState.solvedColors.length >= 5) unlockBadge('color_alchemist');
+        }
+      } else {
+        feedback('color-feedback', rgb.map((value, i) => value === target.rgb[i] ? `${channelNames[i]} stimmt.` : `${channelNames[i]} muss ${value < target.rgb[i] ? 'höher' : 'niedriger'}: Ziel ${target.rgb[i]}.`).join(' '), true);
+        playTone('wrong');
+      }
     });
-    $('next-color').addEventListener('click', () => { mission = (mission + 1) % missions.length; renderMission(); });
-    $('reset-colors').addEventListener('click', () => { rgb = [0,0,0]; mission = 0; renderColor(); renderMission(); });
 
-    const initialFrames = () => Array.from({length:4}, (_, frame) => Array.from({length:64}, (_, i) => i === 3 * 8 + frame + 2 ? 1 : 0));
-    let frames = initialFrames();
+    $('next-color').addEventListener('click', () => {
+      mission = (mission + 1) % missions.length; renderMission();
+    });
+
+    $('reset-colors').addEventListener('click', () => {
+      rgb = [0, 0, 0]; mission = 0; renderColor(); renderMission();
+    });
+
+    // Aufgabe: Stellenwert-Trainer
+    $('btn-check-trainer').addEventListener('click', () => {
+      if (rgb[0] === 168) {
+        feedback('trainer-feedback', '✓ Exakt getroffen! 128 + 32 + 8 = 168. Binär: 10101000.', false);
+        playTone('correct');
+        if (!gameState.completedActions['trainer_168']) {
+          gameState.completedActions['trainer_168'] = true;
+          addXP(30, 'Stellenwert 168');
+          unlockBadge('value_genius');
+        }
+      } else {
+        feedback('trainer-feedback', `Aktueller Rot-Wert ist ${rgb[0]}. Benötigt wird 168 (Tipp: 128 + 32 + 8).`, true);
+        playTone('wrong');
+      }
+    });
+
+    // Aufgabe: Farbbild-Speicherplatz
+    $('btn-calc-k2').addEventListener('click', () => {
+      const val = parseInt($('calc-k2-input').value, 10);
+      if (val === 192) {
+        feedback('calc-k2-feedback', '✓ Richtig! 64 Pixel × 3 Byte = 192 Byte (oder 64 × 24 Bit ÷ 8).', false);
+        playTone('correct');
+        if (!gameState.completedActions['calc_k2']) {
+          gameState.completedActions['calc_k2'] = true;
+          addXP(25, 'RGB-Speicherplatz');
+          checkAllMathDone();
+        }
+      } else {
+        feedback('calc-k2-feedback', 'Noch nicht ganz. Tipp: Jedes Pixel hat 3 Byte (24 Bit). 64 Pixel × 3 = ?', true);
+        playTone('wrong');
+      }
+    });
+
+    // ==========================================
+    // KAPITEL 3: VIDEO, FPS & VORLAGEN
+    // ==========================================
+    const videoTemplates = {
+      dot: () => Array.from({ length: 4 }, (_, frame) => Array.from({ length: 64 }, (_, i) => i === 3 * 8 + frame + 2 ? 1 : 0)),
+      ball: () => [
+        pattern(['00000000','00011000','00011000','00000000','00000000','00000000','00000000','00000000']),
+        pattern(['00000000','00000000','00000000','00011000','00011000','00000000','00000000','00000000']),
+        pattern(['00000000','00000000','00000000','00000000','00000000','00111100','00111100','00000000']),
+        pattern(['00000000','00000000','00011000','00011000','00000000','00000000','00000000','00000000'])
+      ],
+      heart: () => [
+        pattern(['00000000','00000000','00100100','00111100','00011000','00000000','00000000','00000000']),
+        pattern(['00000000','01100110','11111111','11111111','01111110','00111100','00011000','00000000']),
+        pattern(['00000000','00000000','00100100','00111100','00011000','00000000','00000000','00000000']),
+        pattern(['00000000','01100110','11111111','11111111','01111110','00111100','00011000','00000000'])
+      ],
+      bar: () => [
+        pattern(['00000000','00000000','00000000','11000000','11000000','00000000','00000000','00000000']),
+        pattern(['00000000','00000000','00000000','11110000','11110000','00000000','00000000','00000000']),
+        pattern(['00000000','00000000','00000000','11111100','11111100','00000000','00000000','00000000']),
+        pattern(['00000000','00000000','00000000','11111111','11111111','00000000','00000000','00000000'])
+      ]
+    };
+
+    let frames = videoTemplates.dot();
     let selectedFrame = 0;
     let shownFrame = 0;
     let fps = 2;
     let playing = false;
     let animationId = 0;
     let lastTime = 0;
+
     const frameEditor = makeEditor($('frame-editor'), 'Ausgewähltes Einzelbild bearbeiten', () => frames[selectedFrame], i => {
       frames[selectedFrame][i] ^= 1; renderFrames();
     });
+
     const frameButtons = frames.map((_, i) => {
-      const button = document.createElement('button'); button.className = 'frame'; button.setAttribute('aria-label',`Bild ${i + 1} bearbeiten`);
-      const mini = document.createElement('div'); mini.className = 'mini-grid'; mini.setAttribute('aria-hidden','true'); makeMini(mini);
+      const button = document.createElement('button'); button.className = 'frame'; button.setAttribute('aria-label', `Bild ${i + 1} bearbeiten`);
+      const mini = document.createElement('div'); mini.className = 'mini-grid'; mini.setAttribute('aria-hidden', 'true'); makeMini(mini);
       button.append(mini, `Bild ${i + 1}`);
       button.addEventListener('click', () => { selectedFrame = i; shownFrame = i; renderFrames(); });
       $('timeline').append(button); return button;
     });
+
     makeMini($('video-preview'));
+
     function renderPlayback() {
       drawMini($('video-preview'), frames[shownFrame]);
       $('video-preview').setAttribute('aria-label', `Bild ${shownFrame + 1} von 4, ${playing ? 'Wiedergabe läuft' : 'pausiert'}`);
       $('playback-label').textContent = `Bild ${shownFrame + 1} von 4 · ${playing ? 'läuft' : 'pausiert'}`;
       frameButtons.forEach((button, i) => button.classList.toggle('playing', playing && shownFrame === i));
     }
+
     function renderFrames() {
       frameEditor.render(playing);
       $('frame-heading').textContent = `Bild ${selectedFrame + 1} bearbeiten`;
@@ -450,10 +1417,12 @@
       feedback('editor-status', playing ? 'Pause zum Bearbeiten.' : `Bild ${selectedFrame + 1} ist zum Bearbeiten bereit.`);
       renderPlayback();
     }
+
     function pauseVideo() {
       playing = false; cancelAnimationFrame(animationId); lastTime = 0;
       selectedFrame = shownFrame; renderFrames();
     }
+
     function tick(time) {
       if (!playing) return;
       const interval = 1000 / fps;
@@ -465,41 +1434,346 @@
       }
       animationId = requestAnimationFrame(tick);
     }
+
     $('play').addEventListener('click', () => {
       if (playing) { pauseVideo(); return; }
-      playing = true; lastTime = performance.now(); renderFrames(); animationId = requestAnimationFrame(tick);
+      playing = true;
+      if (fps >= 8) unlockBadge('cinema_pioneer');
+      lastTime = performance.now();
+      renderFrames();
+      animationId = requestAnimationFrame(tick);
     });
-    $('step').addEventListener('click', () => { shownFrame = (shownFrame + 1) % 4; selectedFrame = shownFrame; renderFrames(); });
+
+    $('step').addEventListener('click', () => {
+      shownFrame = (shownFrame + 1) % 4; selectedFrame = shownFrame; renderFrames();
+    });
+
     $('copy-frame').addEventListener('click', () => {
       if (selectedFrame === 0 || playing) return;
       frames[selectedFrame] = [...frames[selectedFrame - 1]]; renderFrames();
-      feedback('editor-status',`Bild ${selectedFrame} wurde in Bild ${selectedFrame + 1} kopiert.`);
+      feedback('editor-status', `Bild ${selectedFrame} wurde in Bild ${selectedFrame + 1} kopiert.`);
     });
+
     function renderFPS() {
       const duration = number(4 / fps);
       $('fps-value').textContent = `${fps} FPS`;
-      $('fps').setAttribute('aria-valuetext',`${fps} Bilder pro Sekunde`);
+      $('fps').setAttribute('aria-valuetext', `${fps} Bilder pro Sekunde`);
       $('loop-duration').textContent = `≈ ${duration} Sekunden`;
       $('video-data').textContent = `${fps} × 64 = ${number(secondBits(fps))} Bit / Sekunde`;
       $('video-bytes').textContent = `= ${number(secondBits(fps) / 8)} Byte, wenn jedes Bild vollständig gespeichert wird.`;
-      $('rgb-video-data').textContent = `Mit 24-Bit-RGB bei ${fps} FPS: 8 × 8 × 24 × ${fps} = ${number(secondBits(fps,24))} Bit = ${number(secondBits(fps,24) / 8)} Byte pro Sekunde.`;
+      $('rgb-video-data').textContent = `Mit 24-Bit-RGB bei ${fps} FPS: 8 × 8 × 24 × ${fps} = ${number(secondBits(fps, 24))} Bit = ${number(secondBits(fps, 24) / 8)} Byte pro Sekunde.`;
       $('video-memo').textContent = `Ein Video zeigt Einzelbilder nacheinander. Bei ${fps} FPS ${fps === 1 ? 'wird 1 Bild' : `werden ${fps} Bilder`} pro Sekunde gezeigt. Unsere vier Bilder wiederholen sich nach ungefähr ${duration} Sekunden.`;
     }
-    $('fps').addEventListener('input', event => { fps = Number(event.target.value); lastTime = performance.now(); renderFPS(); });
-    $('reset-video').addEventListener('click', () => {
-      pauseVideo(); frames = initialFrames(); selectedFrame = 0; shownFrame = 0; fps = 2; $('fps').value = 2; renderFrames(); renderFPS();
+
+    $('fps').addEventListener('input', event => {
+      fps = Number(event.target.value);
+      lastTime = performance.now();
+      renderFPS();
+      if (playing && fps >= 8) unlockBadge('cinema_pioneer');
     });
+
+    // Animations-Vorlagen
+    document.querySelectorAll('[data-video-tpl]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        pauseVideo();
+        frames = videoTemplates[btn.dataset.video-tpl] ? videoTemplates[btn.dataset.video-tpl]() : videoTemplates[btn.getAttribute('data-video-tpl')]();
+        selectedFrame = 0; shownFrame = 0;
+        renderFrames();
+        showToast(`Vorlage "${btn.textContent.trim()}" geladen!`, 'xp');
+      });
+    });
+
+    // Eigene Animation bewerten
+    $('btn-check-custom-animation').addEventListener('click', () => {
+      // Prüfe, ob mindestens 2 Frames unterschiedlich und nicht leer sind
+      const totalPixels = frames.map(f => f.reduce((a, b) => a + b, 0));
+      const hasContent = totalPixels.some(p => p > 0);
+      const isDifferent = frames.some((f, i) => i > 0 && JSON.stringify(f) !== JSON.stringify(frames[0]));
+      
+      if (hasContent && isDifferent) {
+        feedback('custom-anim-feedback', '✓ Großartig! Du hast eigene, abwechslungsreiche Frames gezeichnet.', false);
+        playTone('correct');
+        if (!gameState.completedActions['custom_anim']) {
+          gameState.completedActions['custom_anim'] = true;
+          addXP(30, 'Eigene Animation');
+        }
+      } else {
+        feedback('custom-anim-feedback', 'Zeichne etwas mehr Veränderung in Bild 2, 3 oder 4, um eine echte Bewegung zu erzeugen!', true);
+        playTone('wrong');
+      }
+    });
+
+    // Timing Challenge
+    $('btn-check-timing').addEventListener('click', () => {
+      if (fps === 4) {
+        feedback('timing-feedback', '✓ Perfekt getroffen! 4 Bilder ÷ 4 FPS = exakt 1,00 Sekunde Dauer.', false);
+        playTone('correct');
+        if (!gameState.completedActions['timing_challenge']) {
+          gameState.completedActions['timing_challenge'] = true;
+          addXP(30, 'Timing-Challenge');
+          unlockBadge('timing_pro');
+        }
+      } else {
+        feedback('timing-feedback', `Aktuell bei ${fps} FPS dauert der Durchlauf ${(4 / fps).toFixed(2)} Sekunden. Ziel ist genau 1,00 Sekunde!`, true);
+        playTone('wrong');
+      }
+    });
+
+    // Aufgabe: Video-Datenmenge
+    $('btn-calc-k3').addEventListener('click', () => {
+      const val = parseInt($('calc-k3-input').value, 10);
+      if (val === 400) {
+        feedback('calc-k3-feedback', '✓ Richtig! 10 Bilder/s × 5 s = 50 Bilder. 50 × 8 Byte = 400 Byte.', false);
+        playTone('correct');
+        if (!gameState.completedActions['calc_k3']) {
+          gameState.completedActions['calc_k3'] = true;
+          addXP(25, 'Video-Datenstrom');
+          checkAllMathDone();
+        }
+      } else {
+        feedback('calc-k3-feedback', 'Noch nicht ganz. 10 Bilder pro Sekunde × 5 Sekunden = 50 Bilder. Jedes hat 8 Byte.', true);
+        playTone('wrong');
+      }
+    });
+
+    function checkAllMathDone() {
+      if (gameState.completedActions['calc_k1'] && gameState.completedActions['calc_k2'] && gameState.completedActions['calc_k3']) {
+        unlockBadge('math_wizard');
+      }
+    }
+
+    $('reset-video').addEventListener('click', () => {
+      pauseVideo(); frames = videoTemplates.dot(); selectedFrame = 0; shownFrame = 0; fps = 2; $('fps').value = 2; renderFrames(); renderFPS();
+    });
+
     document.addEventListener('visibilitychange', () => { if (document.hidden && playing) pauseVideo(); });
-    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
     function updateMotion() { $('reduced-motion').hidden = !reducedMotion.matches; if (reducedMotion.matches && playing) pauseVideo(); }
     reducedMotion.addEventListener('change', updateMotion); updateMotion();
+
+    // ==========================================
+    // QUIZ SYSTEM FOR CHAPTERS 1, 2, 3
+    // ==========================================
+    const QUIZ_DATA = {
+      k1: {
+        title: 'Schwarz-Weiß-Pixel & Bits',
+        pillId: 'quiz-k1-pill',
+        bodyId: 'quiz-k1-body',
+        questions: [
+          {
+            q: 'Was bedeutet das Wort „Pixel“ in der Informatik?',
+            options: ['Programm-Index', 'Bildpunkt (aus „Picture Element“)', 'Prozessorgeschwindigkeit', 'Buntes Lichtkabel'],
+            correct: 1,
+            exp: 'Pixel setzt sich aus „Picture“ (Bild) und „Element“ (Teil/Punkt) zusammen – es bedeutet Bildpunkt.'
+          },
+          {
+            q: 'Warum steht in unserer Werkstatt 0 für Schwarz und 1 für Weiß?',
+            options: ['Weil 0 physikalisch immer dunkel bedeutet', 'Weil es eine vereinbarte Festlegung (Codierung) ist', 'Weil 1 immer Stromausfall bedeutet', 'Weil Computer keine anderen Farben kennen'],
+            correct: 1,
+            exp: 'Die Bedeutung der Bits wird durch eine vereinbarte Codierung bestimmt. Man hätte es auch umgekehrt festlegen können!'
+          },
+          {
+            q: 'Wie viele Bytes reine Bilddaten benötigt ein 8×8-Raster mit 1 Bit Farbtiefe?',
+            options: ['64 Byte', '16 Byte', '8 Byte', '1 Byte'],
+            correct: 2,
+            exp: '8 × 8 Pixel = 64 Bit. Da 1 Byte aus 8 Bit besteht: 64 ÷ 8 = 8 Byte.'
+          },
+          {
+            q: 'Wenn du genau ein einzelnes Pixel im Raster anklickst und umschaltest – wie viele Bits ändern sich im Binärcode?',
+            options: ['Genau 1 Bit', 'Die ganze Zeile (8 Bits)', 'Alle 64 Bits', 'Gar keines'],
+            correct: 0,
+            exp: 'Jedes Pixel wird durch genau ein Bit repräsentiert. Ändert sich ein Pixel, schaltet exakt dieses eine Bit um.'
+          }
+        ]
+      },
+      k2: {
+        title: 'Bunte Farben & RGB',
+        pillId: 'quiz-k2-pill',
+        bodyId: 'quiz-k2-body',
+        questions: [
+          {
+            q: 'Wofür steht die Abkürzung RGB?',
+            options: ['Raster, Grafik, Bild', 'Rot, Grün, Blau', 'Rechner, Grafikkarte, Bildschirm', 'Reine Grund-Bits'],
+            correct: 1,
+            exp: 'RGB steht für die drei Licht-Grundfarben: Rot, Grün und Blau.'
+          },
+          {
+            q: 'Was entsteht beim additiven Mischen von rotem und grünem Licht mit maximaler Intensität (255, 255, 0)?',
+            options: ['Braun (wie bei Wasserfarben)', 'Gelb', 'Schwarz', 'Weiß'],
+            correct: 1,
+            exp: 'Auf Bildschirmen mischen wir Licht: Rotes Licht + grünes Licht ergeben zusammen Gelb!'
+          },
+          {
+            q: 'Wie viele Bits werden für ein „True Color“-Farbpixel (24 Bit RGB) insgesamt verwendet?',
+            options: ['8 Bit', '16 Bit', '24 Bit (3 Kanäle × 8 Bit)', '256 Bit'],
+            correct: 2,
+            exp: 'True Color nutzt 3 Kanäle (Rot, Grün, Blau) mit je 8 Bit (1 Byte). 3 × 8 = 24 Bit pro Pixel.'
+          },
+          {
+            q: 'Ein Farbkanal hat 8 Bit (Werte von 0 bis 255). Wie viele verschiedene Helligkeitsstufen sind das für diesen Kanal?',
+            options: ['8 Stufen', '128 Stufen', '255 Stufen', '256 Stufen (die 0 zählt mit!)'],
+            correct: 3,
+            exp: 'Mit 8 Bit gibt es 2^8 = 256 mögliche Kombinationen. Da die 0 mitzählt, reicht der Bereich von 0 bis 255.'
+          }
+        ]
+      },
+      k3: {
+        title: 'Video-Daumenkino & Bildrate',
+        pillId: 'quiz-k3-pill',
+        bodyId: 'quiz-k3-body',
+        questions: [
+          {
+            q: 'Was versteht man in der Informatik unter einem „Frame“ bei Videos?',
+            options: ['Den Plastikrahmen des Bildschirms', 'Ein einzelnes Bild in einer Bildfolge', 'Ein Verbindungskabel', 'Eine spezielle Festplatte für Filme'],
+            correct: 1,
+            exp: 'Ein Frame ist ein einzelnes Standbild innerhalb einer bewegten Bildfolge (Video).'
+          },
+          {
+            q: 'Wofür steht die Abkürzung „FPS“ bei Videos?',
+            options: ['Farbpixel pro Sekunde', 'Frames per Second (Bilder pro Sekunde)', 'File Processing Speed', 'Festplatten-Puffer-Speicher'],
+            correct: 1,
+            exp: 'FPS = Frames per Second. Es gibt an, wie viele Einzelbilder in einer Sekunde gezeigt werden.'
+          },
+          {
+            q: 'Was passiert, wenn man dieselben 4 Einzelbilder mit 24 FPS statt mit 2 FPS abspielt?',
+            options: ['Die Bewegung wird automatisch detailreicher', 'Die 4 Bilder laufen schneller ab und wiederholen sich öfter', 'Der Speicherplatz der 4 Bilder auf der Festplatte verzwölffacht sich', 'Die Farben verblassen'],
+            correct: 1,
+            exp: 'Höhere FPS spielt vorhandene Bilder schneller ab. Für flüssigere Bewegung benötigt man zusätzliche unterschiedliche Zwischenbilder!'
+          },
+          {
+            q: 'Wie viel Speicherplatz belegen unsere 4 gespeicherten 8×8-Schwarz-Weiß-Bilder im Ruhezustand auf der Festplatte?',
+            options: ['Immer genau 32 Byte (4 × 8 Byte), unabhängig von der FPS', '24 Byte bei 24 FPS', '1 Megabyte', 'Das hängt von der Lautstärke ab'],
+            correct: 0,
+            exp: 'Das Abspielen erzeugt keine neuen gespeicherten Bilder. Die 4 gezeichneten Bilder bleiben unverändert 32 Byte groß.'
+          }
+        ]
+      }
+    };
+
+    function renderQuiz(quizKey) {
+      const qData = QUIZ_DATA[quizKey];
+      const container = $(qData.bodyId);
+      container.innerHTML = '';
+      
+      const userAnswers = qData.questions.map(() => null);
+      let answeredCount = 0;
+      let score = 0;
+
+      function updateQuizHeader() {
+        $(qData.pillId).textContent = `Fortschritt: ${answeredCount} / ${qData.questions.length}`;
+      }
+
+      qData.questions.forEach((qObj, qIdx) => {
+        const card = document.createElement('div');
+        card.className = 'quiz-card';
+        card.id = `${quizKey}-q-${qIdx}`;
+
+        const qNum = document.createElement('div');
+        qNum.className = 'quiz-q-num';
+        qNum.textContent = `Frage ${qIdx + 1} von ${qData.questions.length}`;
+
+        const qText = document.createElement('div');
+        qText.className = 'quiz-q-text';
+        qText.textContent = qObj.q;
+
+        const opts = document.createElement('div');
+        opts.className = 'quiz-opts';
+
+        const optButtons = qObj.options.map((optText, oIdx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'quiz-opt-btn';
+          btn.innerHTML = `<span><b>${String.fromCharCode(65 + oIdx)})</b></span> <span>${optText}</span>`;
+          
+          btn.addEventListener('click', () => {
+            if (userAnswers[qIdx] !== null) return;
+            userAnswers[qIdx] = oIdx;
+            answeredCount++;
+            updateQuizHeader();
+
+            optButtons.forEach((b, i) => {
+              b.disabled = true;
+              if (i === qObj.correct) b.classList.add('correct');
+              else if (i === oIdx) b.classList.add('wrong');
+            });
+
+            const isCorrect = oIdx === qObj.correct;
+            if (isCorrect) {
+              score++;
+              playTone('correct');
+              addXP(20, `Frage ${qIdx + 1} richtig`);
+            } else {
+              playTone('wrong');
+            }
+
+            const exp = document.createElement('div');
+            exp.className = `quiz-explanation ${isCorrect ? 'correct' : 'wrong'}`;
+            exp.innerHTML = `<strong>${isCorrect ? '✓ Richtig!' : '✗ Leider falsch.'}</strong> ${qObj.exp}`;
+            card.append(exp);
+
+            if (answeredCount === qData.questions.length) {
+              showQuizResult(quizKey, score, qData.questions.length);
+            }
+          });
+
+          opts.append(btn);
+          return btn;
+        });
+
+        card.append(qNum, qText, opts);
+        container.append(card);
+      });
+
+      updateQuizHeader();
+    }
+
+    function showQuizResult(quizKey, score, total) {
+      const qData = QUIZ_DATA[quizKey];
+      const container = $(qData.bodyId);
+      const isPerfect = score === total;
+      
+      if (isPerfect) {
+        triggerConfetti();
+        playTone('levelup');
+        addXP(30, `Quiz ${qData.title} perfekt gemeistert!`);
+      }
+
+      gameState.quizzes[quizKey] = { completed: true, score: score };
+      saveGameState();
+
+      // Prüfe, ob alle 3 Quizzes bestanden wurden (jeweils mindestens 3/4)
+      if (gameState.quizzes.k1.completed && gameState.quizzes.k2.completed && gameState.quizzes.k3.completed &&
+          gameState.quizzes.k1.score >= 3 && gameState.quizzes.k2.score >= 3 && gameState.quizzes.k3.score >= 3) {
+        unlockBadge('quiz_diploma');
+      }
+
+      const resCard = document.createElement('div');
+      resCard.className = 'quiz-result-card';
+      const stars = '⭐'.repeat(score) + '☆'.repeat(total - score);
+      resCard.innerHTML = `
+        <div class="quiz-stars">${stars}</div>
+        <h4 class="quiz-result-title">${score} von ${total} Fragen richtig!</h4>
+        <p class="quiz-result-desc">${isPerfect ? 'Hervorragend! Du hast alle Fragen dieses Kapitels fehlerfrei beantwortet!' : 'Gute Leistung! Wiederhole das Quiz gerne, um die volle Punktzahl zu erreichen.'}</p>
+        <button class="primary" style="margin-top:16px;" id="${quizKey}-retry-btn">Quiz wiederholen ↺</button>
+      `;
+      container.append(resCard);
+      $(`${quizKey}-retry-btn`).addEventListener('click', () => renderQuiz(quizKey));
+    }
+
+    // ==========================================
+    // TABS & NAVIGATION
+    // ==========================================
     const tabs = [...document.querySelectorAll('[role="tab"]')];
     function selectTab(index) {
       const scrolledPastIntro = document.querySelector('.hero').getBoundingClientRect().bottom < 0;
       if (playing) pauseVideo();
-      tabs.forEach((tab, i) => { tab.setAttribute('aria-selected', String(i === index)); tab.tabIndex = i === index ? 0 : -1; $(tab.getAttribute('aria-controls')).hidden = i !== index; });
-      if (scrolledPastIntro) $(tabs[index].getAttribute('aria-controls')).querySelector('.section-head').scrollIntoView({block:'start'});
+      tabs.forEach((tab, i) => {
+        tab.setAttribute('aria-selected', String(i === index));
+        tab.tabIndex = i === index ? 0 : -1;
+        $(tab.getAttribute('aria-controls')).hidden = i !== index;
+      });
+      if (scrolledPastIntro) $(tabs[index].getAttribute('aria-controls')).querySelector('.section-head').scrollIntoView({ block: 'start' });
     }
+
     tabs.forEach((tab, i) => {
       tab.addEventListener('click', () => selectTab(i));
       tab.addEventListener('keydown', event => {
@@ -512,9 +1786,22 @@
         event.preventDefault(); selectTab(next); tabs[next].focus();
       });
     });
-    renderPixels(); renderColor(); renderMission(); renderFrames(); renderFPS();
 
-    // Ausführbarer Check: Datei mit ?selftest=1 öffnen oder runSelfChecks() in der Konsole aufrufen.
+    // Initial Renders
+    renderPixels();
+    updateChallengeTarget();
+    renderColor();
+    renderMission();
+    renderFrames();
+    renderFPS();
+    updateHUD();
+    renderQuiz('k1');
+    renderQuiz('k2');
+    renderQuiz('k3');
+
+    // ==========================================
+    // SELBSTTESTS (AUTOMATISCHE PRÜFUNG)
+    // ==========================================
     function runSelfChecks() {
       const check = (condition, name) => { if (!condition) throw new Error(`Selbsttest fehlgeschlagen: ${name}`); };
       const sample = Array(64).fill(0); sample[0] = 1; sample[15] = 1; sample[63] = 1;
@@ -524,10 +1811,16 @@
       check(Boolean(parseCode('x' + '0'.repeat(63)).error), 'Ungültige Zeichen');
       check(bits(128) === '10000000' && bits(255) === '11111111', 'RGB-Stellenwerte');
       check(imageBits() === 64 && imageBits(24) === 1536, 'Bilddaten');
-      check(secondBits(24) === 1536 && secondBits(24,24) === 36864 && imageBits() * 4 === 256, 'Videodaten');
-      check(initialFrames().every(frame => frame.length === 64 && frame.filter(Boolean).length === 1), 'Startframes');
-      return '8 Selbsttests bestanden: Code, Stellenwerte, Datenmengen und Frames.';
+      check(secondBits(24) === 1536 && secondBits(24, 24) === 36864 && imageBits() * 4 === 256, 'Videodaten');
+      check(videoTemplates.dot().every(frame => frame.length === 64 && frame.filter(Boolean).length === 1), 'Startframes');
+      check(challengePatterns.length === 5, '5 Zielmuster');
+      check(missions.length === 8, '8 Farb-Missionen');
+      check(BADGES.length === 9, '9 Badges');
+      check(Object.keys(QUIZ_DATA).length === 3, '3 Kapitel-Quizzes');
+      return '12 Selbsttests bestanden: Code, Stellenwerte, Datenmengen, Frames, Quizzes und Gamification.';
     }
+    window.runSelfChecks = runSelfChecks;
+
     if (new URLSearchParams(location.search).has('selftest')) {
       const result = document.createElement('p'); result.className = 'instruction'; result.textContent = runSelfChecks(); $('main').prepend(result);
     }

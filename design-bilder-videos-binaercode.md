@@ -4,7 +4,7 @@
 
 **Format:** Interaktives Lernspiel als einzelne HTML5-Datei mit integriertem CSS und Vanilla JavaScript
 
-**Status:** Fachliche, didaktische und technische Spezifikation; noch keine Implementierung
+**Status:** Vollständig implementiert; inklusive erweiterter Aufgaben, interaktiver Kapitel-Quizzes und motivierendem Gamification-System (XP, Level, Abzeichen, Sound, Konfetti)
 
 ## 1. Lernidee und Lernziele
 
@@ -180,3 +180,38 @@ Die Datenanzeigen verwenden ausschließlich unkomprimierte Schwarz-Weiß-Bilddat
 - Alle Aufgaben ohne Ton und ohne alleinigen Farbvergleich lösbar; Bedienung per Tastatur und Touch prüfen. Fokus, Beschriftungen und Fehlermeldungen auch mit Screenreader stichprobenartig prüfen.
 - Layout auf schmalem Tablet/Display sowie großem Whiteboard prüfen; keine überdeckten Steuerelemente oder abgeschnittenen Lerntexte.
 - Bei der späteren Implementierung mindestens einen kleinen ausführbaren Check ohne Testframework für Bit-Reihenfolge, RGB-Stellenwerte und Datenmengenformeln hinterlassen.
+- Alle 12 Selbsttests (Code-Rundlauf, Stellenwerte, Datenmengen, Startframes, Muster, Quizzes und Gamification-Konsistenz) bestehen automatisiert ohne Fehler.
+
+## 9. Gamification- & Aufgaben-Erweiterung (Implementierung)
+
+### 9.1 Gamification-Architektur
+- **XP-System (Erfahrungspunkte):** Punkte für alle gelösten Aufgaben, Quizzes und Aktionen (Muster lösen: +30 XP, Farb-Mission: +25 XP, Quiz-Frage: +20 XP, Quiz-Bonus: +30 XP, etc.).
+- **6 Stufen / Ränge:**
+  1. *Pixel-Neuling* (0–99 XP, 🌱)
+  2. *Bit-Forscher* (100–249 XP, 🔍)
+  3. *RGB-Künstler* (250–449 XP, 🎨)
+  4. *Frame-Animator* (450–699 XP, 🎬)
+  5. *Daumenkino-Regisseur* (700–999 XP, 🚀)
+  6. *Informatik-Großmeister* (1.000+ XP, 👑)
+- **9 freischaltbare Abzeichen (Badges):**
+  - 🖌️ *Erster Klick:* Erstes Pixel/Bit geändert
+  - 🧩 *Muster-Meister:* Mindestens 3 Pixel-Challenges gelöst
+  - 🕵️ *Binär-Detektiv:* Geheimen Binärcode entschlüsselt
+  - 🌈 *Farb-Alchemist:* Mindestens 5 Zielfarben gemischt
+  - 💡 *Stellenwert-Genie:* Exakten Kanal-Zielwert (168) eingestellt
+  - 🎬 *Kino-Pionier:* Daumenkino mit 8+ FPS abgespielt
+  - ⏱️ *Timing-Profi:* Exakte Bildrate für 1,00s Durchlaufdauer ermittelt
+  - 🧮 *Daten-Mathematiker:* Alle 3 Speicher-Rechenaufgaben gelöst
+  - 🏆 *Informatik-Diplom:* Alle 3 Kapitel-Quizzes erfolgreich bestanden
+- **Interaktives Trophäen-Fenster:** Übersicht aller Abzeichen mit Status und Option zum Neustart.
+- **Audio & Effekte:** Synthetisierte Web Audio Töne (Level-Up, Richtig, Falsch, Abzeichen-Triller), Canvas-Konfetti bei Erfolgen, schwebende Toast-Benachrichtigungen.
+
+### 9.2 Aufgaben-Erweiterungen pro Kapitel
+- **Kapitel 1:** 5 wählbare Pixel-Challenges (Plus, Schach, Invader, Herz, Diamant), Detektiv-Aufgabe (Pfeil nach oben), Speicherplatz-Rechner für 5 SW-Bilder.
+- **Kapitel 2:** 8 Farb-Missionen mit progressiver Schwierigkeit, Stellenwert-Trainer für Kanalwerte (Ziel: 168 = 128 + 32 + 8), Farbbild-Speicherrechner (64 × 3 = 192 Byte).
+- **Kapitel 3:** 4 Animations-Vorlagen (Punkt, Hüpfball, Herzschlag, Ladebalken), Eigene Animations-Bewertung, FPS Timing-Labor (Ziel: 4 FPS für 1,00 s), Video-Datenstrom-Rechner (10 FPS × 5 s × 8 Byte = 400 Byte).
+
+### 9.3 Kapitel-Quizzes
+- Jedes Kapitel schließt mit einem didaktisch aufbereiteten 4-Fragen-Multiple-Choice-Quiz ab.
+- Sofortiges Feedback mit verständlicher Erklärung bei jeder Antwort.
+- Punkte-, Sterne- (⭐⭐⭐⭐) und XP-Auswertung sowie Option zur Wiederholung.
