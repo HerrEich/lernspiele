@@ -1,0 +1,1039 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Licht-Detektive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Grandstander:wght@600;800&display=swap">
+<style>
+/* Layout: comic-panel game — stage panel left, Lumi + task list right; stacks on phones. Single bright "comic" look by choice. */
+:root{
+  --ink:#1b2a4a;
+  --sky:#cfe8fb;
+  --paper:#ffffff;
+  --sun:#ffc93c;
+  --sun-soft:#fff1c2;
+  --sun-deep:#e8890c;
+  --coral:#ff6b5b;
+  --coral-soft:#ffe1dc;
+  --leaf:#2f9e5e;
+  --leaf-soft:#d6f5e0;
+  --violet:#6e58c4;
+  --muted:#4f5f80;
+  --line:#a9c3df;
+  --display:'Grandstander','Comic Sans MS','Trebuchet MS',system-ui,sans-serif;
+  --body:'Atkinson Hyperlegible','Segoe UI',system-ui,-apple-system,sans-serif;
+  color-scheme:light;
+}
+html,body{height:100%}
+body{
+  margin:0;
+  background-color:var(--sky);
+  background-image:radial-gradient(circle,rgba(27,42,74,.09) 1.2px,transparent 1.7px);
+  background-size:14px 14px;
+  color:var(--ink);
+  font:17px/1.5 var(--body);
+  -webkit-tap-highlight-color:transparent;
+}
+*{box-sizing:border-box}
+button{font:inherit;color:inherit}
+:focus-visible{outline:4px solid var(--violet);outline-offset:3px}
+h1,h2,h3{font-family:var(--display);font-weight:800;line-height:1.1;text-wrap:balance;margin:0}
+p{margin:0}
+.app{max-width:1220px;margin:0 auto;padding:12px 16px 32px;display:flex;flex-direction:column;gap:18px}
+
+/* header */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:8px;background:none;border:0;padding:0;cursor:pointer;font-family:var(--display);font-weight:800;font-size:1.35rem}
+.brand svg{width:40px;height:50px}
+.hdr-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.profile{display:flex;align-items:center;gap:8px;background:var(--paper);border:3px solid var(--ink);border-radius:999px;padding:4px 6px 4px 14px;box-shadow:3px 3px 0 var(--ink)}
+.profile-label{font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.slots{display:flex;gap:4px}
+.slot{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;border:2px dashed var(--line);font-size:1.05rem;color:var(--line);font-family:var(--display);font-weight:800}
+.slot.on{border:2px solid var(--ink);background:var(--sun);color:var(--ink)}
+.icon-btn{display:flex;align-items:center;gap:6px;background:var(--paper);border:3px solid var(--ink);border-radius:999px;padding:6px 14px;min-height:44px;box-shadow:3px 3px 0 var(--ink);cursor:pointer;font-weight:700}
+.icon-btn svg{width:20px;height:20px}
+
+/* shared */
+.panel{background:var(--paper);border:3px solid var(--ink);border-radius:18px;box-shadow:6px 6px 0 var(--ink)}
+.kicker{font-size:.8rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.btn{font-family:var(--display);font-weight:800;font-size:1.1rem;background:var(--sun);color:var(--ink);border:3px solid var(--ink);border-radius:14px;padding:10px 20px;min-height:50px;box-shadow:4px 4px 0 var(--ink);cursor:pointer;transition:transform .08s,box-shadow .08s}
+.btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--ink)}
+.btn.ghost{background:var(--paper)}
+.btn.small{font-size:.95rem;padding:6px 14px;min-height:44px}
+.btn.big{font-size:1.4rem;padding:14px 30px}
+.linkish{background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;font-size:.9rem;padding:8px}
+.bubble{background:var(--paper);border:3px solid var(--ink);border-radius:18px;padding:12px 16px;position:relative;box-shadow:4px 4px 0 var(--ink)}
+.bubble b{background:var(--sun-soft);padding:0 3px;border-radius:4px}
+
+/* start */
+.hero{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:28px;padding:28px;align-items:center}
+.hero h1{font-size:clamp(2.6rem,6vw,4.6rem);letter-spacing:-.01em;color:var(--ink)}
+.hero h1 span{color:var(--sun-deep)}
+.sub{font-family:var(--display);font-weight:600;font-size:clamp(1.2rem,2.4vw,1.6rem);margin-top:4px}
+.hero-text{display:flex;flex-direction:column;gap:16px;min-width:0}
+.intro{display:flex;flex-direction:column;gap:12px}
+.say-row{display:grid;grid-template-columns:60px minmax(0,1fr);gap:12px;align-items:center}
+.say-row svg{width:60px;height:72px}
+.hero-art{min-width:0}
+.hero-art svg{width:100%;height:auto;display:block;border-radius:16px;border:3px solid var(--ink)}
+.hero .btn{align-self:flex-start}
+
+/* map */
+.map-head{display:flex;flex-direction:column;gap:4px}
+.map-head h2{font-size:clamp(1.8rem,4vw,2.4rem)}
+.cases{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px}
+.case{display:flex;flex-direction:column;gap:8px;text-align:left;padding:18px;cursor:pointer;position:relative;transition:transform .12s}
+.case:hover:not(.locked){transform:translate(-2px,-2px)}
+.case h3{font-size:1.3rem}
+.case p{color:var(--muted);font-size:.95rem;flex:1}
+.case-top{display:flex;justify-content:space-between;align-items:center}
+.case-no{font-family:var(--display);font-weight:800;font-size:.95rem;background:var(--ink);color:var(--paper);padding:2px 10px;border-radius:999px}
+.case-badge{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font-size:1.6rem;border:3px dashed var(--line);color:var(--line);font-family:var(--display);font-weight:800}
+.case.done .case-badge{border:3px solid var(--ink);background:var(--sun);color:var(--ink)}
+.chip{align-self:flex-start;font-weight:700;font-size:.85rem;padding:3px 12px;border-radius:999px;border:2px solid var(--ink);background:var(--sun-soft)}
+.case.done .chip{background:var(--leaf-soft)}
+.case.locked{opacity:.6;cursor:not-allowed;box-shadow:3px 3px 0 var(--ink)}
+.case.locked .chip{background:#eef2f7}
+.map-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+
+/* level */
+.lvl-head{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.lvl-head h2{font-size:clamp(1.5rem,3.4vw,2.1rem)}
+.level{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:20px;align-items:start}
+.main-col{display:flex;flex-direction:column;gap:12px;min-width:0}
+.stage{aspect-ratio:8/5;width:100%;max-width:100%;position:relative;overflow:hidden;border:3px solid var(--ink);border-radius:18px;box-shadow:6px 6px 0 var(--ink);background:#0d1626;touch-action:none;user-select:none;-webkit-user-select:none}
+.stage > svg,.stage canvas{display:block;width:100%;height:100%}
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.actions:empty{display:none}
+.actions .q{font-weight:700;width:100%}
+.side{display:flex;flex-direction:column;gap:16px;min-width:0}
+.talk{display:grid;grid-template-columns:70px minmax(0,1fr);gap:10px;align-items:start}
+.talk svg{width:70px;height:88px}
+.talk .bubble{min-height:88px}
+.talk .bubble::before{content:"";position:absolute;left:-14px;top:26px;border:8px solid transparent;border-right:12px solid var(--ink)}
+.bubble.pop{animation:pop .35s ease}
+@keyframes pop{0%{transform:scale(.97)}60%{transform:scale(1.02)}100%{transform:scale(1)}}
+.steps-panel{padding:14px 16px}
+.steps-panel h3{font-size:1.1rem;margin-bottom:8px}
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.steps li{display:grid;grid-template-columns:26px minmax(0,1fr);gap:8px;align-items:start;color:var(--muted);font-size:.95rem}
+.steps .tick{width:24px;height:24px;border-radius:50%;border:2px solid var(--line);margin-top:1px;display:grid;place-items:center;font-size:.8rem;font-weight:700}
+.steps li.now{color:var(--ink);font-weight:700}
+.steps li.now .tick{border-color:var(--ink);background:var(--sun)}
+.steps li.done{color:var(--leaf)}
+.steps li.done .tick{border-color:var(--leaf);background:var(--leaf);color:var(--paper)}
+.steps li.done .tick::after{content:"✓"}
+
+/* level 1 overlays */
+.l1{position:relative;width:100%;height:100%}
+.puff{position:absolute;left:3%;bottom:3%;width:12%;aspect-ratio:100/140;max-width:100%;background:none;border:0;padding:0;cursor:pointer;border-radius:12px}
+.puff svg{width:100%;height:100%;display:block;overflow:visible}
+.puff.blow{animation:blow .5s ease}
+.puff.hint::after{content:"";position:absolute;left:-12%;top:-8%;width:124%;height:72%;border-radius:50%;border:3px dashed var(--sun);animation:pulse 1.4s ease-in-out infinite}
+@keyframes blow{0%{transform:rotate(0)}30%{transform:rotate(-8deg) scale(1.05)}100%{transform:rotate(0)}}
+@keyframes pulse{0%,100%{opacity:.3;transform:scale(.94)}50%{opacity:1;transform:scale(1.04)}}
+.l1-lumi{position:absolute;right:3%;bottom:3%;width:14%;pointer-events:none}
+
+/* svg scenes */
+.svg-label{font-family:var(--display);font-weight:700;font-size:18px}
+.note{font-family:var(--display);font-weight:700;font-size:17px;fill:var(--muted)}
+.tube{cursor:grab}
+.tube.anim{transition:transform .35s cubic-bezier(.3,1.4,.6,1)}
+.t-hit{stroke:transparent;stroke-width:64;fill:none}
+.t-out{stroke:#8da3bf;stroke-width:30;fill:none;stroke-linejoin:round}
+.t-in{stroke:#1e2740;stroke-width:17;fill:none;stroke-linejoin:round}
+.t-edge{stroke:#1b2a4a;stroke-width:34;fill:none;stroke-linejoin:round}
+.ray-draw{stroke-dasharray:900;stroke-dashoffset:900;animation:draw .9s ease forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.pulse-ring{fill:none;stroke:var(--sun-deep);stroke-width:3;stroke-dasharray:6 5;animation:pulse 1.4s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.bray{stroke:#e8890c;stroke-width:3;stroke-linecap:round}
+.bray.mid-flash{stroke:#9fb6cf}
+.bray.marked{stroke:var(--coral);stroke-width:6}
+.ray4{stroke:#ffd65a;stroke-width:4;stroke-linecap:round}
+.ob{cursor:pointer}
+.ob-glow{fill:#ffd65a;opacity:0;transition:opacity .3s}
+.ob.lit .ob-glow{opacity:.35}
+.ob-face{fill:#f4c9a0;stroke:#1b2a4a;stroke-width:4;transition:fill .3s}
+.ob.lit .ob-face{fill:#ffe27a}
+.ob.dark .ob-face{fill:#56617f}
+.ob-eye{fill:#1b2a4a}
+.ob-mouth{fill:none;stroke:#1b2a4a;stroke-width:3;stroke-linecap:round}
+.ob-mark{fill:none;stroke:var(--sun);stroke-width:5;stroke-dasharray:9 6;opacity:0}
+.ob.marked .ob-mark{opacity:1}
+.ob-letter{font-family:var(--display);font-weight:800;font-size:17px;fill:#1b2a4a}
+.ob-state{font-family:var(--body);font-weight:700;font-size:14px}
+
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(27,42,74,.6);display:grid;place-items:center;padding:16px;z-index:20;overflow-y:auto}
+.modal-card{width:100%;max-width:580px;padding:22px;display:flex;flex-direction:column;gap:14px;animation:pop .3s ease}
+.m-head{display:grid;grid-template-columns:70px minmax(0,1fr);gap:14px;align-items:center}
+.m-head svg{width:70px;height:82px}
+.m-head h3{font-size:1.35rem}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{text-align:left;background:var(--paper);border:3px solid var(--ink);border-radius:14px;padding:12px 16px;min-height:54px;cursor:pointer;font-size:1.02rem;box-shadow:3px 3px 0 var(--ink)}
+.opt:hover:not(:disabled){background:var(--sun-soft)}
+.opt.right{background:var(--leaf-soft);border-color:var(--leaf)}
+.opt.wrong{background:var(--coral-soft);animation:shake .35s}
+.opt:disabled{cursor:default}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.feedback:empty{display:none}
+.feedback{padding:10px 14px;border-radius:12px;border:2px solid var(--ink)}
+.feedback.good{background:var(--leaf-soft)}
+.feedback.bad{background:var(--coral-soft)}
+.m-foot{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.m-foot:empty{display:none}
+.medal-wrap{display:grid;place-items:center;padding:10px 0}
+.medal{width:130px;height:130px;border-radius:50%;display:grid;place-items:center;font-size:3.6rem;background:var(--sun);border:4px solid var(--ink);box-shadow:0 0 0 10px var(--sun-soft),0 0 0 13px var(--ink);animation:medal .6s cubic-bezier(.3,1.6,.5,1)}
+@keyframes medal{from{transform:scale(.3) rotate(-30deg)}to{transform:scale(1) rotate(0)}}
+.badge-name{text-align:center;font-size:1.6rem}
+.motto{text-align:center;font-family:var(--display);font-weight:600;color:var(--sun-deep);font-size:1.15rem}
+.term{text-align:center}
+.term b{background:var(--sun-soft);padding:1px 6px;border-radius:6px}
+
+/* certificate */
+.cert{padding:clamp(20px,4vw,40px);display:flex;flex-direction:column;gap:18px;box-shadow:inset 0 0 0 9px var(--sun-soft),inset 0 0 0 12px var(--sun),6px 6px 0 var(--ink);position:relative}
+.cert-top{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.seal{width:96px;height:96px;flex:none;border-radius:50%;background:conic-gradient(var(--sun) 0 10deg,var(--sun-deep) 10deg 20deg,var(--sun) 20deg 30deg,var(--sun-deep) 30deg 40deg,var(--sun) 40deg 50deg,var(--sun-deep) 50deg 60deg,var(--sun) 60deg 70deg,var(--sun-deep) 70deg 80deg,var(--sun) 80deg 90deg,var(--sun-deep) 90deg 100deg,var(--sun) 100deg 110deg,var(--sun-deep) 110deg 120deg,var(--sun) 120deg 130deg,var(--sun-deep) 130deg 140deg,var(--sun) 140deg 150deg,var(--sun-deep) 150deg 160deg,var(--sun) 160deg 170deg,var(--sun-deep) 170deg 180deg,var(--sun) 180deg 190deg,var(--sun-deep) 190deg 200deg,var(--sun) 200deg 210deg,var(--sun-deep) 210deg 220deg,var(--sun) 220deg 230deg,var(--sun-deep) 230deg 240deg,var(--sun) 240deg 250deg,var(--sun-deep) 250deg 260deg,var(--sun) 260deg 270deg,var(--sun-deep) 270deg 280deg,var(--sun) 280deg 290deg,var(--sun-deep) 290deg 300deg,var(--sun) 300deg 310deg,var(--sun-deep) 310deg 320deg,var(--sun) 320deg 330deg,var(--sun-deep) 330deg 340deg,var(--sun) 340deg 350deg,var(--sun-deep) 350deg 360deg);border:3px solid var(--ink);display:grid;place-items:center}
+.seal svg{width:58px;height:72px}
+.cert h2{font-size:clamp(1.6rem,4vw,2.4rem);flex:1;min-width:0}
+.cert-name{display:flex;flex-direction:column;gap:6px;max-width:460px}
+.cert-name label{font-weight:700;font-size:.9rem;color:var(--muted)}
+.cert-name input{font-family:var(--display);font-weight:800;font-size:1.6rem;border:0;border-bottom:3px solid var(--ink);background:transparent;padding:4px 2px;color:var(--ink);width:100%}
+.cert-name input:focus-visible{outline:none;background:var(--sun-soft)}
+.cert-badges{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.cb{display:flex;align-items:center;gap:10px;border:2px solid var(--ink);border-radius:14px;padding:8px 12px;background:var(--sun-soft)}
+.cb .medal-s{width:44px;height:44px;flex:none;border-radius:50%;background:var(--sun);border:2px solid var(--ink);display:grid;place-items:center;font-size:1.3rem}
+.cb strong{font-family:var(--display);display:block;line-height:1.1}
+.cb span{font-size:.85rem;color:var(--muted)}
+.cheat{border-top:3px dashed var(--line);padding-top:16px;display:flex;flex-direction:column;gap:10px}
+.cheat h3{font-size:1.3rem}
+.cheat dl{margin:0;display:grid;grid-template-columns:minmax(120px,max-content) minmax(0,1fr);gap:8px 16px}
+.cheat dt{font-weight:700}
+.cheat dd{margin:0;max-width:62ch}
+.unlock{display:flex;gap:12px;align-items:center;background:var(--leaf-soft);border:3px solid var(--leaf);border-radius:14px;padding:12px 16px;font-weight:700}
+.unlock svg{width:30px;height:30px;flex:none}
+.cert-foot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.sign{font-family:var(--display);font-weight:600;color:var(--muted)}
+.cert-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+@media (max-width:880px){
+  .level{grid-template-columns:minmax(0,1fr)}
+  .hero{grid-template-columns:minmax(0,1fr);padding:20px}
+  .hero-art{order:-1}
+}
+@media (max-width:520px){
+  .cheat dl{grid-template-columns:minmax(0,1fr)}
+  .cheat dd{margin-bottom:6px}
+  .profile-label{display:none}
+  body{font-size:16px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}
+  .ray-draw{stroke-dashoffset:0}
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="lumi" viewBox="0 0 120 150">
+    <circle cx="58" cy="62" r="52" fill="#ffe27a" opacity=".35"/>
+    <path d="M58 20 C30 20 16 42 16 62 C16 80 28 90 36 100 L80 100 C88 90 100 80 100 62 C100 42 86 20 58 20Z" fill="#ffd84d" stroke="#1b2a4a" stroke-width="4"/>
+    <path d="M30 56 C31 44 38 36 48 33" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <rect x="38" y="100" width="40" height="22" rx="4" fill="#9aa7bd" stroke="#1b2a4a" stroke-width="4"/>
+    <path d="M38 107 H78 M38 114 H78" stroke="#1b2a4a" stroke-width="3"/>
+    <path d="M46 122 h24 l-6 10 h-12z" fill="#1b2a4a"/>
+    <circle cx="46" cy="64" r="6" fill="#1b2a4a"/><circle cx="70" cy="64" r="6" fill="#1b2a4a"/>
+    <circle cx="48" cy="62" r="2" fill="#fff"/><circle cx="72" cy="62" r="2" fill="#fff"/>
+    <path d="M48 78 Q58 87 68 78" stroke="#1b2a4a" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <path d="M26 32 Q58 0 90 32 Z" fill="#8a5a3b" stroke="#1b2a4a" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M30 27 Q58 19 86 27" stroke="#c98f5e" stroke-width="5" fill="none"/>
+    <path d="M12 34 Q58 22 104 34 Q58 44 12 34Z" fill="#6e4329" stroke="#1b2a4a" stroke-width="4" stroke-linejoin="round"/>
+    <line x1="99" y1="98" x2="115" y2="118" stroke="#1b2a4a" stroke-width="7" stroke-linecap="round"/>
+    <circle cx="92" cy="88" r="13" fill="#bfe6ff" fill-opacity=".8" stroke="#1b2a4a" stroke-width="5"/>
+  </symbol>
+  <symbol id="funkel" viewBox="0 0 120 140">
+    <path d="M26 44 L16 14 L44 32Z M94 44 L104 14 L76 32Z" fill="#5a46a8" stroke="#1b2a4a" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M18 76 Q4 96 16 118 Q28 104 30 84Z M102 76 Q116 96 104 118 Q92 104 90 84Z" fill="#5a46a8" stroke="#1b2a4a" stroke-width="4" stroke-linejoin="round"/>
+    <ellipse cx="60" cy="82" rx="42" ry="52" fill="#6e58c4" stroke="#1b2a4a" stroke-width="4"/>
+    <ellipse cx="60" cy="102" rx="26" ry="28" fill="#e3dcfa"/>
+    <path d="M45 98 q4 4 8 0 M57 108 q4 4 8 0 M67 98 q4 4 8 0" stroke="#b7a9ea" stroke-width="3" fill="none"/>
+    <circle cx="41" cy="62" r="17" fill="#fff" stroke="#1b2a4a" stroke-width="4"/>
+    <circle cx="79" cy="62" r="17" fill="#fff" stroke="#1b2a4a" stroke-width="4"/>
+    <path d="M57 61 h6" stroke="#1b2a4a" stroke-width="4"/>
+    <circle cx="43" cy="63" r="7" fill="#1b2a4a"/><circle cx="77" cy="63" r="7" fill="#1b2a4a"/>
+    <circle cx="45" cy="61" r="2.2" fill="#fff"/><circle cx="79" cy="61" r="2.2" fill="#fff"/>
+    <path d="M54 76 L66 76 L60 88Z" fill="#ffb02e" stroke="#1b2a4a" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M28 30 L60 15 L92 30 L60 43Z" fill="#1b2a4a"/>
+    <path d="M88 31 v16" stroke="#ffc93c" stroke-width="3"/><circle cx="88" cy="49" r="3.5" fill="#ffc93c"/>
+    <path d="M46 132 v6 M52 132 v6 M68 132 v6 M74 132 v6" stroke="#ffb02e" stroke-width="4" stroke-linecap="round"/>
+  </symbol>
+</svg>
+
+<div class="app">
+  <header class="top">
+    <button class="brand" id="home" type="button" aria-label="Zur Startseite">
+      <svg viewBox="0 0 120 150" aria-hidden="true"><use href="#lumi"/></svg><span>Licht-Detektive</span>
+    </button>
+    <div class="hdr-right">
+      <div class="profile" aria-label="Detektiv-Profil mit Abzeichen"><span class="profile-label">Detektiv-Profil</span><span class="slots" id="slots"></span></div>
+      <button class="icon-btn" id="sound" type="button" aria-pressed="true"></button>
+    </div>
+  </header>
+
+  <main>
+    <section id="s-start" class="screen">
+      <div class="hero panel">
+        <div class="hero-text">
+          <p class="kicker">Physik · Klasse 6 · Licht unterwegs</p>
+          <h1>Licht-<span>Detektive</span></h1>
+          <p class="sub">Auf der Spur der Sonnenstrahlen!</p>
+          <div class="intro">
+            <div class="say-row"><svg viewBox="0 0 120 150" aria-hidden="true"><use href="#lumi"/></svg>
+              <p class="bubble">Hallo, ich bin <b>Lumi</b>, der kleine Licht-Detektiv! Zusammen lösen wir vier Licht-Fälle.</p></div>
+            <div class="say-row"><svg viewBox="0 0 120 140" aria-hidden="true"><use href="#funkel"/></svg>
+              <p class="bubble">Und ich bin <b>Prof. Funkel</b>. Für jeden gelösten Fall bekommst du von mir ein Abzeichen. Am Ende gibt es die Goldene Urkunde.</p></div>
+          </div>
+          <button class="btn big" id="go" type="button">Los geht's!</button>
+        </div>
+        <div class="hero-art" id="hero-art"></div>
+      </div>
+    </section>
+
+    <section id="s-map" class="screen" hidden>
+      <div style="display:flex;flex-direction:column;gap:18px">
+        <div class="map-head">
+          <h2>Deine vier Fälle</h2>
+          <p>Löse die Fälle der Reihe nach. Für jeden Fall gibt dir Prof. Funkel ein Abzeichen.</p>
+        </div>
+        <div class="cases" id="cases"></div>
+        <div class="map-foot">
+          <button class="linkish" id="unlock" type="button">Für Lehrkräfte: alle Fälle öffnen</button>
+          <button class="btn" id="tocert" type="button" hidden>Zur Goldenen Urkunde</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="s-level" class="screen" hidden>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="lvl-head">
+          <button class="btn ghost small" id="back" type="button">← Zu den Fällen</button>
+          <div><p class="kicker" id="lvl-kicker"></p><h2 id="lvl-title"></h2></div>
+        </div>
+        <div class="level">
+          <div class="main-col">
+            <div class="stage" id="stage"></div>
+            <div class="actions" id="actions"></div>
+          </div>
+          <aside class="side">
+            <div class="talk">
+              <svg viewBox="0 0 120 150" aria-hidden="true"><use href="#lumi"/></svg>
+              <p class="bubble" id="bubble" aria-live="polite"></p>
+            </div>
+            <div class="panel steps-panel">
+              <h3>Deine Aufgaben</h3>
+              <ol class="steps" id="steps"></ol>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section id="s-cert" class="screen" hidden>
+      <div class="cert panel">
+        <div class="cert-top">
+          <div class="seal"><svg viewBox="0 0 120 150" aria-hidden="true"><use href="#lumi"/></svg></div>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">
+            <p class="kicker">Goldene Urkunde</p>
+            <h2>Glückwunsch! Du bist jetzt zertifizierter Licht-Detektiv!</h2>
+          </div>
+        </div>
+        <div class="cert-name">
+          <label for="cert-name">Dein Name</label>
+          <input id="cert-name" type="text" autocomplete="off" placeholder="Hier deinen Namen eintragen">
+        </div>
+        <div class="cert-badges" id="cert-badges"></div>
+        <div class="unlock">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2" fill="#2f9e5e"/><path d="M8 10V7a4 4 0 0 1 7.6-1.7" fill="none" stroke="#2f9e5e" stroke-width="2.5" stroke-linecap="round"/></svg>
+          <span>Arbeitsblatt <span style="white-space:nowrap">AB2 „Licht unterwegs“</span> ist freigeschaltet! Hol es dir bei deiner Lehrkraft.</span>
+        </div>
+        <div class="cheat">
+          <h3>Dein Spickzettel für AB2</h3>
+          <dl>
+            <dt>Streuung</dt><dd>In sauberer Luft ist der Weg des Lichts unsichtbar. Staubkörnchen und Wassertröpfchen werfen das Licht in alle Richtungen, auch in unsere Augen. So sehen wir den Lichtweg.</dd>
+            <dt>geradlinig</dt><dd>Licht breitet sich schnurgerade aus. Es kann nicht um die Ecke gehen.</dd>
+            <dt>Strahlenmodell</dt><dd>Wir zeichnen den Weg des Lichts mit dem Lineal als gerade Linie.</dd>
+            <dt>Pfeilspitze</dt><dd>Sie zeigt die Ausbreitungsrichtung: von der Lichtquelle weg.</dd>
+            <dt>Randstrahlen</dt><dd>Die beiden äußeren Linien eines Lichtbündels. Sie begrenzen das Bündel.</dd>
+            <dt>Hindernis</dt><dd>Ein Gegenstand, der dem Licht den Weg versperrt. Dahinter entsteht <strong>Schatten</strong>.</dd>
+          </dl>
+        </div>
+        <div class="cert-foot">
+          <p class="sign">Prof. Funkel &amp; Lumi · <span id="cert-date"></span></p>
+          <div class="cert-actions" id="cert-actions">
+            <button class="btn ghost small" id="cert-map" type="button">Zu den Fällen</button>
+            <button class="linkish" id="reset" type="button">Alles zurücksetzen</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="modal" id="modal" hidden><div class="modal-card panel" role="dialog" aria-modal="true"></div></div>
+
+<script>
+(function(){
+'use strict';
+const $=s=>document.querySelector(s);
+const deg=Math.PI/180;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const angDiff=(a,b)=>{let d=Math.abs(a-b)%(2*Math.PI);return d>Math.PI?2*Math.PI-d:d;};
+function svgPt(svg,e){const m=svg.getScreenCTM();if(!m)return{x:0,y:0};const p=new DOMPoint(e.clientX,e.clientY).matrixTransform(m.inverse());return{x:p.x,y:p.y};}
+function segDist(p,a,b){const dx=b.x-a.x,dy=b.y-a.y;const t=clamp(((p.x-a.x)*dx+(p.y-a.y)*dy)/(dx*dx+dy*dy),0,1);return{d:Math.hypot(p.x-(a.x+t*dx),p.y-(a.y+t*dy)),t};}
+
+/* ---------- state ---------- */
+const KEY='licht-detektive-v1';
+const state={done:[false,false,false,false],unlockAll:false,name:'',muted:false};
+try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&Array.isArray(s.done))Object.assign(state,s);}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+
+/* ---------- sound ---------- */
+let actx=null;
+function ac(){if(!actx){try{actx=new(window.AudioContext||window.webkitAudioContext)();}catch(e){return null;}}if(actx.state==='suspended')actx.resume();return actx;}
+function tone(f,t0,dur,type,vol,f2){if(state.muted)return;const a=ac();if(!a)return;const o=a.createOscillator(),g=a.createGain();o.type=type||'sine';const s=a.currentTime+t0;o.frequency.setValueAtTime(f,s);if(f2)o.frequency.exponentialRampToValueAtTime(f2,s+dur);g.gain.setValueAtTime(.0001,s);g.gain.exponentialRampToValueAtTime(vol||.12,s+.02);g.gain.exponentialRampToValueAtTime(.0001,s+dur);o.connect(g);g.connect(a.destination);o.start(s);o.stop(s+dur+.05);}
+const sfx={
+  ok(){tone(660,0,.14,'triangle',.12);tone(880,.09,.2,'triangle',.12);},
+  bad(){tone(240,0,.22,'square',.04);tone(190,.12,.25,'square',.04);},
+  click(){tone(560,0,.07,'sine',.08);},
+  puff(){tone(300,0,.45,'sine',.06,1100);tone(500,.05,.35,'triangle',.03,1400);},
+  zap(){tone(900,0,.18,'triangle',.07,1500);},
+  drill(){for(let i=0;i<5;i++)tone(180+i*30,i*.05,.06,'sawtooth',.03);},
+  badge(){[523,659,784,1047].forEach((f,i)=>tone(f,i*.12,.32,'triangle',.12));}
+};
+const SPK_ON='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="#1b2a4a"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="#1b2a4a" stroke-width="2" stroke-linecap="round"/></svg>';
+const SPK_OFF='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="#1b2a4a"/><path d="M16 9l5 6M21 9l-5 6" stroke="#1b2a4a" stroke-width="2" stroke-linecap="round"/></svg>';
+function renderSound(){const b=$('#sound');b.innerHTML=(state.muted?SPK_OFF+'Ton aus':SPK_ON+'Ton an');b.setAttribute('aria-pressed',String(!state.muted));}
+$('#sound').onclick=()=>{state.muted=!state.muted;save();renderSound();if(!state.muted)sfx.click();};
+
+/* ---------- levels meta ---------- */
+const LEVELS=[
+  {title:'Das Nebel-Rätsel im Wald',short:'Die Sonne versteckt sich. Mach die Sonnenstrahlen im dunklen Wald sichtbar.',badge:{icon:'🧹',name:'Staub-Meister',motto:'Spürnase für Licht!',term:'Streuung'},start:level1},
+  {title:'Die Schlauch-Challenge',short:'Durch welchen Schlauch kann Lumi die brennende Kerze sehen?',badge:{icon:'📏',name:'Auge des Lichts',motto:'Kerze entdeckt!',term:'geradlinig'},start:level2},
+  {title:'Das Werkzeug des Physikers',short:'Zeichne Lichtwege mit Lineal, Pfeilspitze und Randstrahlen.',badge:{icon:'🏹',name:'Pfeil-Profi',motto:'Meister-Zeichner!',term:'Strahlenmodell & Randstrahl'},start:level3},
+  {title:'Das Dosen-Labor',short:'Eine Lampe unter einer Dose mit Löchern. Wer von A, B, C und D sieht Licht?',badge:{icon:'🛡️',name:'Schatten-Baumeister',motto:'Versteck-König!',term:'Hindernis & Schatten'},start:level4}
+];
+
+/* ---------- screens ---------- */
+let current=null;
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.hidden=(s.id!=='s-'+id));
+  window.scrollTo(0,0);
+}
+function leaveLevel(){if(current){current.ctx.alive=false;if(current.cleanup)current.cleanup();current=null;}closeModal();$('#stage').innerHTML='';$('#actions').innerHTML='';}
+function goMap(){leaveLevel();renderMap();show('map');}
+function unlocked(i){return state.unlockAll||i===0||state.done[i-1]||state.done[i];}
+
+function renderProfile(){
+  $('#slots').innerHTML=LEVELS.map((L,i)=>`<span class="slot ${state.done[i]?'on':''}" title="${L.badge.name}${state.done[i]?'':' (noch nicht verdient)'}">${state.done[i]?L.badge.icon:'?'}</span>`).join('');
+}
+function renderMap(){
+  $('#cases').innerHTML=LEVELS.map((L,i)=>{
+    const done=state.done[i],lock=!unlocked(i);
+    return `<button class="case panel ${done?'done':''} ${lock?'locked':''}" data-i="${i}" type="button" ${lock?'aria-disabled="true"':''}>
+      <span class="case-top"><span class="case-no">Fall ${i+1}</span><span class="case-badge" aria-hidden="true">${done?L.badge.icon:'?'}</span></span>
+      <h3>${L.title}</h3><p>${L.short}</p>
+      <span class="chip">${done?'Gelöst: '+L.badge.name:lock?'Gesperrt: erst Fall '+i+' lösen':'Jetzt lösen'}</span></button>`;
+  }).join('');
+  $('#cases').querySelectorAll('.case').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;if(!unlocked(i)){sfx.bad();return;}sfx.click();openLevel(i);});
+  $('#tocert').hidden=!state.done.every(Boolean);
+  $('#unlock').hidden=state.unlockAll;
+}
+$('#unlock').onclick=()=>{state.unlockAll=true;save();renderMap();};
+$('#tocert').onclick=()=>showCert();
+$('#go').onclick=()=>{ac();sfx.click();goMap();};
+$('#home').onclick=()=>{leaveLevel();show('start');};
+$('#back').onclick=()=>goMap();
+$('#cert-map').onclick=()=>goMap();
+
+/* ---------- level ui ---------- */
+function say(html){const b=$('#bubble');b.innerHTML=html;b.classList.remove('pop');void b.offsetWidth;b.classList.add('pop');}
+function setSteps(list){$('#steps').innerHTML=list.map((s,i)=>`<li class="${i===0?'now':''}"><span class="tick"></span><span class="txt">${s}</span></li>`).join('');}
+function check(n){const li=$('#steps').children;if(!li[n]||li[n].classList.contains('done'))return;li[n].classList.remove('now');li[n].classList.add('done');if(li[n+1])li[n+1].classList.add('now');sfx.ok();}
+function stepText(n,html){const li=$('#steps').children[n];if(li)li.querySelector('.txt').innerHTML=html;}
+
+function openLevel(i){
+  leaveLevel();
+  const L=LEVELS[i];
+  $('#lvl-kicker').textContent=`Fall ${i+1} von 4`;
+  $('#lvl-title').textContent=L.title;
+  show('level');
+  const ctx={alive:true,stage:$('#stage'),actions:$('#actions'),say,steps:setSteps,check,stepText,
+    later(fn,ms){setTimeout(()=>{if(ctx.alive)fn();},ms);},
+    quiz(qs,cb){if(ctx.alive)quiz(qs,cb);},
+    finish(){if(ctx.alive)award(i);}};
+  current={ctx,cleanup:null};
+  current.cleanup=L.start(ctx)||null;
+}
+
+/* ---------- modal, quiz, badge ---------- */
+function modal(html){const m=$('#modal'),c=m.querySelector('.modal-card');c.innerHTML=html;m.hidden=false;return c;}
+function closeModal(){$('#modal').hidden=true;}
+function quiz(qs,done){
+  let qi=0;
+  (function render(){
+    const q=qs[qi],opts=shuffle(q.options.slice());
+    const c=modal(`<div class="m-head"><svg viewBox="0 0 120 140" aria-hidden="true"><use href="#funkel"/></svg><div><p class="kicker">Prof. Funkels Frage${qs.length>1?` ${qi+1} von ${qs.length}`:''}</p><h3>${q.q}</h3></div></div>
+      <div class="opts">${opts.map((o,k)=>`<button class="opt" type="button" data-k="${k}">${o.t}</button>`).join('')}</div>
+      <p class="feedback" aria-live="polite"></p><div class="m-foot"></div>`);
+    const fb=c.querySelector('.feedback');
+    c.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+      const o=opts[+b.dataset.k];
+      if(o.ok){
+        sfx.ok();b.classList.add('right');c.querySelectorAll('.opt').forEach(x=>x.disabled=true);
+        fb.className='feedback good';fb.innerHTML=`<b>Richtig!</b> ${q.explain}`;
+        const nb=document.createElement('button');nb.className='btn';nb.type='button';nb.textContent=qi<qs.length-1?'Nächste Frage':'Weiter';
+        nb.onclick=()=>{qi++;if(qi<qs.length)render();else{closeModal();done();}};
+        c.querySelector('.m-foot').appendChild(nb);nb.focus();
+      }else{
+        sfx.bad();b.classList.add('wrong');b.disabled=true;
+        fb.className='feedback bad';fb.innerHTML=o.why||'Hmm, das stimmt nicht. Versuch es noch einmal!';
+      }
+    });
+    c.querySelector('.opt').focus();
+  })();
+}
+function award(i){
+  state.done[i]=true;save();renderProfile();sfx.badge();
+  const b=LEVELS[i].badge,all=state.done.every(Boolean);
+  const c=modal(`<div class="m-head"><svg viewBox="0 0 120 140" aria-hidden="true"><use href="#funkel"/></svg><div><p class="kicker">Neues Abzeichen</p><h3>Hervorragende Detektivarbeit!</h3></div></div>
+    <div class="medal-wrap"><div class="medal" aria-hidden="true">${b.icon}</div></div>
+    <h3 class="badge-name">${b.name}</h3><p class="motto">${b.motto}</p>
+    <p class="term">Neuer Fachbegriff in deinem Detektiv-Profil: <b>${b.term}</b></p>
+    <div class="m-foot"><button class="btn ghost" type="button" id="m-map">Zu den Fällen</button>
+    <button class="btn" type="button" id="m-next">${all?'Zur Goldenen Urkunde':i<3?'Nächster Fall':'Zu den Fällen'}</button></div>`);
+  c.querySelector('#m-map').onclick=()=>goMap();
+  const next=c.querySelector('#m-next');
+  next.onclick=()=>{if(all)showCert();else if(i<3)openLevel(i+1);else goMap();};
+  next.focus();
+}
+
+/* ---------- certificate ---------- */
+function showCert(){
+  leaveLevel();
+  $('#cert-badges').innerHTML=LEVELS.map(L=>`<div class="cb"><span class="medal-s" aria-hidden="true">${L.badge.icon}</span><div><strong>${L.badge.name}</strong><span>${L.badge.term}</span></div></div>`).join('');
+  $('#cert-date').textContent=new Date().toLocaleDateString('de-DE',{day:'numeric',month:'long',year:'numeric'});
+  $('#cert-name').value=state.name||'';
+  resetRow(false);
+  show('cert');sfx.badge();
+}
+$('#cert-name').addEventListener('input',e=>{state.name=e.target.value;save();});
+function resetRow(confirming){
+  const box=$('#cert-actions');
+  if(!confirming){box.innerHTML='<button class="btn ghost small" id="cert-map" type="button">Zu den Fällen</button><button class="linkish" id="reset" type="button">Alles zurücksetzen</button>';
+    $('#cert-map').onclick=()=>goMap();$('#reset').onclick=()=>resetRow(true);return;}
+  box.innerHTML='<span style="font-weight:700">Alle Abzeichen löschen?</span><button class="btn small" id="r-yes" type="button" style="background:var(--coral-soft)">Ja, löschen</button><button class="btn ghost small" id="r-no" type="button">Nein</button>';
+  $('#r-yes').onclick=()=>{state.done=[false,false,false,false];state.unlockAll=false;state.name='';save();renderProfile();show('start');};
+  $('#r-no').onclick=()=>resetRow(false);
+}
+
+/* ============================================================
+   LEVEL 1 · Nebel-Rätsel im Wald (Canvas)
+   ============================================================ */
+const DANDELION=(()=>{let s='';for(let i=0;i<18;i++){const a=i*20*deg,x=50+Math.cos(a)*32,y=46+Math.sin(a)*32;s+=`<line x1="50" y1="46" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="#f4f1e6" stroke-width="1.6"/><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.4" fill="#ffffff"/>`;}
+  return `<svg viewBox="0 0 100 140" aria-hidden="true"><path d="M50 52 Q45 96 52 138" stroke="#7bc67b" stroke-width="5" fill="none"/><path d="M51 114 q-20 -6 -28 -22 q18 2 28 16z" fill="#5fae64"/>${s}<circle cx="50" cy="46" r="7" fill="#d9cfae" stroke="#1b2a4a" stroke-width="2"/></svg>`;})();
+
+function level1(ctx){
+  ctx.steps(['Puste 3-mal mit der Pusteblume Staub in die Luft (0/3)','Untersuche mit der Lupe ein Staubkorn im Licht','Beantworte Prof. Funkels Frage']);
+  ctx.say('Die Sonne versteckt sich hinter dichten Wolken. Durch eine Lücke fällt Sonnenlicht in den Wald. Aber ich sehe keinen einzigen Strahl! <b>Tippe auf die Pusteblume.</b>');
+  const W=800,H=500;
+  const wrap=document.createElement('div');wrap.className='l1';
+  wrap.innerHTML=`<canvas role="img" aria-label="Dunkler Wald. Durch eine Wolkenlücke fällt Sonnenlicht."></canvas>
+    <button class="puff hint" type="button" aria-label="Pusteblume: Staub in die Luft pusten">${DANDELION}</button>
+    <svg class="l1-lumi" viewBox="0 0 120 150" aria-hidden="true"><use href="#lumi"/></svg>`;
+  ctx.stage.appendChild(wrap);
+  const cv=wrap.querySelector('canvas'),g=cv.getContext('2d'),puffBtn=wrap.querySelector('.puff');
+  function resize(){const r=cv.getBoundingClientRect();if(!r.width)return;const d=Math.min(2,window.devicePixelRatio||1);cv.width=Math.round(r.width*d);cv.height=Math.round(r.height*d);}
+  const ro=new ResizeObserver(resize);ro.observe(cv);resize();
+
+  const BEAMS=[[[340,62],[356,62],[250,500],[170,500]],[[366,62],[384,62],[440,500],[350,500]],[[394,62],[410,62],[620,500],[530,500]]];
+  const EYE={x:718,y:403};
+  const CLOUDS=[[30,40,60],[100,30,55],[170,55,50],[240,35,55],[298,52,40],[322,24,36],[60,82,40],[150,92,35],[230,86,40],[452,24,40],[470,60,42],[540,35,58],[620,55,55],[700,30,60],[780,55,55],[520,86,38],[650,92,40],[750,90,40]];
+  const TREES=[];for(let i=0;i<16;i++)TREES.push({x:i*53+((i*37)%22),h:150+((i*71)%120),w:66+((i*13)%34),c:i%2?'#0d2619':'#113222'});
+  let parts=[],puffs=0,vis=0,phase=0,magOn=false,magMoved=false,drag=false,off={x:0,y:0},scatterT=0,zstate='',t=0,raf=0;
+  const mag={x:712,y:110,r:62};
+
+  function inPoly(x,y,p){let c=false;for(let i=0,j=p.length-1;i<p.length;j=i++){if(((p[i][1]>y)!==(p[j][1]>y))&&(x<(p[j][0]-p[i][0])*(y-p[i][1])/(p[j][1]-p[i][1])+p[i][0]))c=!c;}return c;}
+  function beamAt(x,y){for(let i=0;i<BEAMS.length;i++)if(inPoly(x,y,BEAMS[i]))return i;return -1;}
+
+  puffBtn.onclick=()=>{
+    puffs++;sfx.puff();puffBtn.classList.remove('blow','hint');void puffBtn.offsetWidth;puffBtn.classList.add('blow');
+    for(let k=0;k<85;k++){const a=(-52+Math.random()*50)*deg,s=2+Math.random()*4.6;parts.push({x:80+Math.random()*18,y:392+Math.random()*18,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:0,max:800+Math.random()*600,r:1+Math.random()*1.4,ph:Math.random()*6});}
+    if(parts.length>800)parts.splice(0,parts.length-800);
+    if(phase===0){
+      ctx.stepText(0,`Puste 3-mal mit der Pusteblume Staub in die Luft (${Math.min(puffs,3)}/3)`);
+      if(puffs===1)ctx.say('Sieh mal! Wo die Staubkörnchen in das Sonnenlicht fliegen, fangen sie an zu glitzern. <b>Puste weiter!</b>');
+      else if(puffs===2)ctx.say('Je mehr Staub in der Luft schwebt, desto deutlicher sehe ich den Weg des Lichts. <b>Noch einmal!</b>');
+      else{phase=1;ctx.check(0);magOn=true;ctx.say('Jetzt sehen wir die Lichtbahnen! Aber warum eigentlich? <b>Zieh die Lupe</b> (oben rechts) über ein glitzerndes Staubkorn.');}
+    }
+  };
+
+  function pos(e){const r=cv.getBoundingClientRect();return{x:(e.clientX-r.left)/r.width*W,y:(e.clientY-r.top)/r.height*H};}
+  cv.addEventListener('pointerdown',e=>{
+    const p=pos(e);
+    if(magOn&&Math.hypot(p.x-mag.x,p.y-mag.y)<mag.r+34){drag=true;magMoved=true;off={x:p.x-mag.x,y:p.y-mag.y};cv.setPointerCapture(e.pointerId);}
+    else if(phase===0)ctx.say('Tippe auf die <b>Pusteblume</b> unten links, um Staub in die Luft zu pusten.');
+  });
+  cv.addEventListener('pointermove',e=>{if(!drag)return;const p=pos(e);mag.x=clamp(p.x-off.x,30,W-30);mag.y=clamp(p.y-off.y,30,H-30);});
+  const stop=()=>{drag=false;};cv.addEventListener('pointerup',stop);cv.addEventListener('pointercancel',stop);
+
+  function arrow(x1,y1,x2,y2,col,w,head){const a=Math.atan2(y2-y1,x2-x1);g.strokeStyle=col;g.fillStyle=col;g.lineWidth=w;g.beginPath();g.moveTo(x1,y1);g.lineTo(x2-Math.cos(a)*head*.6,y2-Math.sin(a)*head*.6);g.stroke();g.beginPath();g.moveTo(x2,y2);g.lineTo(x2-Math.cos(a-.45)*head,y2-Math.sin(a-.45)*head);g.lineTo(x2-Math.cos(a+.45)*head,y2-Math.sin(a+.45)*head);g.closePath();g.fill();}
+
+  function drawScene(){
+    const sky=g.createLinearGradient(0,0,0,H);sky.addColorStop(0,'#15233f');sky.addColorStop(.55,'#0f2230');sky.addColorStop(1,'#09170f');
+    g.fillStyle=sky;g.fillRect(0,0,W,H);
+    const sg=g.createRadialGradient(376,34,4,376,34,74);sg.addColorStop(0,'rgba(255,228,120,1)');sg.addColorStop(.45,'rgba(255,200,60,.6)');sg.addColorStop(1,'rgba(255,200,60,0)');
+    g.fillStyle=sg;g.beginPath();g.arc(376,34,74,0,7);g.fill();
+    g.fillStyle='#ffd84d';g.beginPath();g.arc(376,34,26,0,7);g.fill();
+    g.fillStyle='#34425f';CLOUDS.forEach(([x,y,r])=>{g.beginPath();g.arc(x,y,r,0,7);g.fill();});
+    g.fillStyle='#3e4d6c';CLOUDS.forEach(([x,y,r])=>{g.beginPath();g.arc(x-r*.2,y-r*.25,r*.55,0,7);g.fill();});
+    TREES.forEach(tr=>{g.fillStyle=tr.c;g.fillRect(tr.x-5,470-tr.h*.25,10,tr.h*.25);for(let k=0;k<3;k++){const yy=470-tr.h*.2-k*tr.h*.24,ww=tr.w*(1-k*.22);g.beginPath();g.moveTo(tr.x-ww/2,yy);g.lineTo(tr.x+ww/2,yy);g.lineTo(tr.x,yy-tr.h*.42);g.closePath();g.fill();}});
+    g.fillStyle='#071209';g.beginPath();g.moveTo(0,470);g.quadraticCurveTo(400,446,800,470);g.lineTo(800,500);g.lineTo(0,500);g.fill();
+  }
+  function drawBeams(){
+    g.save();g.globalCompositeOperation='lighter';
+    BEAMS.forEach(p=>{const gr=g.createLinearGradient(0,62,0,H);gr.addColorStop(0,`rgba(255,224,130,${.02+.42*vis})`);gr.addColorStop(1,`rgba(255,224,130,${.008+.12*vis})`);g.fillStyle=gr;g.beginPath();g.moveTo(p[0][0],p[0][1]);p.slice(1).forEach(q=>g.lineTo(q[0],q[1]));g.closePath();g.fill();});
+    g.restore();
+  }
+  function drawParts(){
+    g.save();g.globalCompositeOperation='lighter';
+    for(const p of parts){const fade=Math.min(1,(p.max-p.life)/120,p.life/10);
+      if(p.lit){g.fillStyle=`rgba(255,240,180,${.16*fade})`;g.beginPath();g.arc(p.x,p.y,p.r*4,0,7);g.fill();g.fillStyle=`rgba(255,250,220,${.95*fade})`;g.beginPath();g.arc(p.x,p.y,p.r*1.2,0,7);g.fill();}
+      else{g.fillStyle=`rgba(130,145,170,${.22*fade})`;g.beginPath();g.arc(p.x,p.y,p.r,0,7);g.fill();}}
+    g.restore();
+  }
+  function drawMag(){
+    const {x,y,r}=mag,b=beamAt(x,y);
+    let near=null,nd=46;for(const p of parts){const d=Math.hypot(p.x-x,p.y-y);if(d<nd){nd=d;near=p;}}
+    const st=b<0?(near?'dark':'empty'):(near?'scatter':'clean');
+    if(!magMoved){g.strokeStyle='rgba(255,201,60,.9)';g.lineWidth=3;g.setLineDash([7,6]);g.beginPath();g.arc(x,y,r+14+Math.sin(t*.08)*4,0,7);g.stroke();g.setLineDash([]);}
+    g.save();g.beginPath();g.arc(x,y,r,0,7);g.clip();
+    g.fillStyle='#0b1422';g.fillRect(x-r,y-r,2*r,2*r);
+    if(b>=0){
+      const p=BEAMS[b],tx=(p[0][0]+p[1][0])/2,ty=p[0][1],bx=(p[2][0]+p[3][0])/2,a=Math.atan2(H-ty,bx-tx);
+      g.save();g.translate(x,y);g.rotate(a);g.fillStyle='rgba(255,214,90,.22)';g.fillRect(-r,-30,2*r,60);g.restore();
+      const ux=Math.cos(a),uy=Math.sin(a),nx=-uy,ny=ux;
+      [-20,0,20].forEach(o=>{const sx=x-ux*r+nx*o,sy=y-uy*r+ny*o;const end=(st==='scatter'&&o===0)?16:(r-6);arrow(sx,sy,x+ux*(o===0&&st==='scatter'?-end:end)+nx*o,y+uy*(o===0&&st==='scatter'?-end:end)+ny*o,'#ffd65a',3,10);});
+    }
+    if(st==='scatter'){
+      const ae=Math.atan2(EYE.y-y,EYE.x-x);
+      for(let k=0;k<8;k++){const a=ae+Math.PI/8+k*Math.PI/4;arrow(x+Math.cos(a)*16,y+Math.sin(a)*16,x+Math.cos(a)*44,y+Math.sin(a)*44,'rgba(255,242,176,.85)',2,8);}
+      arrow(x+Math.cos(ae)*16,y+Math.sin(ae)*16,x+Math.cos(ae)*(r-4),y+Math.sin(ae)*(r-4),'#ff7a6b',4,12);
+      g.save();g.shadowColor='#ffd65a';g.shadowBlur=22;g.fillStyle='#ffe9a8';g.beginPath();g.arc(x,y,12,0,7);g.fill();g.restore();
+    }else if(st==='dark'){g.fillStyle='#3b4252';g.beginPath();g.arc(x,y,12,0,7);g.fill();}
+    g.restore();
+    g.strokeStyle='#c9a227';g.lineWidth=8;g.beginPath();g.arc(x,y,r,0,7);g.stroke();
+    g.strokeStyle='#1b2a4a';g.lineWidth=2.5;g.beginPath();g.arc(x,y,r+4,0,7);g.stroke();
+    g.strokeStyle='#5b3a22';g.lineCap='round';g.lineWidth=13;g.beginPath();g.moveTo(x+r*.74,y+r*.74);g.lineTo(x+r*1.22,y+r*1.22);g.stroke();g.lineCap='butt';
+    const label={scatter:'Das Körnchen streut das Licht!',clean:'Saubere Luft: Licht unsichtbar',dark:'Kein Licht: Körnchen bleibt dunkel',empty:'Hier ist kein Licht'}[st];
+    g.font='700 15px "Atkinson Hyperlegible", system-ui, sans-serif';const tw=g.measureText(label).width+22;
+    let ly=y+r+30;if(ly>H-14)ly=y-r-22;const lx=clamp(x,tw/2+6,W-tw/2-6);
+    g.fillStyle=st==='scatter'?'#ffc93c':'#ffffff';g.strokeStyle='#1b2a4a';g.lineWidth=2.5;
+    g.beginPath();g.roundRect?g.roundRect(lx-tw/2,ly-15,tw,28,14):g.rect(lx-tw/2,ly-15,tw,28);g.fill();g.stroke();
+    g.fillStyle='#1b2a4a';g.textAlign='center';g.textBaseline='middle';g.fillText(label,lx,ly);
+    return st;
+  }
+  function frame(){
+    t++;
+    g.setTransform(cv.width/W,0,0,cv.height/H,0,0);
+    let lit=0;
+    for(const p of parts){p.vx*=.984;p.vy*=.984;p.x+=p.vx+.16;p.y+=p.vy+Math.sin(p.life*.03+p.ph)*.18;p.life++;p.lit=beamAt(p.x,p.y)>=0;if(p.lit)lit++;}
+    parts=parts.filter(p=>p.life<p.max&&p.x<W+10&&p.y>-10&&p.y<H+10);
+    vis+=(Math.min(1,lit/90)-vis)*.04;
+    drawScene();drawBeams();drawParts();
+    if(magOn){
+      const st=drawMag();
+      if(phase===1){
+        if(st==='scatter'){scatterT++;if(scatterT>70){phase=2;ctx.check(1);ctx.say('Genau! Das Staubkorn wirft das Licht in alle Richtungen. Physiker sagen: Es <b>streut</b> das Licht. Ein Teil davon landet in meinem Auge. Deshalb sehe ich den Weg des Lichts!');ctx.later(()=>ctx.quiz(Q1,()=>{ctx.check(2);ctx.finish();}),2600);}}
+        if(st!==zstate&&magMoved){
+          if(st==='clean')ctx.say('Hier fliegt das Licht durch saubere Luft. Kein Körnchen wirft es mir zu. Darum sehe ich hier nichts!');
+          else if(st==='dark')ctx.say('Dieses Körnchen schwebt im Dunkeln. Ohne Licht kann es mir auch nichts zuwerfen.');
+          else if(st==='scatter')ctx.say('Ooh, ein Staubkorn mitten im Sonnenlicht! Halte die Lupe still und sieh genau hin…');
+          else if(st==='empty')ctx.say('Hier ist es dunkel. Such ein <b>glitzerndes</b> Körnchen im Lichtstrahl.');
+        }
+      }
+      zstate=st;
+    }
+    raf=requestAnimationFrame(frame);
+  }
+  raf=requestAnimationFrame(frame);
+  return()=>{cancelAnimationFrame(raf);ro.disconnect();};
+}
+const Q1=[{q:'Warum sehen wir die Lichtstrahlen im Wald?',explain:'Staubkörnchen und Wassertröpfchen streuen das Licht in unsere Augen. In sauberer Luft wäre der Lichtweg unsichtbar.',options:[
+  {t:'Weil Staubkörnchen das Licht in unsere Augen streuen.',ok:true},
+  {t:'Weil Licht immer als leuchtende Linie zu sehen ist.',why:'Denk an die saubere Luft: Dort war der Lichtweg unsichtbar. Erst der Staub hat ihn sichtbar gemacht.'},
+  {t:'Weil die Bäume das Licht anmalen.',why:'Die Bäume haben damit nichts zu tun. Was hast du mit der Lupe entdeckt?'}]}];
+
+/* ============================================================
+   LEVEL 2 · Schlauch-Challenge (SVG)
+   ============================================================ */
+function level2(ctx){
+  ctx.steps(['Zieh ein Schlauchstück in die Lücke zwischen Kerze und Lumi','Finde den Schlauch, durch den Lumi die Kerze sieht','Beantworte Prof. Funkels Frage']);
+  ctx.say('Ich möchte die brennende Kerze durch einen Schlauch beobachten. <b>Zieh ein Schlauchstück</b> in die gestrichelte Lücke zwischen Kerze und meinem Auge.');
+  const LY=217;
+  const FLAME=`<path d="M135 184 C150 200 149 216 135 222 C121 216 120 200 135 184Z" fill="#ffb02e" stroke="#1b2a4a" stroke-width="3"/><path d="M135 200 C141 208 141 214 135 218 C129 214 129 208 135 200Z" fill="#fff1a8"/>`;
+  ctx.stage.innerHTML=`<svg viewBox="0 0 800 500" role="img" aria-label="Kerze links, Lumi rechts, dazwischen eine Lücke für ein Schlauchstück">
+    <defs><radialGradient id="fg2"><stop offset="0" stop-color="#ffd65a" stop-opacity=".85"/><stop offset="1" stop-color="#ffd65a" stop-opacity="0"/></radialGradient></defs>
+    <rect width="800" height="310" fill="#26315a"/>
+    <rect y="300" width="800" height="200" fill="#b9773f"/><rect y="300" width="800" height="12" fill="#8f5527"/>
+    <path d="M0 360 H800 M0 430 H800" stroke="#a7692f" stroke-width="3"/>
+    <circle cx="135" cy="206" r="70" fill="url(#fg2)"/>
+    <rect x="113" y="228" width="44" height="74" rx="4" fill="#fdf2dc" stroke="#1b2a4a" stroke-width="4"/>
+    <path d="M135 228 v-8" stroke="#1b2a4a" stroke-width="3"/>
+    ${FLAME}
+    <ellipse cx="135" cy="302" rx="38" ry="8" fill="#9aa7bd" stroke="#1b2a4a" stroke-width="3"/>
+    <text x="135" y="340" text-anchor="middle" class="svg-label" fill="#4a2c12">Kerze</text>
+    <use href="#lumi" x="640" y="150" width="130" height="162"/>
+    <rect id="slot" x="225" y="177" width="350" height="80" rx="14" fill="rgba(255,255,255,.06)" stroke="#ffd65a" stroke-width="3" stroke-dasharray="10 8"/>
+    <text id="slotText" x="400" y="223" text-anchor="middle" class="svg-label" fill="#ffd65a">Schlauch hier hinein</text>
+    <rect x="20" y="335" width="760" height="155" rx="16" fill="rgba(60,30,10,.18)"/>
+    <g id="tubes"></g>
+    <g id="ray2"></g>
+    <g transform="translate(712 80)">
+      <circle r="54" fill="#05080f" stroke="#ffd65a" stroke-width="4"/>
+      <g id="viewDark"><text y="8" text-anchor="middle" class="svg-label" fill="#55617f">dunkel</text></g>
+      <g id="viewLit" opacity="0"><circle r="50" fill="#3a2a10"/><circle r="44" fill="url(#fg2)"/><g transform="translate(-135 -196)">${FLAME}<rect x="125" y="228" width="20" height="40" fill="#fdf2dc" stroke="#1b2a4a" stroke-width="3"/></g></g>
+      <text y="-62" text-anchor="middle" class="svg-label" fill="#ffd65a" font-size="15">Lumis Blick</text>
+    </g>
+  </svg>`;
+  const svg=ctx.stage.querySelector('svg'),tg=svg.querySelector('#tubes'),rayG=svg.querySelector('#ray2');
+  const DEF=[{k:'gebogen',d:'M-175 0 C-90 0 -90 -70 0 -70 C90 -70 90 0 175 0',hit:272,hx:150},{k:'gerade',d:'M-175 0 H175',hx:400},{k:'geknickt',d:'M-175 0 H-70 L0 -60 L70 0 H175',hit:336,hx:650}];
+  const tubes=DEF.map(D=>{
+    const el=document.createElementNS('http://www.w3.org/2000/svg','g');el.setAttribute('class','tube anim');el.setAttribute('role','button');el.setAttribute('aria-label',D.k+'es Schlauchstück');
+    el.innerHTML=`<path class="t-hit" d="${D.d}"/><path class="t-edge" d="${D.d}"/><path class="t-out" d="${D.d}"/><path class="t-in" d="${D.d}"/>`;
+    tg.appendChild(el);
+    const lab=document.createElementNS('http://www.w3.org/2000/svg','text');lab.setAttribute('x',D.hx);lab.setAttribute('y',478);lab.setAttribute('text-anchor','middle');lab.setAttribute('class','svg-label');lab.setAttribute('fill','#4a2c12');lab.textContent=D.k;svg.insertBefore(lab,tg);
+    return Object.assign({el,x:D.hx,y:425,s:.6},D);
+  });
+  const setT=t=>{t.el.style.transform=`translate(${t.x}px,${t.y}px) scale(${t.s})`;};
+  tubes.forEach(setT);
+  let dragT=null,start=null,moved=false,inSlot=null,first=false,solved=false;
+  const tried=new Set();
+  function toTray(t){t.x=t.hx;t.y=425;t.s=.6;t.el.classList.add('anim');setT(t);}
+  function clearRay(){rayG.innerHTML='';svg.querySelector('#viewLit').setAttribute('opacity','0');svg.querySelector('#viewDark').setAttribute('opacity','1');svg.querySelector('#slotText').setAttribute('opacity',inSlot?'0':'1');}
+  function place(t){
+    if(inSlot&&inSlot!==t)toTray(inSlot);
+    inSlot=t;t.x=400;t.y=LY;t.s=1;t.el.classList.add('anim');setT(t);clearRay();
+    if(!first){first=true;ctx.check(0);}
+    tried.add(t.k);
+    if(t.k==='gerade'){
+      rayG.innerHTML=`<line x1="152" y1="${LY}" x2="672" y2="${LY}" stroke="#ffd65a" stroke-width="6" stroke-linecap="round" class="ray-draw"/><polygon points="684,${LY} 664,${LY-11} 664,${LY+11}" fill="#ffd65a" stroke="#1b2a4a" stroke-width="2"/>`;
+      svg.querySelector('#viewLit').setAttribute('opacity','1');svg.querySelector('#viewDark').setAttribute('opacity','0');
+      ctx.say('Hurra, ich sehe die Kerze hell leuchten! Im geraden Schlauch kommt das Licht <b>schnurgerade</b> bis in mein Auge.');
+      if(!solved){solved=true;ctx.check(1);ctx.later(()=>ctx.quiz(Q2,()=>{ctx.check(2);ctx.finish();}),2200);}else sfx.ok();
+    }else{
+      sfx.bad();
+      const hx=t.hit;
+      rayG.innerHTML=`<line x1="152" y1="${LY}" x2="${hx}" y2="${LY}" stroke="#ffd65a" stroke-width="6" stroke-linecap="round" class="ray-draw"/>
+        <polygon points="${star(hx,LY,16,7)}" fill="#ff6b5b" stroke="#1b2a4a" stroke-width="2"/>
+        <text x="${hx}" y="${LY+58}" text-anchor="middle" class="svg-label" fill="#ff8c7f">Licht stößt an die Wand!</text>`;
+      ctx.say(t.k==='gebogen'?'Oh je, ich sehe nichts! Das Licht fliegt geradeaus weiter und stößt an die Schlauchwand. <b>Das Licht kann doch nicht um die Kurve gehen!</b>':'Wieder dunkel! Am Knick knallt das Licht gegen die Wand. <b>Das Licht kann doch nicht um die Ecke gehen!</b> Probier ein anderes Stück.');
+    }
+  }
+  function star(cx,cy,R,r){let s='';for(let i=0;i<16;i++){const a=i*Math.PI/8,rr=i%2?r:R;s+=`${(cx+Math.cos(a)*rr).toFixed(1)},${(cy+Math.sin(a)*rr).toFixed(1)} `;}return s;}
+  tubes.forEach(t=>t.el.addEventListener('pointerdown',e=>{e.preventDefault();const p=svgPt(svg,e);dragT=t;start=p;moved=false;t.off={x:p.x-t.x,y:p.y-t.y};t.el.classList.remove('anim');t.el.setPointerCapture(e.pointerId);tg.appendChild(t.el);}));
+  svg.addEventListener('pointermove',e=>{if(!dragT)return;const p=svgPt(svg,e);if(Math.hypot(p.x-start.x,p.y-start.y)>6)moved=true;dragT.x=p.x-dragT.off.x;dragT.y=p.y-dragT.off.y;setT(dragT);});
+  function up(e){
+    if(!dragT)return;const t=dragT;dragT=null;const p=svgPt(svg,e);
+    const over=p.x>190&&p.x<620&&p.y>120&&p.y<320;
+    if(!moved){if(inSlot===t){inSlot=null;toTray(t);clearRay();}else place(t);}
+    else if(over)place(t);
+    else{if(inSlot===t){inSlot=null;clearRay();}toTray(t);}
+  }
+  svg.addEventListener('pointerup',up);svg.addEventListener('pointercancel',up);
+  return null;
+}
+const Q2=[{q:'Wie muss der Schlauch gehalten werden, damit Lumi die Kerze sieht?',explain:'Licht breitet sich geradlinig aus. Es macht keine Kurven.',options:[
+  {t:'Ganz gerade, weil Licht keine Kurven macht.',ok:true},
+  {t:'Gebogen, damit das Licht leichter hineinrutscht.',why:'Im gebogenen Schlauch blieb Lumis Blick dunkel. Das Licht stieß an die Wand.'},
+  {t:'Egal, Licht findet immer einen Weg um die Ecke.',why:'Leider nicht! Licht kann nicht um die Ecke gehen. Es fliegt immer geradeaus.'}]}];
+
+/* ============================================================
+   LEVEL 3 · Strahlenmodell (SVG notebook)
+   ============================================================ */
+function level3(ctx){
+  ctx.steps(['Zeichne mit dem Lineal einen Lichtstrahl von der Taschenlampe zur Wand','Setze die Pfeilspitze auf den Lichtstrahl','Markiere die beiden Randstrahlen des Lichtbündels (0/2)','Beantworte Prof. Funkels Fragen']);
+  ctx.say('Physiker zeichnen Lichtwege in ihr Notizbuch. Hilf mir! <b>Setz das Lineal vorne an der Taschenlampe an</b> und zieh eine Linie bis zur Wand.');
+  const S={x:154,y:130},LAMP={x:134,y:380};
+  let rays='';for(let i=0;i<7;i++)rays+=`<line class="bray" data-i="${i}" x1="${LAMP.x}" y1="${LAMP.y}" x2="722" y2="${275+i*35}"/>`;
+  let holes='';for(let y=40;y<500;y+=70)holes+=`<circle cx="20" cy="${y}" r="8" fill="#cfe8fb" stroke="#a9c3df" stroke-width="2"/>`;
+  ctx.stage.innerHTML=`<svg viewBox="0 0 800 500" role="img" aria-label="Notizbuch mit Taschenlampe, Wand und einer Lampe mit Lichtbündel">
+    <defs>
+      <pattern id="grid3" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="#d3e3f3" stroke-width="1"/></pattern>
+      <pattern id="hatch3" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="#e9d3b8"/><line x1="0" y1="0" x2="0" y2="8" stroke="#8a5a3b" stroke-width="3"/></pattern>
+    </defs>
+    <rect width="800" height="500" fill="#fbfcff"/><rect width="800" height="500" fill="url(#grid3)"/>
+    <line x1="46" y1="0" x2="46" y2="500" stroke="#f0a0a0" stroke-width="2"/>${holes}
+    <line x1="46" y1="250" x2="800" y2="250" stroke="#9fb6cf" stroke-width="2" stroke-dasharray="6 6"/>
+    <text x="62" y="32" class="note">A · Ein Lichtstrahl</text>
+    <text x="62" y="280" class="note">B · Ein Lichtbündel</text>
+    <g transform="translate(70 130)">
+      <rect x="0" y="-14" width="62" height="28" rx="6" fill="#3b82c4" stroke="#1b2a4a" stroke-width="3"/>
+      <rect x="18" y="-20" width="14" height="8" rx="2" fill="#ff6b5b" stroke="#1b2a4a" stroke-width="2"/>
+      <path d="M62 -14 L82 -24 L82 24 L62 14Z" fill="#9aa7bd" stroke="#1b2a4a" stroke-width="3" stroke-linejoin="round"/>
+      <line x1="83" y1="-21" x2="83" y2="21" stroke="#ffc93c" stroke-width="5"/>
+    </g>
+    <text x="100" y="178" text-anchor="middle" class="note">Taschenlampe</text>
+    <rect x="722" y="50" width="22" height="170" fill="url(#hatch3)" stroke="#1b2a4a" stroke-width="3"/>
+    <text x="733" y="42" text-anchor="middle" class="note">Wand</text>
+    <circle id="sRing" cx="${S.x}" cy="${S.y}" r="18" class="pulse-ring"/>
+    <g id="aLayer"></g>
+    <g id="bGroup" opacity=".28" style="pointer-events:none">
+      <polygon points="${LAMP.x},${LAMP.y} 722,275 722,485" fill="#ffe7a0" opacity=".6"/>
+      ${rays}
+      <rect x="722" y="262" width="22" height="236" fill="url(#hatch3)" stroke="#1b2a4a" stroke-width="3"/>
+      <circle cx="110" cy="380" r="20" fill="#ffd84d" stroke="#1b2a4a" stroke-width="3"/>
+      <rect x="72" y="370" width="18" height="20" rx="3" fill="#9aa7bd" stroke="#1b2a4a" stroke-width="3"/>
+      <text x="100" y="428" text-anchor="middle" class="note">Lampe</text>
+      <g id="bLabels"></g>
+    </g>
+  </svg>`;
+  const svg=ctx.stage.querySelector('svg'),aL=svg.querySelector('#aLayer'),bG=svg.querySelector('#bGroup'),ring=svg.querySelector('#sRing');
+  const NS='http://www.w3.org/2000/svg';
+  let phase=0,drawing=false,E=null,arrowP=null,marked=new Set();
+  function drawLine(p,withRuler){
+    const dx=p.x-S.x,dy=p.y-S.y,len=Math.hypot(dx,dy),a=Math.atan2(dy,dx)/deg;
+    aL.innerHTML=(withRuler?`<g transform="translate(${S.x} ${S.y}) rotate(${a})"><rect x="-6" y="-38" width="${len+12}" height="26" rx="3" fill="rgba(255,226,140,.75)" stroke="#1b2a4a" stroke-width="2"/><line x1="0" y1="-37" x2="${len}" y2="-37" stroke="#1b2a4a" stroke-width="9" stroke-dasharray="1.5 9.5"/></g>`:'')+
+      `<line id="aRay" x1="${S.x}" y1="${S.y}" x2="${p.x}" y2="${p.y}" stroke="#e8890c" stroke-width="4" stroke-linecap="round"/>`;
+  }
+  svg.addEventListener('pointerdown',e=>{
+    const p=svgPt(svg,e);
+    if(phase===0){
+      if(Math.hypot(p.x-S.x,p.y-S.y)<52){drawing=true;svg.setPointerCapture(e.pointerId);drawLine(p,true);}
+      else{ctx.say('Setz das Lineal <b>vorne an der Taschenlampe</b> an, da wo das Licht herauskommt. Der gestrichelte Kreis zeigt dir die Stelle.');}
+    }else if(phase===1){
+      const r=segDist(p,S,E);
+      if(r.d<30){
+        const tt=clamp(r.t,.18,.82);arrowP={x:S.x+(E.x-S.x)*tt,y:S.y+(E.y-S.y)*tt};
+        let m=svg.querySelector('#aMark');if(!m){m=document.createElementNS(NS,'circle');m.id='aMark';m.setAttribute('r','9');m.setAttribute('fill','#ffc93c');m.setAttribute('stroke','#1b2a4a');m.setAttribute('stroke-width','2');aL.appendChild(m);}
+        m.setAttribute('cx',arrowP.x);m.setAttribute('cy',arrowP.y);sfx.click();
+        const opts=shuffle([['fwd','Pfeilspitze zeigt zur Wand →'],['back','← Pfeilspitze zeigt zur Taschenlampe']]);
+        ctx.actions.innerHTML=`<p class="q">In welche Richtung soll die Pfeilspitze zeigen?</p>`+opts.map(o=>`<button class="btn ghost" type="button" data-d="${o[0]}">${o[1]}</button>`).join('');
+        ctx.actions.querySelectorAll('button').forEach(b=>b.onclick=()=>chooseArrow(b.dataset.d));
+      }else ctx.say('Tippe <b>direkt auf deinen orangen Lichtstrahl</b>, um dort die Pfeilspitze zu setzen.');
+    }else if(phase===2){
+      let best=-1,bd=24;
+      svg.querySelectorAll('.bray').forEach(l=>{const i=+l.dataset.i;const r=segDist(p,LAMP,{x:722,y:275+i*35});if(r.d<bd&&p.x>LAMP.x+20){bd=r.d;best=i;}});
+      if(best<0)return;
+      const l=svg.querySelector(`.bray[data-i="${best}"]`);
+      if(best===0||best===6){
+        if(marked.has(best))return;
+        marked.add(best);l.classList.add('marked');sfx.zap();
+        const lab=document.createElementNS(NS,'text');lab.setAttribute('x','560');lab.setAttribute('y',best===0?'290':'482');lab.setAttribute('text-anchor','middle');lab.setAttribute('class','svg-label');lab.setAttribute('fill','#d9473a');lab.textContent='Randstrahl';svg.querySelector('#bLabels').appendChild(lab);
+        ctx.stepText(2,`Markiere die beiden Randstrahlen des Lichtbündels (${marked.size}/2)`);
+        if(marked.size===2){phase=3;ctx.check(2);ctx.say('Perfekt! Die beiden äußeren Linien begrenzen das Lichtbündel. Sie heißen <b>Randstrahlen</b>. Prof. Funkel hat noch Fragen an dich.');ctx.later(()=>ctx.quiz(Q3,()=>{ctx.check(3);ctx.finish();}),2200);}
+        else ctx.say('Ein Randstrahl ist gefunden! Wo ist der zweite? Er liegt am <b>anderen Rand</b> des Bündels.');
+      }else{
+        sfx.bad();l.classList.add('mid-flash');setTimeout(()=>l.classList.remove('mid-flash'),600);
+        ctx.say('Das ist ein Strahl aus der <b>Mitte</b> des Bündels. Die Randstrahlen liegen ganz außen und begrenzen das Bündel.');
+      }
+    }
+  });
+  svg.addEventListener('pointermove',e=>{if(!drawing)return;drawLine(svgPt(svg,e),true);});
+  function up(e){
+    if(!drawing)return;drawing=false;const p=svgPt(svg,e);
+    if(p.x>=690&&p.y>=50&&p.y<=220){
+      E={x:722,y:clamp(p.y,52,218)};drawLine(E,false);ring.remove();phase=1;ctx.check(0);
+      ctx.say('Super, schnurgerade! Im <b>Strahlenmodell</b> zeichnen wir Licht immer als gerade Linie. Jetzt fehlt noch die Richtung: <b>Tippe auf den Strahl</b>, um eine Pfeilspitze zu setzen.');
+    }else{aL.innerHTML='';sfx.bad();ctx.say('Fast! Der Strahl muss von der Taschenlampe <b>bis ganz zur Wand</b> reichen. Versuch es noch einmal.');}
+  }
+  svg.addEventListener('pointerup',up);svg.addEventListener('pointercancel',up);
+  function chooseArrow(d){
+    if(d==='back'){sfx.bad();ctx.say('Hmm, das Licht kommt aus der Taschenlampe heraus und wandert <b>von ihr weg</b>. Probier die andere Richtung!');return;}
+    const a=Math.atan2(E.y-S.y,E.x-S.x)/deg;
+    const m=svg.querySelector('#aMark');if(m)m.remove();
+    aL.insertAdjacentHTML('beforeend',`<polygon points="14,0 -10,-11 -10,11" fill="#e8890c" stroke="#1b2a4a" stroke-width="2" transform="translate(${arrowP.x} ${arrowP.y}) rotate(${a})"/><text x="${arrowP.x}" y="${arrowP.y-22}" text-anchor="middle" class="note" fill="#b5650a">Ausbreitungsrichtung</text>`);
+    ctx.actions.innerHTML='';phase=2;ctx.check(1);
+    bG.setAttribute('opacity','1');bG.style.pointerEvents='auto';
+    ctx.say('Die <b>Pfeilspitze</b> zeigt, wohin das Licht wandert: von der Lampe weg. Jetzt Teil B: Eine Lampe sendet ein breites <b>Lichtbündel</b>. Tippe die beiden <b>äußersten</b> Linien an.');
+  }
+  return null;
+}
+const Q3=[
+  {q:'Was zeigt die Pfeilspitze an einem Lichtstrahl?',explain:'Die Pfeilspitze zeigt die Ausbreitungsrichtung des Lichts, also von der Lichtquelle weg.',options:[
+    {t:'In welche Richtung sich das Licht ausbreitet.',ok:true},
+    {t:'Wie hell das Licht ist.',why:'Die Helligkeit zeigt der Pfeil nicht. Er zeigt nur, wohin das Licht wandert.'},
+    {t:'Dass das Licht an der Wand umkehrt.',why:'Nein, der Pfeil zeigt einfach, in welche Richtung das Licht wandert.'}]},
+  {q:'Wie heißen die beiden äußeren Linien eines Lichtbündels?',explain:'Randstrahlen begrenzen das Lichtbündel.',options:[
+    {t:'Randstrahlen',ok:true},
+    {t:'Mittelstrahlen',why:'Die liegen in der Mitte. Gesucht sind die Linien ganz außen am Rand.'},
+    {t:'Schattenlinien',why:'Schatten entstehen hinter Hindernissen. Gesucht ist der Name der äußeren Lichtstrahlen.'}]}
+];
+
+/* ============================================================
+   LEVEL 4 · Dosen-Labor (SVG)
+   ============================================================ */
+function level4(ctx){
+  ctx.steps(['Zieh Lichtstrahlen von der Lampe durch alle 4 Löcher (0/4)','Tippe alle Freunde an, die Licht abbekommen','Bohre ein neues Loch, damit alle Licht sehen','Stell die Holzwand als Hindernis vor D','Beantworte Prof. Funkels Fragen']);
+  ctx.say('Unter dieser Dose leuchtet eine Glühlampe. Die Dose hat kleine Löcher. Um sie herum stehen meine Freunde A, B, C und D. <b>Zieh von der Lampe aus Lichtstrahlen durch die Löcher nach draußen.</b>');
+  const C={x:400,y:250},R=62,WH=120,TOL=11*deg;
+  const OBS=[{n:'A',x:400,y:62},{n:'B',x:668,y:250},{n:'C',x:400,y:438},{n:'D',x:132,y:250}];
+  OBS.forEach(o=>{o.ang=Math.atan2(o.y-C.y,o.x-C.x);o.dist=Math.hypot(o.x-C.x,o.y-C.y);o.mark=false;});
+  const holes=[OBS[0].ang,-40*deg,OBS[2].ang,OBS[3].ang].map(a=>({ang:a,drawn:false}));
+  let phase=0,showLight=false,drag=null,flash=null;
+  const wall={on:false,x:735,y:420};
+  ctx.stage.innerHTML=`<svg viewBox="0 0 800 500" role="img" aria-label="Dose mit Lampe von oben, darum vier Beobachter A, B, C und D">
+    <defs>
+      <pattern id="tile4" width="50" height="50" patternUnits="userSpaceOnUse"><path d="M50 0H0V50" fill="none" stroke="#2a3563" stroke-width="2"/></pattern>
+      <radialGradient id="lg4"><stop offset="0" stop-color="#ffd65a" stop-opacity=".9"/><stop offset="1" stop-color="#ffd65a" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="800" height="500" fill="#1c2443"/><rect width="800" height="500" fill="url(#tile4)"/>
+    <g id="shadow4"></g><g id="rays4"></g>
+    <circle cx="${C.x}" cy="${C.y}" r="${R}" fill="#121a33"/>
+    <circle cx="${C.x}" cy="${C.y}" r="54" fill="url(#lg4)"/>
+    <circle cx="${C.x}" cy="${C.y}" r="16" fill="#ffd84d" stroke="#1b2a4a" stroke-width="3"/>
+    <circle cx="${C.x}" cy="${C.y}" r="${R}" fill="none" stroke="#aebbd0" stroke-width="12"/>
+    <g id="holes4"></g><g id="prev4"></g>
+    <text x="478" y="330" class="svg-label" fill="#aebbd0" font-size="15">Dose mit Lampe (von oben)</text>
+    <g id="obs4"></g><g id="wall4"></g>
+  </svg>`;
+  const svg=ctx.stage.querySelector('svg');
+  const G=id=>svg.querySelector('#'+id);
+  function wallHit(ang){
+    if(!wall.on)return null;const dx=Math.cos(ang),dy=Math.sin(ang);
+    if(Math.abs(dx)<1e-6)return null;const t=(wall.x-C.x)/dx;if(t<=R)return null;
+    const y=C.y+t*dy;return(y>=wall.y-WH/2&&y<=wall.y+WH/2)?t:null;
+  }
+  const rayLen=ang=>{const h=wallHit(ang);return h===null?900:h;};
+  const isLit=o=>holes.some(h=>h.drawn&&angDiff(h.ang,o.ang)<TOL&&rayLen(h.ang)>o.dist-32);
+  function render(){
+    G('rays4').innerHTML=holes.filter(h=>h.drawn).map(h=>{
+      const L=rayLen(h.ang),dx=Math.cos(h.ang),dy=Math.sin(h.ang),ax=C.x+dx*Math.min(125,L-8),ay=C.y+dy*Math.min(125,L-8);
+      return `<line class="ray4" x1="${C.x}" y1="${C.y}" x2="${C.x+dx*L}" y2="${C.y+dy*L}"/><polygon points="12,0 -9,-9 -9,9" fill="#ffd65a" stroke="#1b2a4a" stroke-width="1.5" transform="translate(${ax} ${ay}) rotate(${h.ang/deg})"/>`;
+    }).join('')+(flash?`<line x1="${C.x}" y1="${C.y}" x2="${C.x+Math.cos(flash)*(R-6)}" y2="${C.y+Math.sin(flash)*(R-6)}" stroke="#ff6b5b" stroke-width="4" stroke-linecap="round"/>`:'');
+    G('holes4').innerHTML=holes.map(h=>`<circle cx="${C.x+Math.cos(h.ang)*R}" cy="${C.y+Math.sin(h.ang)*R}" r="8" fill="${h.drawn?'#ffd65a':'#05070f'}" stroke="#1b2a4a" stroke-width="2"/>`).join('')+
+      (flash?`<g transform="translate(${C.x+Math.cos(flash)*R} ${C.y+Math.sin(flash)*R})"><path d="M-9 -9 L9 9 M9 -9 L-9 9" stroke="#ff6b5b" stroke-width="5" stroke-linecap="round"/></g>`:'');
+    let sh='';
+    if(wall.on&&Math.abs(wall.x-C.x)>R&&holes.some(h=>h.drawn&&wallHit(h.ang)!==null)){
+      const P1={x:wall.x,y:wall.y-WH/2},P2={x:wall.x,y:wall.y+WH/2};
+      const far=P=>{const dx=P.x-C.x,dy=P.y-C.y,k=1400/Math.hypot(dx,dy);return`${C.x+dx*k},${C.y+dy*k}`;};
+      sh=`<polygon points="${P1.x},${P1.y} ${P2.x},${P2.y} ${far(P2)} ${far(P1)}" fill="#05070f" opacity=".55"/><text x="${wall.x+(wall.x<C.x?-60:60)}" y="${wall.y+WH/2+26}" text-anchor="middle" class="svg-label" fill="#aebbd0" font-size="15">Schatten</text>`;
+    }
+    G('shadow4').innerHTML=sh;
+    G('obs4').innerHTML=OBS.map(o=>{
+      const lit=isLit(o),cls=showLight?(lit?'lit':'dark'):'neutral';
+      const eyes=cls==='dark'?`<path d="M-14 -4 h8 M6 -4 h8" stroke="#1b2a4a" stroke-width="3" stroke-linecap="round"/>`:`<circle cx="-10" cy="-4" r="4" class="ob-eye"/><circle cx="10" cy="-4" r="4" class="ob-eye"/>`;
+      const mouth=cls==='dark'?'M-8 13 Q0 8 8 13':'M-10 9 Q0 18 10 9';
+      const st=showLight?`<text y="${o.n==='A'?-44:50}" text-anchor="middle" class="ob-state" fill="${lit?'#ffd65a':'#aebbd0'}">${lit?'sieht Licht':'im Dunkeln'}</text>`:'';
+      return `<g class="ob ${cls} ${o.mark&&phase===1?'marked':''}" transform="translate(${o.x} ${o.y})"><circle r="46" class="ob-glow"/><circle r="30" class="ob-face"/>${eyes}<path d="${mouth}" class="ob-mouth"/><circle r="38" class="ob-mark"/><g transform="translate(27 -27)"><circle r="14" fill="#fff" stroke="#1b2a4a" stroke-width="3"/><text y="6" text-anchor="middle" class="ob-letter">${o.n}</text></g>${st}</g>`;
+    }).join('');
+    G('wall4').innerHTML=wall.on?`<g transform="translate(${wall.x} ${wall.y})" style="cursor:grab"><rect x="-34" y="${-WH/2-14}" width="68" height="${WH+28}" fill="transparent"/><rect x="-10" y="${-WH/2}" width="20" height="${WH}" rx="3" fill="#b97a45" stroke="#1b2a4a" stroke-width="3"/><path d="M-3 ${-WH/2+10} v30 M3 ${-WH/2+50} v40" stroke="#8a5a3b" stroke-width="2.5"/>${phase===3&&!drag?`<text y="${WH/2+24}" text-anchor="middle" class="svg-label" fill="#e9c49a" font-size="15">Holzwand</text>`:''}</g>`:'';
+  }
+  render();
+  function countDrawn(){return holes.slice(0,4).filter(h=>h.drawn).length;}
+  svg.addEventListener('pointerdown',e=>{
+    const p=svgPt(svg,e),d=Math.hypot(p.x-C.x,p.y-C.y);
+    if(phase===3&&wall.on&&Math.abs(p.x-wall.x)<36&&Math.abs(p.y-wall.y)<WH/2+16){drag={type:'wall',ox:p.x-wall.x,oy:p.y-wall.y};svg.setPointerCapture(e.pointerId);return;}
+    if(phase===0){
+      if(d<R+6){drag={type:'ray'};svg.setPointerCapture(e.pointerId);prev(p);}
+      else ctx.say('Starte <b>mitten in der Dose</b>, bei der Lampe, und zieh dann nach außen.');
+      return;
+    }
+    if(phase===1){const o=OBS.find(o=>Math.hypot(p.x-o.x,p.y-o.y)<46);if(o){o.mark=!o.mark;sfx.click();render();}return;}
+    if(phase===2){
+      if(d>R-24&&d<R+30)drill(Math.atan2(p.y-C.y,p.x-C.x));
+      else ctx.say('Tippe genau auf den <b>grauen Rand der Dose</b>, um dort ein Loch zu bohren.');
+    }
+  });
+  function prev(p){G('prev4').innerHTML=`<line x1="${C.x}" y1="${C.y}" x2="${p.x}" y2="${p.y}" stroke="#ffd65a" stroke-width="4" stroke-dasharray="8 6" stroke-linecap="round"/>`;}
+  svg.addEventListener('pointermove',e=>{
+    if(!drag)return;const p=svgPt(svg,e);
+    if(drag.type==='ray')prev(p);
+    else{wall.x=clamp(p.x-drag.ox,14,786);wall.y=clamp(p.y-drag.oy,WH/2+4,500-WH/2-4);render();}
+  });
+  function up(e){
+    if(!drag)return;const dr=drag;drag=null;const p=svgPt(svg,e);
+    if(dr.type==='ray'){
+      G('prev4').innerHTML='';
+      if(Math.hypot(p.x-C.x,p.y-C.y)<R+12){ctx.say('Zieh weiter nach außen, <b>durch ein Loch hindurch</b>!');return;}
+      const ang=Math.atan2(p.y-C.y,p.x-C.x),h=holes.find(h=>angDiff(h.ang,ang)<12*deg);
+      if(h&&!h.drawn){
+        h.drawn=true;sfx.zap();const n=countDrawn();ctx.stepText(0,`Zieh Lichtstrahlen von der Lampe durch alle 4 Löcher (${n}/4)`);render();
+        if(n===4){phase=1;ctx.check(0);
+          ctx.say('Klasse, das Licht strahlt geradlinig durch die Löcher! Jetzt <b>tippe alle Freunde an, die Licht abbekommen</b>. Dann drück auf „Prüfen“.');
+          ctx.actions.innerHTML='<button class="btn" type="button" id="chk4">Prüfen</button>';ctx.actions.querySelector('#chk4').onclick=checkObs;
+        }else ctx.say(`Schnurgerade durchs Loch! Noch ${4-n} ${4-n===1?'Loch':'Löcher'}.`);
+      }else if(h){ctx.say('Durch dieses Loch hast du schon einen Strahl gezogen. Such ein anderes Loch!');}
+      else{
+        sfx.bad();flash=ang;render();setTimeout(()=>{flash=null;render();},900);
+        ctx.say('Da ist die Dosenwand! Das Licht kommt <b>nur durch die Löcher</b> nach draußen. Zieh genau durch ein dunkles Loch.');
+      }
+    }else{
+      render();
+      if(phase===3&&!isLit(OBS[3])){
+        phase=4;ctx.check(3);
+        ctx.say('Versteckt! Die Holzwand ist ein <b>Hindernis</b>. Sie versperrt dem Lichtstrahl den Weg, und dahinter entsteht <b>Schatten</b>. D sitzt jetzt im Schatten.');
+        ctx.later(()=>ctx.quiz(Q4,()=>{ctx.check(4);ctx.finish();}),2400);
+      }else if(phase===3){ctx.say('D sieht noch Licht. Stell die Wand <b>zwischen die Dose und D</b>, genau auf den Lichtstrahl.');}
+    }
+  }
+  svg.addEventListener('pointerup',up);svg.addEventListener('pointercancel',up);
+  function checkObs(){
+    const ok=OBS.every(o=>o.mark===isLit(o));
+    if(ok){
+      phase=2;showLight=true;ctx.actions.innerHTML='';ctx.check(1);render();
+      ctx.say('Richtig! A, C und D bekommen Licht. <b>B sitzt im Dunkeln</b>, weil kein Loch in seine Richtung zeigt. Tippe auf den Dosenrand, um ein <b>neues Loch</b> für B zu bohren.');
+    }else{
+      sfx.bad();
+      const wrongMark=OBS.some(o=>o.mark&&!isLit(o));
+      ctx.say(wrongMark?'Noch nicht ganz. Fahre jeden Strahl mit dem Finger nach: Kommt bei jedem markierten Freund wirklich ein Strahl an?':'Du hast noch jemanden vergessen, bei dem ein Lichtstrahl ankommt.');
+    }
+  }
+  function drill(ang){
+    if(holes.some(h=>angDiff(h.ang,ang)<10*deg)){ctx.say('Da ist schon ein Loch. Bohre eins genau in Richtung <b>B</b>.');return;}
+    if(holes.length>=10){ctx.say('Die Dose ist schon ganz löchrig! Bohre genau auf der Linie zwischen Lampe und <b>B</b>.');return;}
+    holes.push({ang,drawn:true});sfx.drill();render();
+    if(isLit(OBS[1])){
+      phase=3;ctx.check(2);wall.on=true;render();
+      ctx.say('Jetzt sehen alle das Licht! Aber D möchte Verstecken spielen. <b>Zieh die Holzwand</b> (unten rechts) zwischen die Dose und D, damit D im Schatten steht.');
+    }else ctx.say('Das Licht fliegt geradeaus an B vorbei. Bohre das Loch <b>genau in Richtung B</b>.');
+  }
+  return null;
+}
+const Q4=[
+  {q:'Warum steht D jetzt im Schatten?',explain:'Die Holzwand ist ein Hindernis. Sie versperrt dem Licht den Weg, dahinter entsteht Schatten.',options:[
+    {t:'Die Holzwand ist ein Hindernis und versperrt dem Licht den Weg.',ok:true},
+    {t:'Das Licht ist um die Wand herumgegangen und unterwegs müde geworden.',why:'Licht geht nicht um Ecken herum. Es fliegt geradeaus, bis es auf etwas trifft.'},
+    {t:'Die Lampe in der Dose ist ausgegangen.',why:'Die Lampe leuchtet noch. A, B und C sehen ja weiter Licht!'}]},
+  {q:'Warum hat B am Anfang kein Licht bekommen?',explain:'Licht breitet sich geradlinig aus. Ohne Loch in Richtung B kann kein Strahl bei B ankommen.',options:[
+    {t:'Es gab kein Loch in Richtung B, und Licht geht nur geradeaus.',ok:true},
+    {t:'B stand zu weit weg.',why:'B stand nicht weiter weg als die anderen. Schau auf die Löcher!'},
+    {t:'Das Licht war zu langsam für B.',why:'Licht ist superschnell. Es kam einfach kein gerader Weg durch die Dose zu B.'}]}
+];
+
+/* ---------- hero art ---------- */
+(function(){
+  let dots='';for(let i=0;i<60;i++){const t=Math.random(),x=120+t*230+(Math.random()-.5)*(30+t*90),y=-10+t*330,r=1+Math.random()*2;dots+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(1)}" fill="#fff6c8" opacity="${(.5+Math.random()*.5).toFixed(2)}"/>`;}
+  $('#hero-art').innerHTML=`<svg viewBox="0 0 400 340" role="img" aria-label="Lumi steht in einem Sonnenstrahl voller glitzernder Staubkörnchen">
+    <rect width="400" height="340" fill="#15233f"/>
+    <circle cx="110" cy="-6" r="70" fill="#ffd84d" opacity=".9"/>
+    <polygon points="90,0 150,0 400,300 400,340 300,340" fill="#ffe7a0" opacity=".28"/>
+    <polygon points="90,0 150,0 400,300 400,340 300,340" fill="#ffe7a0" opacity=".12" transform="translate(-30 0)"/>
+    ${dots}
+    <path d="M0 300 Q200 280 400 300 V340 H0Z" fill="#0b1a12"/>
+    <use href="#funkel" x="24" y="196" width="100" height="117"/>
+    <use href="#lumi" x="200" y="120" width="160" height="200"/>
+  </svg>`;
+})();
+
+/* ---------- boot ---------- */
+renderSound();renderProfile();renderMap();
+})();
+</script>
+</body>
+</html>
